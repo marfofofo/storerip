@@ -114,6 +114,8 @@ legal_ip_lock = threading.Lock()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "dev-insecure-key")
+# Cap uploads at 5MB (CSV validator / enhancer) — larger requests get 413.
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 # --- In-memory job store (no DB, no files) ---
 # job_id -> { status, progress, message, log, rows, product_count,
@@ -501,6 +503,11 @@ def _apply_cors(resp):
     return resp
 
 
+@app.errorhandler(413)
+def _on_too_large(e):
+    return jsonify({"error": "too_large", "message": "File too large (max 5MB)."}), 413
+
+
 @app.errorhandler(Exception)
 def _on_unhandled(e):
     """Never leak a stack trace to the client; return clean JSON instead."""
@@ -786,6 +793,219 @@ Rules:
         print(f"[legal] error: {type(e).__name__}: {e}")
         return jsonify({"error": "server_error",
                         "message": "Generation failed. Please try again."}), 500
+
+
+# ──────────────────────────────────────────────
+#  CSV Validator
+# ──────────────────────────────────────────────
+
+WC_REQUIRED = ["SKU", "Nome", "Tipo", "Prezzo di listino", "Pubblicato", "In stock?"]
+WC_VALID_TYPES = {"simple", "variable", "variation", "external", "grouped"}
+SH_REQUIRED = ["Handle", "Title", "Vendor", "Type", "Published", "Variant Price"]
+
+
+def _validator_result(platform, stats, errors, warnings, passed, checks_total):
+    return {
+        "valid": len(errors) == 0,
+        "platform": platform,
+        "stats": stats,
+        "errors": errors,
+        "warnings": warnings,
+        "passed": passed,
+        "checks_total": checks_total,
+        "summary": f"{len(errors)} errors, {len(warnings)} warnings "
+                   f"found in {stats['total_rows']} rows.",
+    }
+
+
+def _validate_woocommerce(rows, headers, used_latin1):
+    headers = headers or []
+    errors, warnings = [], []
+
+    def err(code, message, row=None):
+        errors.append({"level": "error", "code": code, "message": message, "row": row})
+
+    def warn(code, message, row=None):
+        warnings.append({"level": "warning", "code": code, "message": message, "row": row})
+
+    # 1) required columns
+    for col in WC_REQUIRED:
+        if col not in headers:
+            err("MISSING_COLUMN", f"Missing required column: {col}")
+
+    # global-attribute columns present in the file
+    attr_global_cols = {}
+    for h in headers:
+        m = re.match(r"Attributo (\d+) globale", h)
+        if m:
+            attr_global_cols[int(m.group(1))] = h
+
+    sku_counts, sku_set = {}, set()
+    for row in rows:
+        sku = (row.get("SKU") or "").strip()
+        if sku:
+            sku_set.add(sku)
+            sku_counts[sku] = sku_counts.get(sku, 0) + 1
+
+    n_simple = n_variable = n_variation = 0
+    for i, row in enumerate(rows, start=2):  # +1 header, +1 to 1-index
+        tipo = (row.get("Tipo") or "").strip()
+        sku = (row.get("SKU") or "").strip()
+        price = (row.get("Prezzo di listino") or "").strip()
+        genitore = (row.get("Genitore") or "").strip()
+
+        if tipo == "simple":
+            n_simple += 1
+        elif tipo == "variable":
+            n_variable += 1
+        elif tipo == "variation":
+            n_variation += 1
+
+        if not sku:                                            # 9
+            err("EMPTY_SKU", f"Row {i}: empty SKU", i)
+        if tipo and tipo not in WC_VALID_TYPES:                # 2
+            err("INVALID_TYPE", f"Row {i}: invalid Tipo '{tipo}'", i)
+        if tipo == "variation" and not genitore:               # 3
+            err("VARIATION_NO_PARENT", f"Row {i}: variation missing Genitore (parent SKU)", i)
+        if genitore and genitore not in sku_set:               # 4
+            err("PARENT_NOT_FOUND", f"Row {i}: Genitore '{genitore}' not found as SKU", i)
+        if tipo == "variable" and price:                       # 5
+            warn("PRICE_ON_PARENT",
+                 f"Row {i}: variable parent has price — price should be on variation rows", i)
+        if tipo == "variation" and not price:                  # 6
+            warn("VARIATION_NO_PRICE", f"Row {i}: variation missing price", i)
+        if tipo == "variable":                                 # 8
+            for idx_attr, col in attr_global_cols.items():
+                if (row.get(col) or "").strip() != "1":
+                    warn("ATTR_GLOBAL",
+                         f"Row {i}: Attributo {idx_attr} globale should be 1 on variable parent", i)
+
+    for sku, c in sku_counts.items():                          # 7
+        if c > 1:
+            err("DUPLICATE_SKU", f"Duplicate SKU: '{sku}' appears {c} times")
+    if used_latin1:                                            # 10
+        warn("ENCODING",
+             "File encoding is not UTF-8. Re-save as UTF-8 with BOM for best WooCommerce compatibility")
+
+    stats = {
+        "total_rows": len(rows),
+        "products": n_simple + n_variable,
+        "variations": n_variation,
+        "simple": n_simple,
+    }
+    checks = [
+        ("Required columns", {"MISSING_COLUMN"}),
+        ("Product types", {"INVALID_TYPE"}),
+        ("Variation parent present", {"VARIATION_NO_PARENT"}),
+        ("Parent SKU exists", {"PARENT_NOT_FOUND"}),
+        ("Price on parent rows", {"PRICE_ON_PARENT"}),
+        ("Price on variation rows", {"VARIATION_NO_PRICE"}),
+        ("Duplicate SKU", {"DUPLICATE_SKU"}),
+        ("Global attributes", {"ATTR_GLOBAL"}),
+        ("Non-empty SKU", {"EMPTY_SKU"}),
+        ("UTF-8 encoding", {"ENCODING"}),
+    ]
+    seen = {e["code"] for e in errors} | {w["code"] for w in warnings}
+    passed = [name for name, codes in checks if not (codes & seen)]
+    return _validator_result("woocommerce", stats, errors, warnings, passed, len(checks))
+
+
+def _validate_shopify(rows, headers):
+    headers = headers or []
+    errors, warnings = [], []
+
+    def err(code, message, row=None):
+        errors.append({"level": "error", "code": code, "message": message, "row": row})
+
+    def warn(code, message, row=None):
+        warnings.append({"level": "warning", "code": code, "message": message, "row": row})
+
+    for col in SH_REQUIRED:                                    # 1
+        if col not in headers:
+            err("MISSING_COLUMN", f"Missing required column: {col}")
+
+    has_image = "Image Src" in headers
+    handle_titles, handle_counts = {}, {}
+    for row in rows:
+        h = (row.get("Handle") or "").strip()
+        if h:
+            handle_counts[h] = handle_counts.get(h, 0) + 1
+            t = (row.get("Title") or "").strip()
+            if t:
+                handle_titles.setdefault(h, set()).add(t)
+
+    for i, row in enumerate(rows, start=2):
+        if not (row.get("Variant Price") or "").strip():       # 3
+            warn("EMPTY_VARIANT_PRICE", f"Row {i}: empty Variant Price", i)
+        if has_image:                                          # 4
+            img = (row.get("Image Src") or "").strip()
+            if img and not re.match(r"^https?://", img, re.IGNORECASE):
+                warn("BAD_IMAGE_URL", f"Row {i}: Image Src is not a valid URL", i)
+        pub = (row.get("Published") or "").strip()             # 5
+        if pub and pub.upper() not in ("TRUE", "FALSE"):
+            warn("BAD_PUBLISHED", f"Row {i}: Published value '{pub}' should be TRUE or FALSE", i)
+
+    for h, titles in handle_titles.items():                    # 2
+        if len(titles) > 1:
+            warn("HANDLE_TITLE", f"Handle '{h}': inconsistent Title across rows")
+
+    unique_handles = len(handle_counts)
+    stats = {
+        "total_rows": len(rows),
+        "products": unique_handles,
+        "variations": max(0, len(rows) - unique_handles),
+        "simple": sum(1 for c in handle_counts.values() if c == 1),
+    }
+    checks = [
+        ("Required columns", {"MISSING_COLUMN"}),
+        ("Consistent Title per Handle", {"HANDLE_TITLE"}),
+        ("Variant Price present", {"EMPTY_VARIANT_PRICE"}),
+        ("Image URL format", {"BAD_IMAGE_URL"}),
+        ("Published values", {"BAD_PUBLISHED"}),
+    ]
+    seen = {e["code"] for e in errors} | {w["code"] for w in warnings}
+    passed = [name for name, codes in checks if not (codes & seen)]
+    return _validator_result("shopify", stats, errors, warnings, passed, len(checks))
+
+
+@app.route("/validator")
+def validator_page():
+    return render_template("validator.html")
+
+
+@app.route("/api/validator/check", methods=["POST"])
+def api_validator_check():
+    try:
+        file = request.files.get("file")
+        platform = (request.form.get("platform") or "woocommerce").strip().lower()
+        if file is None or not file.filename:
+            return jsonify({"error": "no_file", "message": "No CSV file uploaded."}), 400
+
+        raw = file.read()
+        if len(raw) > 5 * 1024 * 1024:
+            return jsonify({"error": "too_large", "message": "File too large (max 5MB)."}), 413
+
+        used_latin1 = False
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("latin-1")
+            used_latin1 = True
+
+        reader = csv.DictReader(io.StringIO(text))
+        headers = reader.fieldnames or []
+        rows = list(reader)
+
+        if platform == "shopify":
+            result = _validate_shopify(rows, headers)
+        else:
+            result = _validate_woocommerce(rows, headers, used_latin1)
+        return jsonify(result), 200
+
+    except Exception as e:  # noqa: BLE001 — never crash the server
+        print(f"[validator] error: {type(e).__name__}: {e}")
+        return jsonify({"error": "server_error",
+                        "message": "Validation failed. Check the file is a valid CSV."}), 500
 
 
 def _print_banner(port):

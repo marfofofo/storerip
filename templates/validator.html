@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreCSV — CSV Validator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#ffffff; --surface:#f9fafb; --surface-2:#f3f4f6; --border:#e5e7eb;
+      --border-h:#d1d5db; --text-1:#0d0d0d; --text-2:#4b5563; --text-3:#9ca3af;
+      --accent:#16a34a; --accent-light:#dcfce7; --accent-dark:#14532d; --on-accent:#ffffff;
+      --radius:6px; --radius-lg:10px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--surface); color:var(--text-1); font-family:'IBM Plex Sans',sans-serif;
+      min-height:100vh; display:flex; flex-direction:column;
+      background-image:radial-gradient(circle,#d1fae5 1px,transparent 1px); background-size:24px 24px;
+      -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+    .mono { font-family:'IBM Plex Mono',monospace; }
+
+    .app-header { display:flex; align-items:center; justify-content:space-between;
+      padding:18px 24px; background:var(--bg); border-bottom:1px solid var(--border); }
+    .logo { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; color:var(--text-1); }
+    .logo .dot { color:var(--accent); }
+    .app-nav a { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-2); transition:color .15s; }
+    .app-nav a:hover { color:var(--accent); }
+
+    .page { flex:1; width:100%; max-width:720px; margin:0 auto; padding:48px 24px; }
+    .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent);
+      text-transform:uppercase; letter-spacing:.12em; }
+    h1 { font-weight:700; font-size:2.2rem; letter-spacing:-.01em; margin:12px 0 10px; }
+    .subline { font-size:15px; color:var(--text-2); max-width:560px; margin-bottom:28px; }
+
+    /* platform pills */
+    .pill-label { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; display:block; }
+    .pill-row { display:flex; gap:8px; margin-bottom:22px; }
+    .pill { font-family:'IBM Plex Mono',monospace; font-size:12px; border:1px solid var(--border);
+      background:var(--bg); color:var(--text-2); padding:6px 16px; border-radius:var(--radius);
+      cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
+    .pill:hover { color:var(--text-1); border-color:var(--border-h); }
+    .pill.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
+
+    /* drop zone */
+    .drop { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:48px 32px;
+      text-align:center; background:var(--surface); cursor:pointer;
+      transition:border-color .2s,background .2s; }
+    .drop.dragover { border-color:var(--accent); background:var(--accent-light); }
+    .drop.has-file { border-color:var(--accent); background:var(--accent-light); }
+    .drop-icon { font-family:'IBM Plex Mono',monospace; font-size:1.6rem; color:var(--text-3); margin-bottom:12px; }
+    .drop-text { font-size:15px; color:var(--text-2); }
+    .drop-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-top:6px; }
+    .drop-file { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent-dark); }
+
+    .btn-main { width:100%; background:var(--accent); color:#000; font-family:'IBM Plex Mono',monospace;
+      font-size:14px; font-weight:600; padding:14px; border:none; border-radius:var(--radius);
+      letter-spacing:.04em; cursor:pointer; transition:background .15s,color .15s; margin-top:18px; }
+    .btn-main:hover:not(:disabled) { background:var(--accent-dark); color:#fff; }
+    .btn-main:disabled { opacity:.4; cursor:not-allowed; }
+    .btn-ghost { width:100%; background:transparent; border:1px solid var(--border); color:var(--text-2);
+      font-family:'IBM Plex Mono',monospace; font-size:13px; padding:12px; border-radius:var(--radius);
+      cursor:pointer; margin-top:12px; transition:border-color .15s,color .15s; }
+    .btn-ghost:hover { color:var(--text-1); border-color:var(--border-h); }
+
+    .hidden { display:none; }
+
+    /* results */
+    .results { margin-top:28px; animation:fade .3s ease; }
+    @keyframes fade { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+    .summary-card { border-radius:var(--radius-lg); padding:16px 20px; margin-bottom:18px;
+      font-family:'IBM Plex Mono',monospace; font-size:13px; }
+    .summary-card.ok { background:var(--accent-light); border:1px solid var(--accent); color:var(--accent-dark); }
+    .summary-card.bad { background:#fef2f2; border:1px solid #fca5a5; color:#dc2626; }
+
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px; }
+    .stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center; }
+    .stat-num { font-family:'IBM Plex Sans',sans-serif; font-weight:700; font-size:24px; color:var(--text-1); }
+    .stat-lbl { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+
+    .sec-label { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin:18px 0 8px; }
+    .issue { border-radius:var(--radius); padding:10px 14px; margin-bottom:6px; display:flex;
+      align-items:center; gap:10px; font-family:'IBM Plex Mono',monospace; font-size:12px; }
+    .issue.err { background:#fef2f2; border-left:3px solid #ef4444; color:#dc2626; }
+    .issue.warn { background:#fffbeb; border-left:3px solid #f59e0b; color:#d97706; }
+    .issue .msg { flex:1; }
+    .row-badge { font-family:'IBM Plex Mono',monospace; font-size:10px; background:#fee2e2; color:#dc2626;
+      padding:2px 8px; border-radius:999px; white-space:nowrap; }
+    .issue.warn .row-badge { background:#fef3c7; color:#d97706; }
+
+    .passed-toggle { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-2);
+      cursor:pointer; margin-top:18px; user-select:none; }
+    .passed-toggle:hover { color:var(--text-1); }
+    .passed-list { margin-top:8px; }
+    .passed-item { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-3); padding:3px 0; }
+    .passed-item::before { content:"✓ "; color:var(--accent); }
+
+    .foot { text-align:center; padding:24px; color:var(--text-3); font-family:'IBM Plex Mono',monospace;
+      font-size:11px; letter-spacing:.12em; }
+
+    @media (max-width:560px){ .stats{ grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/">StoreCSV<span class="dot">.</span></a>
+    <nav class="app-nav"><a href="/">← Back to app</a></nav>
+  </header>
+
+  <main class="page">
+    <span class="eyebrow">CSV VALIDATOR</span>
+    <h1>Validate Before You Import.</h1>
+    <p class="subline">Upload your WooCommerce or Shopify CSV. Get a full error report before the import breaks.</p>
+
+    <div id="form-area">
+      <span class="pill-label">Platform</span>
+      <div class="pill-row" id="platform-row">
+        <button type="button" class="pill active" data-platform="woocommerce">WooCommerce</button>
+        <button type="button" class="pill" data-platform="shopify">Shopify</button>
+      </div>
+
+      <div class="drop" id="drop">
+        <div class="drop-icon">[ CSV ]</div>
+        <div class="drop-text" id="drop-text">Drop your CSV here or click to browse</div>
+        <div class="drop-sub">Max 5MB · WooCommerce or Shopify format</div>
+        <input type="file" id="file-input" accept=".csv" class="hidden">
+      </div>
+
+      <button type="button" class="btn-main" id="btn-validate" disabled>[ VALIDATE CSV ]</button>
+    </div>
+
+    <div id="results" class="results hidden"></div>
+  </main>
+
+  <footer class="foot">STORECSV // CSV VALIDATOR</footer>
+
+  <script>
+    let selectedPlatform = "woocommerce";
+    let selectedFile = null;
+
+    const $ = id => document.getElementById(id);
+
+    // platform toggle
+    document.querySelectorAll('#platform-row .pill').forEach(p => {
+      p.addEventListener('click', () => {
+        document.querySelectorAll('#platform-row .pill').forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        selectedPlatform = p.dataset.platform;
+      });
+    });
+
+    // drop zone
+    const drop = $('drop'), fileInput = $('file-input');
+    drop.addEventListener('click', () => fileInput.click());
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', e => {
+      e.preventDefault(); drop.classList.remove('dragover');
+      if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) setFile(fileInput.files[0]); });
+
+    function setFile(file) {
+      if (!file.name.toLowerCase().endsWith('.csv')) { alert('Please select a .csv file.'); return; }
+      selectedFile = file;
+      drop.classList.add('has-file');
+      const kb = (file.size / 1024).toFixed(1);
+      $('drop-text').innerHTML = '<span class="drop-file">' + file.name + ' · ' + kb + ' KB</span>';
+      $('btn-validate').disabled = false;
+    }
+
+    // validate
+    $('btn-validate').addEventListener('click', async () => {
+      if (!selectedFile) return;
+      const btn = $('btn-validate');
+      btn.disabled = true; btn.textContent = '[ VALIDATING... ]';
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+      fd.append('platform', selectedPlatform);
+      try {
+        const res = await fetch('/api/validator/check', { method:'POST', body:fd });
+        const json = await res.json();
+        if (!res.ok || json.error) { renderError(json.message || 'Validation failed.'); return; }
+        renderResults(json);
+      } catch (e) {
+        renderError('Network error. Please try again.');
+      } finally {
+        btn.disabled = false; btn.textContent = '[ VALIDATE CSV ]';
+      }
+    });
+
+    function esc(s){ return (s+'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+    function renderResults(r) {
+      $('form-area').classList.add('hidden');
+      const out = $('results');
+      let html = '';
+
+      if (r.valid) {
+        html += '<div class="summary-card ok">✓ Valid CSV — ready to import</div>';
+      } else {
+        html += '<div class="summary-card bad">✗ ' + r.errors.length + ' errors found — fix before importing</div>';
+      }
+
+      const s = r.stats || {};
+      html += '<div class="stats">' +
+        statCard(s.total_rows, 'Total rows') + statCard(s.products, 'Products') +
+        statCard(s.variations, 'Variations') + statCard(s.simple, 'Simple') + '</div>';
+
+      if (r.errors && r.errors.length) {
+        html += '<div class="sec-label">Errors</div>';
+        r.errors.forEach(e => { html += issue('err', '✗', e); });
+      }
+      if (r.warnings && r.warnings.length) {
+        html += '<div class="sec-label">Warnings</div>';
+        r.warnings.forEach(w => { html += issue('warn', '⚠', w); });
+      }
+      if (r.passed && r.passed.length) {
+        html += '<div class="passed-toggle" id="passed-toggle">▶ ' + r.passed.length + ' checks passed</div>';
+        html += '<div class="passed-list hidden" id="passed-list">' +
+          r.passed.map(p => '<div class="passed-item">' + esc(p) + '</div>').join('') + '</div>';
+      }
+      html += '<button type="button" class="btn-ghost" id="btn-another">[ ← VALIDATE ANOTHER ]</button>';
+
+      out.innerHTML = html;
+      out.classList.remove('hidden');
+
+      const pt = $('passed-toggle');
+      if (pt) pt.addEventListener('click', () => {
+        const list = $('passed-list'); const open = !list.classList.contains('hidden');
+        list.classList.toggle('hidden');
+        pt.textContent = (open ? '▶ ' : '▼ ') + r.passed.length + ' checks passed';
+      });
+      $('btn-another').addEventListener('click', resetForm);
+    }
+
+    function statCard(n, lbl){ return '<div class="stat"><div class="stat-num">' + (n ?? 0) + '</div><div class="stat-lbl">' + lbl + '</div></div>'; }
+    function issue(kind, icon, it){
+      const badge = (it.row != null) ? '<span class="row-badge">ROW ' + it.row + '</span>' : '';
+      return '<div class="issue ' + kind + '"><span class="msg">' + icon + ' ' + esc(it.message) + '</span>' + badge + '</div>';
+    }
+    function renderError(msg){
+      $('form-area').classList.add('hidden');
+      const out = $('results');
+      out.innerHTML = '<div class="summary-card bad">✗ ' + esc(msg) + '</div>' +
+        '<button type="button" class="btn-ghost" id="btn-another">[ ← TRY AGAIN ]</button>';
+      out.classList.remove('hidden');
+      $('btn-another').addEventListener('click', resetForm);
+    }
+    function resetForm(){
+      selectedFile = null; fileInput.value = '';
+      drop.classList.remove('has-file');
+      $('drop-text').textContent = 'Drop your CSV here or click to browse';
+      $('btn-validate').disabled = true;
+      $('results').classList.add('hidden'); $('results').innerHTML = '';
+      $('form-area').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
