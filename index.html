@@ -9,37 +9,39 @@
   <meta name="keywords" content="woocommerce csv export, shopify csv export, migrate woocommerce to shopify, product catalog export tool, free csv exporter, shopify to woocommerce migration, bulk product export, import ready csv">
   <link rel="canonical" href="https://storecsv.com">
 
-  <!-- Open Graph -->
   <meta property="og:title" content="StoreCSV — Free WooCommerce &amp; Shopify CSV Export Tool">
   <meta property="og:description" content="Export any WooCommerce or Shopify store to a clean CSV in seconds. Import-ready format, supports variations, SKUs and images. Free, no account needed.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://storecsv.com">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #080808;
-      --surface: #0f0f0f;
-      --surface-2: #161616;
-      --border: #1e1e1e;
-      --border-hover: #2e2e2e;
-      --text-1: #f0f0f0;
-      --text-2: #888888;
-      --text-3: #444444;
-      --accent: #c8ff00;
-      --accent-dim: #8ab300;
-      --danger: #ff4444;
-      --success: #00ff88;
-      --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
-      --font-mono: 'DM Mono', 'Courier New', monospace;
-      --radius-sm: 6px;
-      --radius-md: 12px;
-      --radius-lg: 20px;
-      --max: 1080px;
+      --bg:        #050505;
+      --surface:   #0c0c0c;
+      --surface-2: #131313;
+      --border:    #1c1c1c;
+      --border-h:  #2a2a2a;
+      --text-1:    #ededed;
+      --text-2:    #5a5a5a;
+      --text-3:    #2e2e2e;
+      --accent:    #b8f400;
+      --accent-bg: rgba(184,244,0,0.06);
+      --danger:    #ff4040;
+      --success:   #00e87a;
+      --radius:    8px;
+      --radius-lg: 14px;
+      /* design-mandated literals, kept as variables so no element hardcodes color */
+      --on-accent: #000;
+      --nav-bg:    rgba(5,5,5,0.92);
+      --term-bg:   #000;
+      --tl-r:      #ff5f57;
+      --tl-y:      #febc2e;
+      --tl-g:      #28c840;
+      --row-alt:   rgba(255,255,255,0.015);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,291 +49,285 @@
     body {
       background: var(--bg);
       color: var(--text-1);
-      font-family: var(--font-body);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
-    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
     a { color: inherit; text-decoration: none; }
+    .mono { font-family: 'Geist Mono', monospace; }
 
-    /* ── Buttons ── */
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: var(--font-body); cursor: pointer;
-      transition: transform 0.15s ease, filter 0.15s ease, border-color 0.15s ease;
-      white-space: nowrap; border: 1px solid transparent;
-    }
-    .btn-accent {
-      background: var(--accent); color: #000; font-weight: 600;
-      border-radius: var(--radius-sm); padding: 8px 18px; font-size: 0.95rem;
-    }
-    .btn-accent:hover { filter: brightness(0.9); }
-    .btn-accent.lg { padding: 15px 30px; font-size: 1.05rem; font-weight: 700; }
-    .btn-ghost {
-      background: transparent; color: var(--text-2);
-      border-color: var(--border); border-radius: var(--radius-sm); padding: 8px 18px;
-      font-size: 0.95rem;
-    }
-    .btn-ghost:hover { color: var(--text-1); border-color: var(--border-hover); }
-
-    /* ── Nav ── */
+    /* ── NAV (appears on scroll) ── */
     nav {
-      position: sticky; top: 0; z-index: 50;
-      backdrop-filter: blur(12px); background: rgba(8,8,8,0.72);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 56px;
+      display: flex; align-items: center;
+      background: var(--nav-bg); backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
+      opacity: 0; pointer-events: none; transition: opacity 300ms ease;
     }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-    .logo {
-      font-family: var(--font-mono); font-weight: 500; font-size: 1.05rem;
-      display: inline-flex; align-items: center; gap: 8px; letter-spacing: -0.01em;
-    }
-    .logo .led { color: var(--accent); font-size: 0.7em; }
+    nav.show { opacity: 1; pointer-events: auto; }
+    .nav-inner { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 48px;
+      display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Geist Mono', monospace; font-weight: 500; font-size: 15px; color: var(--text-1); }
+    .nav-logo .dot { color: var(--accent); }
     .nav-links { display: flex; align-items: center; gap: 28px; }
-    .nav-links a.link { color: var(--text-2); font-size: 13px; transition: color 0.15s; }
+    .nav-links a.link { font-size: 13px; color: var(--text-2); transition: color 150ms ease; }
     .nav-links a.link:hover { color: var(--text-1); }
-
-    /* ── Hero ── */
-    .hero { position: relative; padding: 96px 0 60px; text-align: center; overflow: hidden; }
-    .hero::before {
-      content: ""; position: absolute; inset: 0; z-index: 0; opacity: 0.6;
-      background-image: radial-gradient(circle, #1a1a1a 1px, transparent 1px);
-      background-size: 28px 28px;
-      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 40%, transparent 100%);
-              mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 40%, transparent 100%);
+    .nav-cta {
+      background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 13px;
+      padding: 8px 18px; border-radius: var(--radius); transition: filter 150ms ease;
     }
-    .hero .wrap { position: relative; z-index: 1; }
-    .eyebrow {
+    .nav-cta:hover { filter: brightness(1.08); }
+
+    /* ── Shared buttons ── */
+    .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
-      font-family: var(--font-mono); font-size: 12px; color: var(--text-2);
-      border: 1px solid var(--border-hover); background: transparent;
-      padding: 4px 14px; border-radius: 999px; margin-bottom: 28px;
+      background: var(--accent); color: var(--on-accent); font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 15px; padding: 12px 28px; border-radius: var(--radius);
+      border: none; cursor: pointer; transition: filter 150ms ease;
     }
-    .eyebrow .led { color: var(--accent); }
-    h1 {
-      font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 800;
-      letter-spacing: -0.03em; line-height: 1.05; max-width: 16ch;
-      margin: 0 auto 22px;
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-primary.lg { padding: 16px 40px; font-size: 16px; }
+    .btn-link {
+      font-family: 'Syne', sans-serif; font-size: 14px; color: var(--text-2);
+      transition: color 150ms ease;
     }
-    .subhead {
-      font-size: clamp(1.02rem, 2.1vw, 1.2rem); color: var(--text-2);
-      max-width: 60ch; margin: 0 auto 34px;
-    }
-    .hero-cta {
-      display: flex; align-items: center; justify-content: center; gap: 18px;
-      flex-wrap: wrap; margin-bottom: 26px;
-    }
-    .secondary-link { color: var(--text-2); font-size: 0.95rem; border-bottom: 1px solid transparent; transition: color 0.15s, border-color 0.15s; }
-    .secondary-link:hover { color: var(--text-1); border-color: var(--text-3); }
-    .badges { font-family: var(--font-mono); font-size: 12px; color: var(--text-2); }
-    .badges .sep { color: var(--text-3); margin: 0 8px; }
+    .btn-link:hover { color: var(--text-1); }
 
-    /* ── Demo card ── */
-    .demo { padding: 28px 0 84px; }
-    .window {
-      max-width: 760px; margin: 0 auto; background: var(--surface);
-      border: 1px solid var(--border); border-radius: var(--radius-lg);
-      overflow: hidden; box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9);
+    /* ── Eyebrow / section heads ── */
+    .eyebrow {
+      font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--accent);
+      letter-spacing: 0.12em; text-transform: uppercase;
     }
-    .window-bar {
-      display: flex; align-items: center; gap: 8px; padding: 13px 18px;
-      background: var(--surface-2); border-bottom: 1px solid var(--border);
+    .sec-head { max-width: 1200px; margin: 0 auto 56px; padding: 0 48px; }
+    .sec-head h2 {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(2rem, 3vw, 3rem);
+      color: var(--text-1); letter-spacing: -0.02em; margin: 14px 0 12px;
     }
-    .lights { display: flex; gap: 7px; }
-    .lights i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-    .lights .r { background: #ff5f57; }
-    .lights .y { background: #febc2e; }
-    .lights .g { background: #28c840; }
-    .window-bar .title { font-family: var(--font-mono); font-size: 12px; color: var(--text-3); margin-left: 8px; }
-    .terminal {
-      background: #000; font-family: var(--font-mono); font-size: 13px;
-      line-height: 1.8; padding: 20px; color: var(--text-2);
-      overflow-x: auto;
-    }
-    .terminal .t-line { white-space: pre; opacity: 0; transform: translateY(4px); transition: opacity 0.18s ease, transform 0.18s ease; }
-    .terminal .t-line.show { opacity: 1; transform: none; }
-    .terminal .accent { color: var(--accent); }
-    .terminal .bright { color: var(--text-1); }
-    .terminal .dim { color: var(--text-3); }
+    .sec-head p { font-size: 16px; color: var(--text-2); }
 
-    /* ── Section scaffold ── */
-    section.block { padding: 78px 0; }
-    .section-head { text-align: center; margin-bottom: 52px; }
-    .kicker {
-      font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
-      letter-spacing: 0.16em; color: var(--accent); margin-bottom: 14px;
+    /* ── HERO ── */
+    .hero {
+      max-width: 1200px; margin: 0 auto; padding: 0 48px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center; min-height: 100vh;
     }
-    .section-head h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
-    .section-head p { color: var(--text-2); font-size: 1.05rem; }
-
-    /* ── How it works ── */
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
-    .card {
-      position: relative; background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-md); padding: 28px;
-      transition: border-color 0.2s ease, transform 0.2s ease;
+    .hero-eyebrow { display: block; margin-bottom: 24px; }
+    .hero h1 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(2.8rem, 4.5vw, 5rem); color: var(--text-1);
+      letter-spacing: -0.03em; line-height: 1.0; margin-bottom: 24px;
     }
-    .card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
-    .step-num {
-      position: absolute; top: 14px; left: 20px; font-family: var(--font-mono);
-      font-size: 3rem; line-height: 1; color: var(--accent); opacity: 0.15; font-weight: 500;
+    .hero-sub {
+      font-family: 'Syne', sans-serif; font-weight: 400; font-size: 17px;
+      color: var(--text-2); line-height: 1.7; max-width: 420px; margin-bottom: 40px;
     }
-    .step-body { position: relative; padding-top: 40px; }
-    .card h3 { font-size: 1.18rem; margin-bottom: 8px; letter-spacing: -0.01em; }
-    .card p { color: var(--text-2); font-size: 0.96rem; }
+    .hero-cta { display: flex; gap: 16px; align-items: center; }
+    .trust { margin-top: 32px; display: flex; gap: 20px; flex-wrap: wrap; }
+    .trust span { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-2); }
+    .trust .ck { color: var(--accent); }
 
-    /* ── Use cases ── */
-    .cases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
-    .case-ic { font-family: var(--font-mono); color: var(--accent); font-size: 1.35rem; margin-bottom: 14px; display: block; }
+    /* ── Terminal ── */
+    .term {
+      background: var(--term-bg); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      font-family: 'Geist Mono', monospace;
+    }
+    .term-bar {
+      background: var(--surface-2); padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border);
+    }
+    .tl { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .tl.r { background: var(--tl-r); }
+    .tl.y { background: var(--tl-y); }
+    .tl.g { background: var(--tl-g); }
+    .term-tab { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); margin-left: 12px; }
+    .term-body {
+      padding: 24px 28px; min-height: 320px; font-size: 13px; line-height: 2;
+    }
+    .tw-line { white-space: pre; min-height: 26px; }
+    .tw-cursor { color: var(--accent); animation: blink 1s step-end infinite; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
-    /* ── What's in the CSV ── */
-    .csv-card {
-      max-width: 880px; margin: 0 auto; background: var(--surface);
+    /* ── HOW IT WORKS ── */
+    .section { padding: 120px 48px; }
+    .section.bordered { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .grid-wrap { max-width: 1200px; margin: 0 auto; }
+    .steps {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border);
       border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
     }
-    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+    .step {
+      background: var(--surface); padding: 48px 40px; position: relative; overflow: hidden;
+      transition: background 200ms ease;
+    }
+    .step:hover { background: var(--surface-2); }
+    .step .watermark {
+      position: absolute; top: -10px; right: 16px; font-family: 'Geist Mono', monospace;
+      font-size: 8rem; font-weight: 500; color: var(--border); line-height: 1;
+      pointer-events: none; user-select: none;
+    }
+    .step .body { position: relative; z-index: 1; }
+    .step h3 { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 17px; color: var(--text-1); margin-bottom: 10px; }
+    .step p { font-family: 'Syne', sans-serif; font-weight: 400; font-size: 14px; color: var(--text-2); line-height: 1.7; }
+
+    /* ── USE CASES ── */
+    .cases {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .case { background: var(--surface); padding: 48px; transition: background 200ms ease; }
+    .case:hover { background: var(--surface-2); }
+    .case .ic { font-family: 'Geist Mono', monospace; font-size: 1.2rem; color: var(--accent); margin-bottom: 20px; }
+    .case h3 { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 18px; color: var(--text-1); margin-bottom: 12px; }
+    .case p { font-family: 'Syne', sans-serif; font-weight: 400; font-size: 14px; color: var(--text-2); line-height: 1.7; }
+
+    /* ── WHAT'S IN THE CSV ── */
+    .section.csv { background: var(--surface); }
+    .tabs {
+      display: inline-flex; background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 3px; margin-bottom: 32px;
+    }
     .tab {
-      font-family: var(--font-mono); font-size: 13px; color: var(--text-2);
-      background: transparent; border: 0; border-right: 1px solid var(--border);
-      padding: 14px 24px; cursor: pointer; transition: color 0.15s, background 0.15s;
+      font-family: 'Geist Mono', monospace; font-size: 12px; padding: 6px 16px;
+      background: transparent; color: var(--text-2); border: none; cursor: pointer;
+      border-radius: calc(var(--radius) - 2px); transition: color 150ms ease, background 150ms ease;
     }
     .tab:hover { color: var(--text-1); }
-    .tab.active { color: #000; background: var(--accent); font-weight: 600; }
-    .tab-panel { display: none; padding: 8px 4px 4px; overflow-x: auto; }
-    .tab-panel.active { display: block; }
-    table.cols { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12.5px; min-width: 640px; }
-    table.cols th { text-align: left; color: var(--accent); font-weight: 500; padding: 14px 14px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    table.cols td { color: var(--text-2); padding: 11px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    table.cols tr:last-child td { border-bottom: 0; }
-    .csv-note { text-align: center; color: var(--text-2); font-size: 0.95rem; margin-top: 22px; }
-    .csv-note strong { color: var(--text-1); font-weight: 500; }
-
-    /* ── CTA section ── */
-    .cta-card {
-      position: relative; overflow: hidden; text-align: center;
-      background: linear-gradient(180deg, var(--surface-2), var(--surface));
-      border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 70px 28px;
+    .tab.active { background: var(--accent); color: var(--on-accent); font-weight: 500; }
+    .table-box { overflow-x: auto; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    table.cols { width: 100%; border-collapse: collapse; font-family: 'Geist Mono', monospace; font-size: 12px; min-width: 680px; }
+    table.cols th {
+      color: var(--text-3); border-bottom: 1px solid var(--border);
+      padding: 8px 16px; text-align: left; font-weight: 500; white-space: nowrap;
     }
-    .cta-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 0%, rgba(200,255,0,0.08), transparent 60%); }
-    .cta-card h2 { position: relative; font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; }
-    .cta-card p { position: relative; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-    .cta-card .btn { position: relative; }
+    table.cols td { color: var(--text-2); padding: 10px 16px; white-space: nowrap; }
+    table.cols tbody tr:nth-child(odd) { background: var(--row-alt); }
+    .csv-caption { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); text-align: center; margin-top: 24px; }
 
-    /* ── Footer ── */
-    footer { border-top: 1px solid var(--border); padding: 40px 0 28px; margin-top: 30px; }
-    .foot-cols { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
-    .foot-brand .logo { margin-bottom: 8px; }
-    .foot-tagline { color: var(--text-2); font-size: 0.9rem; }
-    .foot-links { display: flex; gap: 24px; }
-    .foot-links a { color: var(--text-2); font-size: 0.9rem; transition: color 0.15s; }
-    .foot-links a:hover { color: var(--text-1); }
-    .foot-made { color: var(--text-2); font-size: 0.9rem; }
-    .foot-made .di { color: var(--accent); }
-    .foot-copy { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 0.85rem; }
+    /* ── FINAL CTA ── */
+    .final-cta { padding: 160px 48px; text-align: center; }
+    .final-cta h2 {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.5rem, 5vw, 4.5rem);
+      color: var(--text-1); letter-spacing: -0.03em; line-height: 1.0; margin-bottom: 16px;
+    }
+    .final-cta .sub { font-family: 'Geist Mono', monospace; font-size: 13px; color: var(--text-3); margin-bottom: 48px; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border); padding: 48px;
+      display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
+    }
+    .foot-logo { font-family: 'Geist Mono', monospace; font-size: 14px; color: var(--text-1); }
+    .foot-logo .dot { color: var(--accent); }
+    .foot-tagline { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); margin-top: 4px; }
+    .foot-right { text-align: right; }
+    .foot-links { display: flex; gap: 24px; justify-content: flex-end; margin-bottom: 6px; }
+    .foot-links a { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
+    .foot-links a:hover { color: var(--text-2); }
+    .foot-copy { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); }
+
+    /* ── Scroll animations ── */
+    .animate-in {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 600ms ease var(--d, 0ms), transform 600ms ease var(--d, 0ms);
+    }
+    .animate-in.visible { opacity: 1; transform: translateY(0); }
+    .steps .step:nth-child(2), .cases .case:nth-child(2) { --d: 100ms; }
+    .steps .step:nth-child(3), .cases .case:nth-child(3) { --d: 200ms; }
+    .cases .case:nth-child(4) { --d: 300ms; }
 
     /* ── Responsive ── */
-    @media (max-width: 800px) {
-      .steps, .cases { grid-template-columns: 1fr; }
+    @media (max-width: 768px) {
+      .nav-inner { padding: 0 24px; }
       .nav-links .link { display: none; }
-      .hero { padding: 64px 0 44px; }
-      section.block { padding: 58px 0; }
-      .terminal { font-size: 11.5px; }
-      .foot-cols { flex-direction: column; gap: 22px; }
-    }
-    @media (max-width: 480px) {
-      .hero-cta { flex-direction: column; }
-      .hero-cta .btn { width: 100%; justify-content: center; }
+      .hero { grid-template-columns: 1fr; gap: 40px; padding: 100px 24px 60px; min-height: auto; }
+      .hero h1 { font-size: clamp(2.2rem, 8vw, 3rem); }
+      .hero-sub { max-width: none; }
+      .steps, .cases { grid-template-columns: 1fr; }
+      .section { padding: 80px 24px; }
+      .sec-head { padding: 0 24px; }
+      .final-cta { padding: 100px 24px; }
+      footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
+      .foot-right { text-align: left; }
+      .foot-links { justify-content: flex-start; }
     }
   </style>
 </head>
 <body>
 
   <!-- ── NAV ── -->
-  <nav>
-    <div class="wrap nav-inner">
-      <a href="#" class="logo"><span class="led">●</span> StoreCSV</a>
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">StoreCSV<span class="dot">.</span></a>
       <div class="nav-links">
         <a href="#pricing" class="link">Pricing</a>
         <a href="#how" class="link">How it works</a>
         <a href="#" class="link">GitHub</a>
-        <a href="http://76.13.149.203:5050" class="btn btn-accent">Try Free →</a>
+        <a href="http://76.13.149.203:5050" class="nav-cta">Try Free →</a>
       </div>
     </div>
   </nav>
 
   <!-- ── HERO ── -->
   <header class="hero">
-    <div class="wrap">
-      <span class="eyebrow"><span class="led">●</span> Free · No account required</span>
-      <h1>Export Any WooCommerce or Shopify Store to CSV</h1>
-      <p class="subhead">Paste a store URL and get a clean, import-ready CSV in seconds — variations, SKUs, prices and images included. Built for merchants and agencies moving product catalogs between platforms, free and with no account.</p>
+    <div class="hero-left">
+      <span class="eyebrow hero-eyebrow">FREE · NO ACCOUNT REQUIRED</span>
+      <h1>Export Any Store to CSV. Ready to Import.</h1>
+      <p class="hero-sub">Paste a WooCommerce or Shopify URL. Get a clean, import-ready CSV in seconds. Free forever.</p>
       <div class="hero-cta">
-        <a href="http://76.13.149.203:5050" class="btn btn-accent lg">Try It Free →</a>
-        <a href="#how" class="secondary-link">See how it works ↓</a>
+        <a href="http://76.13.149.203:5050" class="btn-primary">Try It Free →</a>
+        <a href="#how" class="btn-link">See how it works ↓</a>
       </div>
-      <div class="badges">
-        <span>✓ No signup</span><span class="sep">·</span><span>✓ WooCommerce &amp; Shopify</span><span class="sep">·</span><span>✓ Free forever</span>
+      <div class="trust">
+        <span><span class="ck">✓</span> No signup</span>
+        <span><span class="ck">✓</span> WooCommerce &amp; Shopify</span>
+        <span><span class="ck">✓</span> Free forever</span>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="term">
+        <div class="term-bar">
+          <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
+          <span class="term-tab">storecsv — scrape</span>
+        </div>
+        <div class="term-body" id="term-body"></div>
       </div>
     </div>
   </header>
 
-  <!-- ── DEMO ── -->
-  <section class="demo">
-    <div class="wrap">
-      <div class="window">
-        <div class="window-bar">
-          <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
-          <span class="title">storecsv — app</span>
-        </div>
-        <div class="terminal" id="terminal">
-<div class="t-line"><span class="dim">&gt;</span> URL TARGET</div>
-<div class="t-line">  <span class="bright">https://example-store.com</span></div>
-<div class="t-line"> </div>
-<div class="t-line">  <span class="bright">[ ▶ RUN SCRAPE ]</span></div>
-<div class="t-line"> </div>
-<div class="t-line">  Detecting platform... <span class="accent">WooCommerce ✓</span></div>
-<div class="t-line">  Fetching products...</div>
-<div class="t-line">    Page 1: 47 products</div>
-<div class="t-line">    Page 2: 47 products</div>
-<div class="t-line"> </div>
-<div class="t-line">  <span class="accent">████████████████████████████████</span>  100%</div>
-<div class="t-line"> </div>
-<div class="t-line">  <span class="accent">✓ 94 products</span>  ·  187 rows (incl. variations)</div>
-<div class="t-line"> </div>
-<div class="t-line">  <span class="bright">[ ↓ DOWNLOAD CSV ]</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ── HOW IT WORKS ── -->
-  <section class="block" id="how">
-    <div class="wrap">
-      <div class="section-head">
-        <div class="kicker">How it works</div>
-        <h2>Three steps. Ten seconds.</h2>
-        <p>No plugins, no API keys, no admin access. Paste, pick, download.</p>
-      </div>
+  <section class="section bordered" id="how">
+    <div class="sec-head">
+      <span class="eyebrow">HOW IT WORKS</span>
+      <h2 class="animate-in">Three steps. Ten seconds.</h2>
+      <p>No setup, no learning curve. Paste, pick, download.</p>
+    </div>
+    <div class="grid-wrap">
       <div class="steps">
-        <div class="card">
-          <span class="step-num">01</span>
-          <div class="step-body">
-            <h3>Paste a URL</h3>
-            <p>Drop in the address of any public WooCommerce or Shopify store. We read its public product API — no plugins, no API keys, no access to the admin.</p>
+        <div class="step animate-in">
+          <span class="watermark">1</span>
+          <div class="body">
+            <h3>Paste any store URL</h3>
+            <p>Works on any public WooCommerce or Shopify storefront — no API keys, no authentication needed.</p>
           </div>
         </div>
-        <div class="card">
-          <span class="step-num">02</span>
-          <div class="step-body">
+        <div class="step animate-in">
+          <span class="watermark">2</span>
+          <div class="body">
             <h3>Choose your format</h3>
-            <p>Export as a WooCommerce product CSV or a Shopify product-import CSV. Each uses that platform's exact column layout, so it drops straight into the native importer.</p>
+            <p>Select WooCommerce or Shopify CSV output. Columns match each platform's native importer exactly.</p>
           </div>
         </div>
-        <div class="card">
-          <span class="step-num">03</span>
-          <div class="step-body">
-            <h3>Download the CSV</h3>
-            <p>Get the file instantly. Variations, images, SKUs, prices and stock levels are all included and ready to import — nothing to clean up by hand.</p>
+        <div class="step animate-in">
+          <span class="watermark">3</span>
+          <div class="body">
+            <h3>Download and import</h3>
+            <p>Get your CSV with products, variations, SKUs, stock levels, and images — ready to import.</p>
           </div>
         </div>
       </div>
@@ -339,137 +335,185 @@
   </section>
 
   <!-- ── USE CASES ── -->
-  <section class="block" id="pricing">
-    <div class="wrap">
-      <div class="section-head">
-        <div class="kicker">Use cases</div>
-        <h2>Built for merchants &amp; agencies</h2>
-        <p>One tool for every product-data job.</p>
-      </div>
+  <section class="section" id="pricing">
+    <div class="sec-head">
+      <span class="eyebrow">USE CASES</span>
+      <h2 class="animate-in">Built for merchants &amp; agencies</h2>
+    </div>
+    <div class="grid-wrap">
       <div class="cases">
-        <div class="card">
-          <div class="step-body" style="padding-top:0">
-            <span class="case-ic">⇄</span>
-            <h3>Migrate between platforms</h3>
-            <p>Move a store from Shopify to WooCommerce or back the other way. Variations, SKUs, stock levels and image URLs are preserved, so there's no manual re-entry.</p>
-          </div>
+        <div class="case animate-in">
+          <div class="ic">⇄</div>
+          <h3>Migrate between platforms</h3>
+          <p>Move your store from Shopify to WooCommerce or vice versa. Preserves variations, SKUs, stock levels, and images. Hours of manual work → 10 seconds.</p>
         </div>
-        <div class="card">
-          <div class="step-body" style="padding-top:0">
-            <span class="case-ic">↓</span>
-            <h3>Back up your catalog</h3>
-            <p>Export your full product catalog to a portable CSV on a weekly schedule, so you always keep a recent off-platform restore point.</p>
-          </div>
+        <div class="case animate-in">
+          <div class="ic">↓</div>
+          <h3>Backup your catalog</h3>
+          <p>Export your full product catalog as a portable CSV anytime. Weekly backups take 10 seconds. Never lose your product data.</p>
         </div>
-        <div class="card">
-          <div class="step-body" style="padding-top:0">
-            <span class="case-ic">◎</span>
-            <h3>Competitor research</h3>
-            <p>Pull any store's public catalog for pricing and assortment analysis. Public product data only — never orders, customers or anything private.</p>
-          </div>
+        <div class="case animate-in">
+          <div class="ic">◎</div>
+          <h3>Competitor research</h3>
+          <p>Extract public product data from any store for market analysis. Public catalog only — no private data, no authentication required.</p>
         </div>
-        <div class="card">
-          <div class="step-body" style="padding-top:0">
-            <span class="case-ic">◈</span>
-            <h3>Agency workflows</h3>
-            <p>Onboard new clients in seconds instead of hours. Skip the manual export and import their existing catalog straight into the build you're shipping.</p>
-          </div>
+        <div class="case animate-in">
+          <div class="ic">◈</div>
+          <h3>Agency workflows</h3>
+          <p>Onboard new clients faster by importing their existing store data. What used to take hours of copy-paste now takes seconds.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ── WHAT'S IN THE CSV ── -->
-  <section class="block">
-    <div class="wrap">
-      <div class="section-head">
-        <div class="kicker">Inside the file</div>
-        <h2>What's in the CSV</h2>
-        <p>Real columns, formatted for the importer you're targeting.</p>
+  <section class="section bordered csv">
+    <div class="sec-head">
+      <span class="eyebrow">WHAT YOU GET</span>
+      <h2 class="animate-in">Every column. Import-ready.</h2>
+      <p>No cleanup. No reformatting. Drop it straight into WooCommerce or Shopify.</p>
+    </div>
+    <div class="grid-wrap animate-in">
+      <div class="tabs">
+        <button class="tab active" data-tab="woo">WooCommerce</button>
+        <button class="tab" data-tab="shopify">Shopify</button>
       </div>
-      <div class="csv-card">
-        <div class="tabs">
-          <button class="tab active" data-tab="woo">WooCommerce</button>
-          <button class="tab" data-tab="shopify">Shopify</button>
-        </div>
-        <div class="tab-panel active" id="panel-woo">
+      <div class="table-box">
+        <div class="panel active" id="panel-woo">
           <table class="cols">
             <thead>
               <tr><th>SKU</th><th>Nome</th><th>Tipo</th><th>Prezzo</th><th>Stock</th><th>Immagini</th><th>Attributo 1</th><th>Genitore</th></tr>
             </thead>
             <tbody>
-              <tr><td>TS-001</td><td>T-Shirt Coton</td><td>variable</td><td>24.90</td><td>120</td><td>https://…/ts1.jpg</td><td>Taille</td><td></td></tr>
-              <tr><td>TS-001-M</td><td>T-Shirt Coton</td><td>variation</td><td>24.90</td><td>40</td><td></td><td>M</td><td>TS-001</td></tr>
-              <tr><td>MUG-12</td><td>Mug Céramique</td><td>simple</td><td>14.00</td><td>58</td><td>https://…/mug.jpg</td><td></td><td></td></tr>
+              <tr><td>shoe-001</td><td>Sneaker Classic</td><td>variable</td><td>—</td><td>—</td><td>https://...</td><td>Taglia</td><td>—</td></tr>
+              <tr><td>shoe-001-42</td><td>Sneaker Classic</td><td>variation</td><td>89.90</td><td>12</td><td>—</td><td>42</td><td>shoe-001</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="tab-panel" id="panel-shopify">
+        <div class="panel" id="panel-shopify">
           <table class="cols">
             <thead>
-              <tr><th>Handle</th><th>Title</th><th>Type</th><th>Price</th><th>Inventory</th><th>Image Src</th><th>Option1 Name</th></tr>
+              <tr><th>Handle</th><th>Title</th><th>Type</th><th>Price</th><th>Qty</th><th>Image Src</th><th>Option1 Name</th><th>Option1 Value</th></tr>
             </thead>
             <tbody>
-              <tr><td>t-shirt-coton</td><td>T-Shirt Coton</td><td>Apparel</td><td>24.90</td><td>120</td><td>https://…/ts1.jpg</td><td>Taille</td></tr>
-              <tr><td>t-shirt-coton</td><td>T-Shirt Coton</td><td>Apparel</td><td>24.90</td><td>40</td><td></td><td>M</td></tr>
-              <tr><td>mug-ceramique</td><td>Mug Céramique</td><td>Home</td><td>14.00</td><td>58</td><td>https://…/mug.jpg</td><td>Title</td></tr>
+              <tr><td>sneaker-classic</td><td>Sneaker Classic</td><td>Footwear</td><td>—</td><td>—</td><td>https://...</td><td>Size</td><td>—</td></tr>
+              <tr><td>sneaker-classic</td><td>Sneaker Classic</td><td>Footwear</td><td>89.90</td><td>12</td><td>https://...</td><td>Size</td><td>42</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-      <p class="csv-note"><strong>All columns match the native importer</strong> — no cleanup needed.</p>
+      <p class="csv-caption">All columns match the native importer — no cleanup needed.</p>
     </div>
   </section>
 
-  <!-- ── CTA ── -->
-  <section class="block">
-    <div class="wrap">
-      <div class="cta-card">
-        <h2>Start exporting in 10 seconds.</h2>
-        <p>Free. No account. No limits.</p>
-        <a href="http://76.13.149.203:5050" class="btn btn-accent lg">Open StoreCSV →</a>
-      </div>
-    </div>
+  <!-- ── FINAL CTA ── -->
+  <section class="final-cta">
+    <h2 class="animate-in">Start exporting in 10 seconds.</h2>
+    <p class="sub">Free. No account. No limits.</p>
+    <a href="http://76.13.149.203:5050" class="btn-primary lg">Open StoreCSV →</a>
   </section>
 
   <!-- ── FOOTER ── -->
   <footer>
-    <div class="wrap">
-      <div class="foot-cols">
-        <div class="foot-brand">
-          <a href="#" class="logo"><span class="led">●</span> StoreCSV</a>
-          <div class="foot-tagline">The fastest way to move product data.</div>
-        </div>
-        <div class="foot-links">
-          <a href="#">Privacy</a>
-          <a href="#">Terms</a>
-          <a href="#">Contact</a>
-        </div>
-        <div class="foot-made">Made with <span class="di">◈</span> by Djolof Studio</div>
+    <div class="foot-left">
+      <div class="foot-logo">StoreCSV<span class="dot">.</span></div>
+      <div class="foot-tagline">The fastest way to move product data.</div>
+    </div>
+    <div class="foot-right">
+      <div class="foot-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
       </div>
       <div class="foot-copy">© 2026 StoreCSV — built by Djolof Studio</div>
     </div>
   </footer>
 
   <script>
-    // ── Typewriter reveal: stagger terminal lines 150ms apart on load ──
-    window.addEventListener('load', function () {
-      var lines = document.querySelectorAll('#terminal .t-line');
-      lines.forEach(function (line, i) {
-        setTimeout(function () { line.classList.add('show'); }, i * 150);
+    // ── NAV: appear after 60px scroll ──
+    const nav = document.getElementById('nav');
+    function onScroll() { nav.classList.toggle('show', window.scrollY > 60); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // ── Tab switcher ──
+    document.querySelectorAll('.tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
       });
     });
 
-    // ── "What's in the CSV" tab switcher ──
-    document.querySelectorAll('.tab').forEach(function (tab) {
-      tab.addEventListener('click', function () {
-        document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
-        document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
-        tab.classList.add('active');
-        var id = 'panel-' + tab.dataset.tab;
-        document.getElementById(id).classList.add('active');
+    // ── Scroll animations ──
+    const obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
       });
-    });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.animate-in').forEach(el => obs.observe(el));
+
+    // ── Typewriter terminal ──
+    const LINES = [
+      { text: "$ storecsv scrape", color: "var(--text-1)", delay: 0 },
+      { text: "> URL: https://example-store.com", color: "var(--text-2)", delay: 500 },
+      { text: "", delay: 300 },
+      { text: "Detecting platform...", color: "var(--text-2)", delay: 400 },
+      { text: "✓ WooCommerce detected", color: "var(--accent)", delay: 700 },
+      { text: "", delay: 200 },
+      { text: "Fetching products...", color: "var(--text-2)", delay: 300 },
+      { text: "  → Page 1: 47 products", color: "var(--text-2)", delay: 600 },
+      { text: "  → Page 2: 47 products", color: "var(--text-2)", delay: 500 },
+      { text: "", delay: 200 },
+      { text: "████████████████████ 100%", color: "var(--accent)", delay: 800 },
+      { text: "", delay: 100 },
+      { text: "✓ 94 products exported", color: "var(--accent)", delay: 300 },
+      { text: "  187 rows (incl. variations, images, SKUs)", color: "var(--text-2)", delay: 200 },
+      { text: "", delay: 300 },
+      { text: "[ ↓ download: example-store_woo_20260624.csv ]", color: "var(--accent)", delay: 400 },
+    ];
+
+    const body = document.getElementById('term-body');
+    const cursor = document.createElement('span');
+    cursor.className = 'tw-cursor';
+    cursor.textContent = '█';
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function typeLine(line) {
+      const div = document.createElement('div');
+      div.className = 'tw-line';
+      div.style.color = line.color || 'var(--text-2)';
+      const txt = document.createElement('span');
+      div.appendChild(txt);
+      div.appendChild(cursor);
+      body.appendChild(div);
+      const text = line.text || '';
+      const speed = text.length > 30 ? 8 : 18;
+      for (let i = 0; i < text.length; i++) {
+        txt.textContent += text[i];
+        await sleep(speed);
+      }
+    }
+
+    async function runTerminal() {
+      while (true) {
+        body.innerHTML = '';
+        body.style.opacity = '1';
+        await sleep(800);
+        for (const line of LINES) {
+          await typeLine(line);
+          if (line.delay) await sleep(line.delay);
+        }
+        // cursor blinks at end for 3s, then fade out + restart
+        await sleep(3000);
+        body.style.transition = 'opacity 400ms ease';
+        body.style.opacity = '0';
+        await sleep(450);
+      }
+    }
+    runTerminal();
   </script>
 </body>
 </html>
