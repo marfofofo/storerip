@@ -127,6 +127,10 @@ jobs_lock = threading.Lock()
 ip_hits = {}
 ip_lock = threading.Lock()
 
+# --- In-memory enhancer jobs (bulk AI description rewrite) ---
+enhancer_jobs = {}
+enhancer_jobs_lock = threading.Lock()
+
 
 # ──────────────────────────────────────────────
 #  Helpers
@@ -283,6 +287,10 @@ def _janitor_loop():
         try:
             removed = _cleanup_jobs()
             _prune_ip_hits()
+            cutoff = _now() - JOB_TTL_SECONDS
+            with enhancer_jobs_lock:
+                for jid in [j for j, v in enhancer_jobs.items() if v["created_at"] < cutoff]:
+                    enhancer_jobs.pop(jid, None)
             if removed:
                 print(f"[janitor] cleaned {removed} expired job(s).")
         except Exception as e:  # noqa: BLE001 — janitor must never die
@@ -1006,6 +1014,266 @@ def api_validator_check():
         print(f"[validator] error: {type(e).__name__}: {e}")
         return jsonify({"error": "server_error",
                         "message": "Validation failed. Check the file is a valid CSV."}), 500
+
+
+# ──────────────────────────────────────────────
+#  Product Description Enhancer (Google Gemini Flash 2.5)
+# ──────────────────────────────────────────────
+
+ENHANCER_MAX_PRODUCTS = 200
+ENHANCER_VALID_LANGS = ("it", "fr", "de", "es", "en")
+ENHANCER_VALID_TONES = ("professional", "friendly", "luxury", "technical")
+
+# Per-platform column mapping for the enhanceable fields.
+_ENH_COLS = {
+    "woocommerce": {"name": "Nome", "short_description": "Descrizione breve",
+                    "description": "Descrizione", "category": "Categorie"},
+    "shopify": {"name": "Title", "short_description": None,
+                "description": "Body (HTML)", "category": "Type"},
+}
+
+
+def _enhancer_targets(rows, platform):
+    """Return the indices of rows that should be enhanced."""
+    targets = []
+    if platform == "shopify":
+        seen = set()
+        for idx, row in enumerate(rows):
+            h = (row.get("Handle") or "").strip()
+            if h and h not in seen:
+                seen.add(h)
+                targets.append(idx)
+    else:  # woocommerce: only simple/variable parents (skip variations)
+        for idx, row in enumerate(rows):
+            if (row.get("Tipo") or "").strip() in ("simple", "variable"):
+                targets.append(idx)
+    return targets
+
+
+def _enhance_one(row, platform, fields, language, tone):
+    """Rewrite a single product row in place via Gemini. Raises on failure."""
+    cols = _ENH_COLS.get(platform, _ENH_COLS["woocommerce"])
+    name = (row.get(cols["name"]) or "").strip() if cols["name"] else ""
+    desc_col, sdesc_col = cols["description"], cols["short_description"]
+    description = (row.get(desc_col) or "").strip() if desc_col else ""
+    category = (row.get(cols["category"]) or "").strip() if cols["category"] else ""
+
+    prompt = f"""
+You are an expert e-commerce copywriter.
+Rewrite the product content below.
+
+Product name: {name}
+Category: {category}
+Current description: {description[:500]}
+Target language: {language}
+Tone: {tone}
+
+Rules:
+- Write in {language}
+- Tone: {tone}
+- Short description: 1-2 sentences, benefit-focused, max 160 chars, SEO-optimized
+- Long description: 3-4 paragraphs, features + benefits, include relevant keywords naturally
+- Do not invent specifications not in the original
+- Return ONLY JSON, no markdown:
+{{"short_description": "...", "description": "..."}}
+""".strip()
+
+    model = genai.GenerativeModel(
+        "gemini-2.5-flash",
+        generation_config={
+            "temperature": 0.7,
+            "max_output_tokens": 1024,
+            "response_mime_type": "application/json",
+        },
+    )
+    response = model.generate_content(prompt)
+    enhanced = json.loads(response.text)
+
+    new_short = (enhanced.get("short_description") or "").strip()
+    new_desc = (enhanced.get("description") or "").strip()
+    if "short_description" in fields and sdesc_col and new_short:
+        row[sdesc_col] = new_short
+    if "description" in fields and desc_col and new_desc:
+        row[desc_col] = new_desc
+
+
+def _run_enhancer(job_id):
+    """Background worker: enhance each target row, updating job progress."""
+    with enhancer_jobs_lock:
+        job = enhancer_jobs.get(job_id)
+    if not job:
+        return
+    try:
+        rows = job["original_rows"]
+        platform, fields = job["platform"], job["_fields"]
+        language, tone = job["language"], job["tone"]
+        targets = job["_targets"]
+        total = len(targets)
+        processed = 0
+
+        for idx in targets:
+            try:
+                _enhance_one(rows[idx], platform, fields, language, tone)
+            except Exception as e:  # noqa: BLE001 — keep original on per-row failure
+                print(f"[enhancer {job_id}] row {idx} kept original: {e}")
+
+            processed += 1
+            with enhancer_jobs_lock:
+                j = enhancer_jobs.get(job_id)
+                if not j:
+                    return  # job was deleted/aborted
+                j["processed"] = processed
+                j["progress"] = int(processed / total * 100) if total else 100
+                j["message"] = f"Processing product {processed} of {total}"
+            time.sleep(0.5)  # rate limit between calls
+
+        with enhancer_jobs_lock:
+            j = enhancer_jobs.get(job_id)
+            if j:
+                j["rows"] = rows
+                j["status"] = "done"
+                j["progress"] = 100
+                j["message"] = f"Done — {total} descriptions enhanced."
+
+    except Exception as e:  # noqa: BLE001 — never crash the thread
+        print(f"[enhancer {job_id}] error: {e}")
+        with enhancer_jobs_lock:
+            j = enhancer_jobs.get(job_id)
+            if j:
+                j["status"] = "error"
+                j["error"] = "Enhancement failed. Please try again."
+
+
+@app.route("/enhancer")
+def enhancer_page():
+    return render_template("enhancer.html", ai_available=bool(GEMINI_API_KEY))
+
+
+@app.route("/api/enhancer/start", methods=["POST"])
+def api_enhancer_start():
+    try:
+        if not GEMINI_API_KEY or genai is None:
+            return jsonify({
+                "error": "api_key_missing",
+                "message": "Enhancer requires Gemini API key. Add GEMINI_API_KEY to .env",
+            }), 503
+
+        file = request.files.get("file")
+        if file is None or not file.filename:
+            return jsonify({"error": "no_file", "message": "No CSV file uploaded."}), 400
+
+        platform = (request.form.get("platform") or "woocommerce").strip().lower()
+        language = (request.form.get("language") or "en").strip().lower()
+        tone = (request.form.get("tone") or "professional").strip().lower()
+        fields_raw = request.form.get("fields") or "short_description,description"
+        fields = [f.strip() for f in fields_raw.split(",") if f.strip()]
+        if language not in ENHANCER_VALID_LANGS:
+            language = "en"
+        if tone not in ENHANCER_VALID_TONES:
+            tone = "professional"
+
+        raw = file.read()
+        if len(raw) > 5 * 1024 * 1024:
+            return jsonify({"error": "too_large", "message": "File too large (max 5MB)."}), 413
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("latin-1")
+
+        reader = csv.DictReader(io.StringIO(text))
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
+        targets = _enhancer_targets(rows, platform)
+
+        truncated = len(targets) > ENHANCER_MAX_PRODUCTS
+        if truncated:
+            targets = targets[:ENHANCER_MAX_PRODUCTS]
+        if not targets:
+            return jsonify({"error": "no_products",
+                            "message": "No enhanceable products found in this CSV."}), 400
+
+        total = len(targets)
+        message = "Starting..."
+        if truncated:
+            message = f"Starting... (limited to the first {ENHANCER_MAX_PRODUCTS} products)"
+
+        job_id = uuid.uuid4().hex[:6]
+        with enhancer_jobs_lock:
+            enhancer_jobs[job_id] = {
+                "status": "running",
+                "progress": 0,
+                "message": message,
+                "total": total,
+                "processed": 0,
+                "rows": [],
+                "original_rows": rows,
+                "fieldnames": fieldnames,
+                "platform": platform,
+                "language": language,
+                "tone": tone,
+                "skipped": max(0, len(rows) - total),
+                "truncated": truncated,
+                "error": None,
+                "created_at": _now(),
+                "_targets": targets,
+                "_fields": fields,
+            }
+
+        threading.Thread(target=_run_enhancer, args=(job_id,), daemon=True).start()
+        return jsonify({"job_id": job_id, "status": "running", "total": total}), 200
+
+    except Exception as e:  # noqa: BLE001
+        print(f"[enhancer] start error: {type(e).__name__}: {e}")
+        return jsonify({"error": "server_error",
+                        "message": "Could not start enhancement."}), 500
+
+
+@app.route("/api/enhancer/status/<job_id>")
+def api_enhancer_status(job_id):
+    with enhancer_jobs_lock:
+        job = enhancer_jobs.get(job_id)
+        if not job:
+            return jsonify({"status": "error", "error": "Unknown job"}), 404
+        return jsonify({
+            "status": job["status"],
+            "progress": job["progress"],
+            "message": job["message"],
+            "processed": job["processed"],
+            "total": job["total"],
+            "platform": job["platform"],
+            "language": job["language"],
+            "skipped": job["skipped"],
+            "error": job["error"],
+        }), 200
+
+
+@app.route("/api/enhancer/download/<job_id>")
+def api_enhancer_download(job_id):
+    with enhancer_jobs_lock:
+        job = enhancer_jobs.get(job_id)
+        if not job:
+            return jsonify({"error": "Unknown job"}), 404
+        if job["status"] != "done" or not job["rows"]:
+            return jsonify({"error": "Job not ready"}), 409
+        rows = job["rows"]
+        fieldnames = job["fieldnames"]
+        platform = job["platform"]
+
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=fieldnames, extrasaction="ignore")
+    writer.writeheader()
+    for r in rows:
+        writer.writerow({k: r.get(k, "") for k in fieldnames})
+    payload = io.BytesIO(buf.getvalue().encode("utf-8-sig"))
+    payload.seek(0)
+
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    filename = f"enhanced_{platform}_{timestamp}.csv"
+
+    with enhancer_jobs_lock:
+        enhancer_jobs.pop(job_id, None)
+
+    return send_file(payload, mimetype="text/csv", as_attachment=True, download_name=filename)
 
 
 def _print_banner(port):
