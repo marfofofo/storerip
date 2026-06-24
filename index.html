@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>StoreCSV — Free WooCommerce &amp; Shopify CSV Exporter</title>
+  <meta name="description" content="Export any WooCommerce or Shopify store to a clean, import-ready CSV file. Free tool, no account required. Migrate products between platforms in seconds.">
+  <meta name="keywords" content="woocommerce csv export, shopify csv export, store migration tool, product csv generator, woocommerce import csv">
+  <link rel="canonical" href="https://storecsv.com">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="StoreCSV — Free WooCommerce &amp; Shopify CSV Exporter">
+  <meta property="og:description" content="Export any WooCommerce or Shopify store to a clean, import-ready CSV file. Free tool, no account required. Migrate products between platforms in seconds.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://storecsv.com">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface-2: #161616;
+      --border: #232323;
+      --border-soft: #1a1a1a;
+      --text: #f2f2f2;
+      --text-dim: #9a9a9a;
+      --text-faint: #5c5c5c;
+      --accent: #c8ff00;
+      --light: #ffffff;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --max: 1080px;
+      --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'DM Mono', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      /* Subtle dot-grid pattern overlay */
+      background-image: radial-gradient(circle at center, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      background-position: -14px -14px;
+    }
+
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font);
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 12px 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--light);
+      color: #0a0a0a;
+      font-weight: 700;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: 0.92; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--text-faint); transform: translateY(-2px); }
+    .btn-lg { padding: 16px 30px; font-size: 1.05rem; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: rgba(10,10,10,0.72);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo .dot { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 30px; }
+    .nav-links a.link {
+      color: var(--text-dim);
+      font-size: 0.92rem;
+      transition: color 0.15s;
+    }
+    .nav-links a.link:hover { color: var(--text); }
+    .nav-toggle { display: none; }
+
+    /* ── Hero ── */
+    .hero { padding: 92px 0 64px; text-align: center; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      background: rgba(200,255,0,0.07);
+      border: 1px solid rgba(200,255,0,0.2);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: clamp(2.4rem, 6.5vw, 4.4rem);
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      max-width: 14ch;
+      margin: 0 auto 24px;
+    }
+    .subhead {
+      font-size: clamp(1.02rem, 2.2vw, 1.22rem);
+      color: var(--text-dim);
+      max-width: 56ch;
+      margin: 0 auto 38px;
+    }
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .secondary-link {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .secondary-link:hover { color: var(--text); border-color: var(--text-faint); }
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 26px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+    .badges span { display: inline-flex; align-items: center; gap: 7px; }
+    .badges .ck { color: var(--accent); font-weight: 700; }
+
+    /* ── Demo card ── */
+    .demo { padding: 30px 0 80px; }
+    .window {
+      max-width: 760px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .window-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+    }
+    .window-bar .dots { display: flex; gap: 7px; }
+    .window-bar .dots i {
+      width: 12px; height: 12px; border-radius: 50%;
+      display: inline-block; background: #2c2c2c;
+    }
+    .window-bar .title {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      margin-left: 10px;
+    }
+    .terminal {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.85;
+      padding: 26px 24px;
+      color: var(--text-dim);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .terminal .accent { color: var(--accent); }
+    .terminal .bright { color: var(--text); }
+    .terminal .prompt { color: var(--text-faint); }
+
+    /* ── Section scaffolding ── */
+    section.block { padding: 76px 0; }
+    .section-head { text-align: center; margin-bottom: 54px; }
+    .section-head h2 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .section-head p { color: var(--text-dim); font-size: 1.05rem; }
+    .kicker {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    /* ── How it works ── */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 32px 26px;
+      position: relative;
+    }
+    .step-num {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: #0a0a0a;
+      background: var(--accent);
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .step h3 { font-size: 1.18rem; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .step p { color: var(--text-dim); font-size: 0.96rem; }
+
+    /* ── Use cases ── */
+    .cases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .case {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 30px 28px;
+      transition: border-color 0.18s, transform 0.18s;
+    }
+    .case:hover { border-color: var(--border); transform: translateY(-3px); }
+    .case .ic {
+      font-family: var(--mono);
+      color: var(--accent);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+    }
+    .case h3 { font-size: 1.2rem; margin-bottom: 10px; letter-spacing: -0.01em; }
+    .case p { color: var(--text-dim); font-size: 0.97rem; }
+
+    /* ── CTA section ── */
+    .cta-card {
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      text-align: center;
+      padding: 70px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(200,255,0,0.08), transparent 60%);
+      pointer-events: none;
+    }
+    .cta-card h2 {
+      font-size: clamp(1.9rem, 4.5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .cta-card p { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 32px; position: relative; }
+    .cta-card .btn { position: relative; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border-soft);
+      padding: 40px 0;
+      margin-top: 40px;
+    }
+    .foot-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .foot-links { display: flex; gap: 26px; }
+    .foot-links a { color: var(--text-dim); font-size: 0.92rem; transition: color 0.15s; }
+    .foot-links a:hover { color: var(--text); }
+    .copyright { color: var(--text-faint); font-size: 0.88rem; width: 100%; }
+
+    /* ── Responsive ── */
+    @media (max-width: 800px) {
+      .steps { grid-template-columns: 1fr; }
+      .cases { grid-template-columns: 1fr; }
+      .nav-links .link { display: none; }
+      .hero { padding: 64px 0 48px; }
+      section.block { padding: 58px 0; }
+      .terminal { font-size: 0.72rem; }
+    }
+    @media (max-width: 480px) {
+      .badges { gap: 14px; flex-direction: column; align-items: center; }
+      .hero-cta { flex-direction: column; }
+      .hero-cta .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <div class="wrap nav-inner">
+      <a href="#" class="logo">StoreCSV<span class="dot">.</span></a>
+      <div class="nav-links">
+        <a href="#pricing" class="link">Pricing</a>
+        <a href="#how" class="link">How it works</a>
+        <a href="#" class="link">GitHub</a>
+        <a href="http://76.13.149.203:5050" class="btn btn-primary">Try Free →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Free · No account required</span>
+      <h1>Export Any Store to CSV. Ready to Import.</h1>
+      <p class="subhead">Paste a WooCommerce or Shopify URL. Get a clean, import-ready CSV in seconds — formatted for WooCommerce or Shopify. Free forever.</p>
+      <div class="hero-cta">
+        <a href="http://76.13.149.203:5050" class="btn btn-primary btn-lg">Try It Free →</a>
+        <a href="#how" class="secondary-link">See how it works ↓</a>
+      </div>
+      <div class="badges">
+        <span><span class="ck">✓</span> No signup</span>
+        <span><span class="ck">✓</span> WooCommerce &amp; Shopify</span>
+        <span><span class="ck">✓</span> Free forever</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── DEMO AREA ── -->
+  <section class="demo">
+    <div class="wrap">
+      <div class="window">
+        <div class="window-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <span class="title">storecsv — app</span>
+        </div>
+<pre class="terminal"><span class="prompt">&gt;</span> URL TARGET
+  <span class="bright">https://example-store.com</span>
+
+  <span class="bright">[ ▶ RUN SCRAPE ]</span>
+
+  Detecting platform... <span class="accent">WooCommerce ✓</span>
+  Fetching products...
+    Page 1: 47 products
+    Page 2: 47 products
+
+  <span class="accent">████████████████████████████████</span>  100%
+
+  <span class="accent">✓ 94 products</span>  ·  187 rows (incl. variations)
+
+  <span class="bright">[ ↓ DOWNLOAD CSV ]</span>
+</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">How it works</div>
+        <h2>Three steps. Ten seconds.</h2>
+        <p>No setup, no learning curve. Paste, pick, download.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Paste URL</h3>
+          <p>Drop in any WooCommerce or Shopify store URL.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Choose format</h3>
+          <p>Pick WooCommerce or Shopify CSV output.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Download</h3>
+          <p>Get your clean, import-ready CSV instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── USE CASES ── -->
+  <section class="block" id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Use cases</div>
+        <h2>Built for merchants &amp; agencies</h2>
+        <p>One tool, every product-data job.</p>
+      </div>
+      <div class="cases">
+        <div class="case">
+          <div class="ic">⇄</div>
+          <h3>Migrate between platforms</h3>
+          <p>Move your store from Shopify to WooCommerce or vice versa without manual data entry.</p>
+        </div>
+        <div class="case">
+          <div class="ic">⤓</div>
+          <h3>Backup your catalog</h3>
+          <p>Export your full product catalog anytime as a portable CSV.</p>
+        </div>
+        <div class="case">
+          <div class="ic">⌕</div>
+          <h3>Competitor research</h3>
+          <p>Extract public product data from any store for market analysis.</p>
+        </div>
+        <div class="case">
+          <div class="ic">⚐</div>
+          <h3>Agency workflows</h3>
+          <p>Onboard new clients faster by importing their existing store data.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA SECTION ── -->
+  <section class="block">
+    <div class="wrap">
+      <div class="cta-card">
+        <h2>Start exporting in 10 seconds.</h2>
+        <p>Free. No account. No limits.</p>
+        <a href="http://76.13.149.203:5050" class="btn btn-primary btn-lg">Open StoreCSV →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="wrap foot-inner">
+      <a href="#" class="logo">StoreCSV<span class="dot">.</span></a>
+      <div class="foot-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="copyright">© 2026 StoreCSV. Free tool by Djolof Studio.</div>
+    </div>
+  </footer>
+
+</body>
+</html>
