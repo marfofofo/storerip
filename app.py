@@ -42,6 +42,13 @@ from scraper import (
 )
 import ai_enhance
 
+# Google Gemini SDK — optional, guarded so a not-yet-installed package never
+# crashes startup (the VPS installs it separately). Used by the legal generator.
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None
+
 load_dotenv()
 
 APP_VERSION = "1.0"
@@ -91,6 +98,19 @@ ALLOWED_ORIGIN = os.environ.get(
 # Per-IP rate limit on /api/scrape.
 RATE_LIMIT_MAX = 3
 RATE_LIMIT_WINDOW = 3600  # 1 hour, in seconds
+
+# --- Google Gemini (Legal Pages Generator) ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+if GEMINI_API_KEY and genai is not None:
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+    except Exception as e:  # noqa: BLE001 — never block startup on config
+        print(f"[gemini] configure failed: {e}")
+
+# Per-IP rate limit on the legal generator (separate ledger from /api/scrape).
+LEGAL_RATE_LIMIT_MAX = 5
+legal_ip_hits = {}
+legal_ip_lock = threading.Lock()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "dev-insecure-key")
@@ -218,28 +238,39 @@ def _client_ip():
     return request.remote_addr or "unknown"
 
 
-def _rate_limited(ip):
-    """Record a hit and return True if this IP is over the window limit."""
+def _rate_limited(ip, ledger=None, lock=None, limit=RATE_LIMIT_MAX, window=RATE_LIMIT_WINDOW):
+    """Record a hit and return True if this IP is over the window limit.
+
+    Defaults to the /api/scrape ledger; pass a separate ledger/lock/limit to
+    rate-limit another endpoint independently (e.g. the legal generator).
+    """
+    if ledger is None:
+        ledger, lock = ip_hits, ip_lock
     now = _now()
-    with ip_lock:
-        hits = [t for t in ip_hits.get(ip, []) if now - t < RATE_LIMIT_WINDOW]
-        if len(hits) >= RATE_LIMIT_MAX:
-            ip_hits[ip] = hits
+    with lock:
+        hits = [t for t in ledger.get(ip, []) if now - t < window]
+        if len(hits) >= limit:
+            ledger[ip] = hits
             return True
         hits.append(now)
-        ip_hits[ip] = hits
+        ledger[ip] = hits
         return False
 
 
-def _prune_ip_hits():
+def _prune_one_ledger(ledger, lock):
     now = _now()
-    with ip_lock:
-        for ip in list(ip_hits.keys()):
-            fresh = [t for t in ip_hits[ip] if now - t < RATE_LIMIT_WINDOW]
+    with lock:
+        for ip in list(ledger.keys()):
+            fresh = [t for t in ledger[ip] if now - t < RATE_LIMIT_WINDOW]
             if fresh:
-                ip_hits[ip] = fresh
+                ledger[ip] = fresh
             else:
-                ip_hits.pop(ip, None)
+                ledger.pop(ip, None)
+
+
+def _prune_ip_hits():
+    _prune_one_ledger(ip_hits, ip_lock)
+    _prune_one_ledger(legal_ip_hits, legal_ip_lock)
 
 
 # ── Background janitor: guarantees TTL cleanup even with no traffic ──
@@ -627,6 +658,134 @@ def api_abort(job_id):
     with jobs_lock:
         existed = jobs.pop(job_id, None) is not None
     return jsonify({"aborted": existed}), 200
+
+
+# ──────────────────────────────────────────────
+#  Legal Pages Generator (Google Gemini Flash 2.5)
+# ──────────────────────────────────────────────
+
+LEGAL_VALID_LANGS = ("it", "fr", "de", "es", "en")
+
+LEGAL_SYSTEM_INSTRUCTION = """
+You are a legal document specialist for European e-commerce
+businesses. Generate professional, legally compliant documents.
+Follow GDPR, EU Consumer Rights Directive, and local law.
+Return ONLY a valid JSON object with no markdown, no preamble.
+Format: {"privacy":"...","cgv":"...","cookies":"...",
+         "returns":"...","shipping":"...","legal_notice":"..."}
+Only include keys for documents that were requested.
+Each document must be complete, use markdown headers (## ###),
+minimum 400 words, professional tone, ready to publish.
+""".strip()
+
+
+@app.route("/legal")
+def legal_page():
+    return render_template("legal.html", ai_available=bool(GEMINI_API_KEY))
+
+
+@app.route("/api/legal/generate", methods=["POST"])
+def api_legal_generate():
+    try:
+        # Gemini must be configured (key present + SDK installed).
+        if not GEMINI_API_KEY or genai is None:
+            return jsonify({
+                "error": "api_key_missing",
+                "message": "Legal generator requires Gemini API key. "
+                           "Add GEMINI_API_KEY to .env",
+            }), 503
+
+        data = request.get_json(silent=True) or {}
+        business_name = (data.get("business_name") or "").strip()
+        email = (data.get("email") or "").strip()
+        country = (data.get("country") or "").strip()
+        language = (data.get("language") or "").strip().lower()
+        documents = data.get("documents") or []
+
+        # --- Validation (400) ---
+        if not business_name or len(business_name) > 200:
+            return jsonify({"error": "validation",
+                            "message": "business_name is required (max 200 chars)."}), 400
+        if "@" not in email or "." not in email:
+            return jsonify({"error": "validation",
+                            "message": "A valid email is required."}), 400
+        if not country:
+            return jsonify({"error": "validation",
+                            "message": "country is required."}), 400
+        if language not in LEGAL_VALID_LANGS:
+            return jsonify({"error": "validation",
+                            "message": "language must be one of it, fr, de, es, en."}), 400
+        if not isinstance(documents, list) or len(documents) < 1:
+            return jsonify({"error": "validation",
+                            "message": "Select at least one document."}), 400
+
+        # --- Rate limit: 5 / hour / IP (separate ledger) ---
+        ip = _client_ip()
+        if _rate_limited(ip, legal_ip_hits, legal_ip_lock, LEGAL_RATE_LIMIT_MAX):
+            return jsonify({
+                "error": "rate_limited",
+                "message": f"Rate limit reached: max {LEGAL_RATE_LIMIT_MAX} "
+                           "generations per hour per IP. Try again later.",
+            }), 429
+
+        # --- Build prompt ---
+        prompt = f"""
+Generate legal documents for this business:
+
+Business name: {business_name}
+Business type: {data.get("business_type", "")}
+VAT/Registration: {data.get("vat_number", "")}
+Address: {data.get("address", "")}, {data.get("city", "")}, {country}
+Email: {email}
+Phone: {data.get("phone", "")}
+Website: {data.get("website", "")}
+Store type: {data.get("store_type", "")}
+Products/Services: {data.get("products_category", "")}
+Target market: {data.get("target_market", "")}
+Language: {language}
+Documents requested: {', '.join(documents)}
+
+Rules:
+- Write entirely in {language}
+- Apply {data.get("target_market", "")} consumer law
+- Include GDPR article references in privacy policy
+- Include 14-day withdrawal right in CGV
+- Use business name and website throughout
+- Year: 2026
+- Be specific to the products/services category
+""".strip()
+
+        # --- Gemini call ---
+        model = genai.GenerativeModel(
+            model_name="gemini-2.5-flash",
+            generation_config={
+                "temperature": 0.3,
+                "max_output_tokens": 8192,
+                "response_mime_type": "application/json",
+            },
+            system_instruction=LEGAL_SYSTEM_INSTRUCTION,
+        )
+        response = model.generate_content(prompt)
+
+        try:
+            parsed = json.loads(response.text)
+        except (ValueError, AttributeError) as e:
+            print(f"[legal] parse failed: {e}")
+            return jsonify({"error": "parse_failed",
+                            "message": "AI returned invalid response, try again"}), 502
+
+        return jsonify({
+            "success": True,
+            "documents": parsed,
+            "generated_at": datetime.now().isoformat(),
+            "language": language,
+            "business_name": business_name,
+        }), 200
+
+    except Exception as e:  # noqa: BLE001 — never crash the server
+        print(f"[legal] error: {type(e).__name__}: {e}")
+        return jsonify({"error": "server_error",
+                        "message": "Generation failed. Please try again."}), 500
 
 
 def _print_banner(port):

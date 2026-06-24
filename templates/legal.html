@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreCSV — Legal Pages Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/">StoreCSV<span class="dot">.</span></a>
+    <nav class="app-nav">
+      <a href="/">← Back to app</a>
+    </nav>
+  </header>
+
+  <main class="legal-page">
+
+    <div class="legal-header">
+      <span class="legal-eyebrow">LEGAL GENERATOR</span>
+      <h1>Generate Legal Pages.</h1>
+      <p>Fill in your business details. Get 6 ready-to-publish legal documents compliant with EU law — in your language.</p>
+    </div>
+
+    {% if not ai_available %}
+    <div class="warn-banner">⚠ GEMINI_API_KEY not configured. Add it to .env to enable document generation.</div>
+    {% endif %}
+
+    <!-- ── FORM ── -->
+    <form id="legal-form" autocomplete="off">
+
+      <!-- 01 / BUSINESS INFO -->
+      <div class="form-card">
+        <div class="form-section-title">01 / BUSINESS INFO</div>
+        <div class="form-grid">
+          <div class="field-group">
+            <label class="legal-label" for="business_name">Business name *</label>
+            <input class="legal-input" type="text" id="business_name" placeholder="Acme SRL" required>
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="business_type">Business type</label>
+            <select class="legal-input" id="business_type">
+              <option value="srl">SRL / SARL / GmbH</option>
+              <option value="ltd">LLC / Ltd</option>
+              <option value="sole_trader">Sole trader / Auto-entrepreneur</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="vat_number">VAT / Registration</label>
+            <input class="legal-input" type="text" id="vat_number" placeholder="IT12345678901">
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="address">Address</label>
+            <input class="legal-input" type="text" id="address" placeholder="Via Roma 1">
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="city">City</label>
+            <input class="legal-input" type="text" id="city" placeholder="Milano">
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="country">Country *</label>
+            <input class="legal-input" type="text" id="country" placeholder="Italy" required>
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="email">Email *</label>
+            <input class="legal-input" type="email" id="email" placeholder="legal@mystore.com" required>
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="phone">Phone</label>
+            <input class="legal-input" type="text" id="phone" placeholder="+39 02 1234567">
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="website">Website *</label>
+            <input class="legal-input" type="url" id="website" placeholder="https://mystore.com" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 / STORE DETAILS -->
+      <div class="form-card">
+        <div class="form-section-title">02 / STORE DETAILS</div>
+        <div class="form-grid">
+          <div class="field-group">
+            <label class="legal-label" for="store_type">Store type</label>
+            <select class="legal-input" id="store_type">
+              <option value="ecommerce">E-commerce (physical products)</option>
+              <option value="saas">SaaS / Software</option>
+              <option value="marketplace">Marketplace</option>
+              <option value="digital_products">Digital products / Downloads</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="legal-label" for="target_market">Target market</label>
+            <select class="legal-input" id="target_market">
+              <option value="IT">🇮🇹 Italy</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="DE">🇩🇪 Germany</option>
+              <option value="ES">🇪🇸 Spain</option>
+              <option value="UK">🇬🇧 United Kingdom</option>
+              <option value="CH">🇨🇭 Switzerland</option>
+              <option value="BE">🇧🇪 Belgium</option>
+              <option value="multi_eu">🇪🇺 Multi-EU</option>
+            </select>
+          </div>
+          <div class="field-group field-full">
+            <label class="legal-label" for="products_category">Products / Services *</label>
+            <input class="legal-input" type="text" id="products_category" placeholder="Electronics, accessories, home appliances" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 / LANGUAGE & DOCUMENTS -->
+      <div class="form-card">
+        <div class="form-section-title">03 / LANGUAGE & DOCUMENTS</div>
+
+        <label class="legal-label">Language</label>
+        <div class="lang-row">
+          <button type="button" class="lang-btn active" data-lang="it">IT</button>
+          <button type="button" class="lang-btn" data-lang="fr">FR</button>
+          <button type="button" class="lang-btn" data-lang="de">DE</button>
+          <button type="button" class="lang-btn" data-lang="es">ES</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <input type="hidden" id="selected-language" value="it">
+
+        <label class="legal-label" style="margin-top:22px">Documents</label>
+        <div class="docs-grid">
+          <label class="doc-check"><input type="checkbox" name="docs" value="privacy" checked><span class="doc-box"></span>Privacy Policy</label>
+          <label class="doc-check"><input type="checkbox" name="docs" value="cgv" checked><span class="doc-box"></span>Terms &amp; Conditions</label>
+          <label class="doc-check"><input type="checkbox" name="docs" value="cookies" checked><span class="doc-box"></span>Cookie Policy</label>
+          <label class="doc-check"><input type="checkbox" name="docs" value="returns" checked><span class="doc-box"></span>Returns &amp; Refunds</label>
+          <label class="doc-check"><input type="checkbox" name="docs" value="shipping" checked><span class="doc-box"></span>Shipping Policy</label>
+          <label class="doc-check"><input type="checkbox" name="docs" value="legal_notice" checked><span class="doc-box"></span>Legal Notice</label>
+        </div>
+      </div>
+
+      <!-- GENERATE -->
+      <div id="generate-area">
+        <button type="submit" class="btn-generate">[ GENERATE LEGAL PAGES ]</button>
+        <p class="disclaimer">Powered by Google Gemini · AI-generated — review before publishing</p>
+      </div>
+
+      <!-- LOADING (hidden) -->
+      <div id="loading-area" class="loading-area hidden">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="loading-status">Generating your legal documents...</div>
+        <div class="loading-sub">This takes 10–20 seconds. Do not close this page.</div>
+      </div>
+    </form>
+
+    <!-- ── RESULTS (hidden) ── -->
+    <section id="results-area" class="results-area hidden">
+      <div class="summary-bar">
+        <div class="summary-left">
+          <div class="summary-ok">✓ Documents generated</div>
+          <div class="summary-business" id="summary-business"></div>
+        </div>
+        <button type="button" class="btn-download-all" id="btn-download-all">[ ↓ DOWNLOAD ALL .TXT ]</button>
+      </div>
+
+      <div class="doc-tabs" id="doc-tabs"></div>
+
+      <div class="doc-actions">
+        <span class="doc-actions-title" id="doc-actions-title"></span>
+        <button type="button" class="btn-copy" id="btn-copy">[ COPY ]</button>
+      </div>
+
+      <div class="doc-viewer" id="doc-viewer"></div>
+    </section>
+
+  </main>
+
+  <footer class="foot">STORECSV // LEGAL GENERATOR · AI-GENERATED · REVIEW BEFORE PUBLISHING</footer>
+
+  <script>
+    const DOC_TITLES = {
+      privacy: "PRIVACY POLICY", cgv: "TERMS & CONDITIONS", cookies: "COOKIE POLICY",
+      returns: "RETURNS & REFUNDS", shipping: "SHIPPING POLICY", legal_notice: "LEGAL NOTICE"
+    };
+    const DOC_TABS = {
+      privacy: "Privacy", cgv: "CGV", cookies: "Cookies",
+      returns: "Returns", shipping: "Shipping", legal_notice: "Legal"
+    };
+    const DOC_ORDER = ["privacy", "cgv", "cookies", "returns", "shipping", "legal_notice"];
+
+    let currentDocs = {};
+    let currentKey = null;
+
+    function f(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+    // ── Language toggle ──
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('selected-language').value = btn.dataset.lang;
+      });
+    });
+
+    // ── Markdown → HTML ──
+    function mdToHtml(md) {
+      return (md || '')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>[\s\S]+?<\/li>)/g, '<ul>$1</ul>')
+        .split('\n\n')
+        .map(p => p.match(/^<[hul]/) ? p : `<p>${p}</p>`)
+        .join('');
+    }
+
+    // ── Loading / state ──
+    function showLoading() {
+      document.getElementById('generate-area').classList.add('hidden');
+      const la = document.getElementById('loading-area');
+      la.classList.remove('hidden');
+      const fill = document.getElementById('progress-fill');
+      fill.classList.remove('done');
+      // restart the 0→85% animation
+      fill.style.animation = 'none';
+      void fill.offsetWidth;
+      fill.style.animation = '';
+    }
+    function hideLoading() {
+      document.getElementById('loading-area').classList.add('hidden');
+      document.getElementById('generate-area').classList.remove('hidden');
+    }
+    function finishLoading() {
+      const fill = document.getElementById('progress-fill');
+      fill.classList.add('done'); // jumps to 100%
+      setTimeout(() => { document.getElementById('loading-area').classList.add('hidden'); }, 400);
+    }
+    function showError(msg) {
+      hideLoading();
+      alert(msg);
+    }
+
+    // ── Render results ──
+    function showResults(docs, businessName) {
+      currentDocs = docs || {};
+      finishLoading();
+      document.getElementById('summary-business').textContent = businessName || '';
+
+      const keys = DOC_ORDER.filter(k => k in currentDocs);
+      const tabs = document.getElementById('doc-tabs');
+      tabs.innerHTML = '';
+      keys.forEach(k => {
+        const t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'doc-tab';
+        t.textContent = DOC_TABS[k] || k;
+        t.dataset.key = k;
+        t.addEventListener('click', () => selectDoc(k));
+        tabs.appendChild(t);
+      });
+
+      document.getElementById('results-area').classList.remove('hidden');
+      if (keys.length) selectDoc(keys[0]);
+      document.getElementById('results-area').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function selectDoc(key) {
+      currentKey = key;
+      document.querySelectorAll('.doc-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.key === key);
+      });
+      document.getElementById('doc-actions-title').textContent = DOC_TITLES[key] || key.toUpperCase();
+      document.getElementById('doc-viewer').innerHTML = mdToHtml(currentDocs[key]);
+      const copy = document.getElementById('btn-copy');
+      copy.textContent = '[ COPY ]';
+    }
+
+    // ── Copy raw markdown ──
+    document.getElementById('btn-copy').addEventListener('click', async () => {
+      if (!currentKey) return;
+      try { await navigator.clipboard.writeText(currentDocs[currentKey] || ''); } catch (e) {}
+      const btn = document.getElementById('btn-copy');
+      btn.textContent = '[ ✓ COPIED ]';
+      setTimeout(() => { btn.textContent = '[ COPY ]'; }, 2000);
+    });
+
+    // ── Download all as .txt ──
+    function downloadAll(docs, businessName) {
+      const txt = Object.entries(docs)
+        .map(([k, v]) => `${'═'.repeat(60)}\n${DOC_TITLES[k] || k.toUpperCase()}\n${'═'.repeat(60)}\n\n${v}`)
+        .join('\n\n\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' }));
+      a.download = `legal_${(businessName || 'business').replace(/\s+/g, '_')}.txt`;
+      a.click();
+    }
+    document.getElementById('btn-download-all').addEventListener('click', () => {
+      downloadAll(currentDocs, f('business_name'));
+    });
+
+    // ── Submit ──
+    async function handleGenerate(e) {
+      e.preventDefault();
+      const docs = Array.from(document.querySelectorAll('input[name="docs"]:checked')).map(cb => cb.value);
+      if (docs.length === 0) { alert('Select at least one document.'); return; }
+
+      const data = {
+        business_name: f('business_name'),
+        business_type: f('business_type'),
+        vat_number: f('vat_number'),
+        address: f('address'),
+        city: f('city'),
+        country: f('country'),
+        email: f('email'),
+        phone: f('phone'),
+        website: f('website'),
+        store_type: f('store_type'),
+        products_category: f('products_category'),
+        target_market: f('target_market'),
+        language: document.getElementById('selected-language').value,
+        documents: docs
+      };
+
+      showLoading();
+      try {
+        const res = await fetch('/api/legal/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) { showError(json.message || 'Generation failed.'); return; }
+        showResults(json.documents, data.business_name);
+      } catch (err) {
+        showError('Network error. Please try again.');
+      }
+    }
+    document.getElementById('legal-form').addEventListener('submit', handleGenerate);
+  </script>
+</body>
+</html>
