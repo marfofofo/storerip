@@ -635,31 +635,37 @@ def api_download(job_id):
     with jobs_lock:
         job = jobs.get(job_id)
         if job is None:
-            return jsonify({"error": "Unknown job"}), 404
-        if job["status"] != "done" or not job["rows"]:
-            return jsonify({"error": "Job not ready"}), 409
-        rows = job["rows"]
-        output = job["output"]
-        domain = job["domain"]
+            return jsonify({"error": "job_not_found",
+                            "message": "Job expired or not found"}), 404
+        if job.get("status") != "done":
+            return jsonify({"error": "not_ready", "message": "Job not ready"}), 400
+        rows = job.get("rows") or []
+        if not rows:
+            return jsonify({"error": "no_data", "message": "No rows to export"}), 400
+        output = job.get("output", "woocommerce")
+        domain = job.get("domain", "store")
 
+    # Keep the format the user selected — do NOT flatten Shopify back to Woo columns.
     if output == "shopify":
         csv_text = _build_shopify_csv(rows)
     else:
         csv_text = _build_woocommerce_csv(rows)
 
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    filename = f"{domain}_{output}_{timestamp}.csv"
+    # Write an explicit UTF-8 BOM so Excel + the platform importers read accents.
+    csv_bytes = io.BytesIO()
+    csv_bytes.write(b"\xef\xbb\xbf")
+    csv_bytes.write(csv_text.encode("utf-8"))
+    csv_bytes.seek(0)
 
-    # utf-8-sig so Excel and WooCommerce/Shopify importers read accents correctly.
-    payload = io.BytesIO(csv_text.encode("utf-8-sig"))
-    payload.seek(0)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    filename = f"{domain}_{output}_{timestamp}.csv"
 
     # Cleanup: drop the job from memory after handing off the file.
     with jobs_lock:
         jobs.pop(job_id, None)
 
     return send_file(
-        payload,
+        csv_bytes,
         mimetype="text/csv",
         as_attachment=True,
         download_name=filename,
@@ -678,6 +684,33 @@ def api_abort(job_id):
 # ──────────────────────────────────────────────
 #  Legal Pages Generator (Google Gemini Flash 2.5)
 # ──────────────────────────────────────────────
+
+def _parse_gemini_json(raw):
+    """Best-effort parse of a Gemini JSON reply.
+
+    Gemini 2.5 Flash sometimes wraps JSON in ```fences``` or adds prose even
+    when asked for raw JSON. Strip fences, try a direct parse, then fall back
+    to extracting the outermost {...} object. Returns a dict, or None on failure.
+    """
+    raw = (raw or "").strip()
+
+    # Strip markdown code fences if present.
+    if raw.startswith("```"):
+        raw = re.sub(r'^```[a-zA-Z]*\n?', '', raw)
+        raw = re.sub(r'\n?```$', '', raw)
+        raw = raw.strip()
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        match = re.search(r'\{[\s\S]*\}', raw)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                return None
+        return None
+
 
 LEGAL_VALID_LANGS = ("it", "fr", "de", "es", "en")
 
@@ -768,26 +801,33 @@ Rules:
 - Use business name and website throughout
 - Year: 2026
 - Be specific to the products/services category
+
+IMPORTANT: Return ONLY a raw JSON object. No markdown, no code fences, no
+explanation. Start your response with {{ and end with }}
 """.strip()
 
         # --- Gemini call ---
+        # Note: response_mime_type is intentionally omitted — Gemini 2.5 Flash
+        # sometimes ignores it and wraps JSON in markdown anyway. The prompt
+        # enforces raw JSON and _parse_gemini_json() cleans up any stray fences.
         model = genai.GenerativeModel(
             model_name="gemini-2.5-flash",
             generation_config={
                 "temperature": 0.3,
                 "max_output_tokens": 8192,
-                "response_mime_type": "application/json",
             },
             system_instruction=LEGAL_SYSTEM_INSTRUCTION,
         )
         response = model.generate_content(prompt)
 
-        try:
-            parsed = json.loads(response.text)
-        except (ValueError, AttributeError) as e:
-            print(f"[legal] parse failed: {e}")
-            return jsonify({"error": "parse_failed",
-                            "message": "AI returned invalid response, try again"}), 502
+        parsed = _parse_gemini_json(getattr(response, "text", ""))
+        if parsed is None:
+            print(f"[legal] parse failed; raw preview: {getattr(response, 'text', '')[:200]!r}")
+            return jsonify({
+                "error": "parse_failed",
+                "message": "AI returned invalid response, try again",
+                "raw_preview": (getattr(response, "text", "") or "")[:200],
+            }), 502
 
         return jsonify({
             "success": True,
@@ -1087,7 +1127,9 @@ Rules:
         },
     )
     response = model.generate_content(prompt)
-    enhanced = json.loads(response.text)
+    enhanced = _parse_gemini_json(getattr(response, "text", ""))
+    if enhanced is None:
+        raise ValueError("Gemini returned unparseable JSON")
 
     new_short = (enhanced.get("short_description") or "").strip()
     new_desc = (enhanced.get("description") or "").strip()
@@ -1252,10 +1294,13 @@ def api_enhancer_download(job_id):
     with enhancer_jobs_lock:
         job = enhancer_jobs.get(job_id)
         if not job:
-            return jsonify({"error": "Unknown job"}), 404
-        if job["status"] != "done" or not job["rows"]:
-            return jsonify({"error": "Job not ready"}), 409
-        rows = job["rows"]
+            return jsonify({"error": "job_not_found",
+                            "message": "Job expired or not found"}), 404
+        if job.get("status") != "done":
+            return jsonify({"error": "not_ready", "message": "Job not ready"}), 400
+        rows = job.get("rows") or []
+        if not rows:
+            return jsonify({"error": "no_data", "message": "No rows to export"}), 400
         fieldnames = job["fieldnames"]
         platform = job["platform"]
 
@@ -1264,16 +1309,19 @@ def api_enhancer_download(job_id):
     writer.writeheader()
     for r in rows:
         writer.writerow({k: r.get(k, "") for k in fieldnames})
-    payload = io.BytesIO(buf.getvalue().encode("utf-8-sig"))
-    payload.seek(0)
 
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    csv_bytes = io.BytesIO()
+    csv_bytes.write(b"\xef\xbb\xbf")  # UTF-8 BOM
+    csv_bytes.write(buf.getvalue().encode("utf-8"))
+    csv_bytes.seek(0)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
     filename = f"enhanced_{platform}_{timestamp}.csv"
 
     with enhancer_jobs_lock:
         enhancer_jobs.pop(job_id, None)
 
-    return send_file(payload, mimetype="text/csv", as_attachment=True, download_name=filename)
+    return send_file(csv_bytes, mimetype="text/csv", as_attachment=True, download_name=filename)
 
 
 def _print_banner(port):
