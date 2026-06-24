@@ -16,32 +16,40 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg:        #050505;
-      --surface:   #0c0c0c;
-      --surface-2: #131313;
-      --border:    #1c1c1c;
-      --border-h:  #2a2a2a;
-      --text-1:    #ededed;
-      --text-2:    #5a5a5a;
-      --text-3:    #2e2e2e;
-      --accent:    #b8f400;
-      --accent-bg: rgba(184,244,0,0.06);
-      --danger:    #ff4040;
-      --success:   #00e87a;
-      --radius:    8px;
-      --radius-lg: 14px;
-      /* design-mandated literals, kept as variables so no element hardcodes color */
-      --on-accent: #000;
-      --nav-bg:    rgba(5,5,5,0.92);
-      --term-bg:   #000;
-      --tl-r:      #ff5f57;
-      --tl-y:      #febc2e;
-      --tl-g:      #28c840;
-      --row-alt:   rgba(255,255,255,0.015);
+      --bg:         #ffffff;
+      --surface:    #f9fafb;
+      --surface-2:  #f3f4f6;
+      --border:     #e5e7eb;
+      --border-h:   #d1d5db;
+      --text-1:     #0d0d0d;
+      --text-2:     #4b5563;
+      --text-3:     #9ca3af;
+      --accent:     #16a34a;
+      --accent-light: #dcfce7;
+      --accent-dark:  #14532d;
+      --on-accent:  #ffffff;
+      --nav-bg:     rgba(255,255,255,0.95);
+      --term-bg:    #0d0d0d;
+      --term-green: #4ade80;
+      --row-alt:    rgba(22,163,74,0.03);
+      --radius:     6px;
+      --radius-lg:  10px;
+      /* terminal-interior + traffic-light literals kept as vars (dark UI inside the card) */
+      --term-chrome: #1a1a1a;
+      --term-chrome-border: #2a2a2a;
+      --term-text:   #e5e7eb;
+      --term-prompt: #6b7280;
+      --term-muted:  #4b5563;
+      --term-tab:    #555;
+      --tl-r: #ff5f57;
+      --tl-y: #febc2e;
+      --tl-g: #28c840;
+      --dot:  #d1fae5;
+      --cta-sub: rgba(255,255,255,0.5);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,186 +57,211 @@
     body {
       background: var(--bg);
       color: var(--text-1);
-      font-family: 'Syne', sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
+      font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
     a { color: inherit; text-decoration: none; }
-    .mono { font-family: 'Geist Mono', monospace; }
 
-    /* ── NAV (appears on scroll) ── */
+    /* ── NAV ── */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 56px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 52px;
       display: flex; align-items: center;
-      background: var(--nav-bg); backdrop-filter: blur(16px);
+      background: var(--nav-bg); backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
       opacity: 0; pointer-events: none; transition: opacity 300ms ease;
     }
     nav.show { opacity: 1; pointer-events: auto; }
     .nav-inner { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 48px;
       display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { font-family: 'Geist Mono', monospace; font-weight: 500; font-size: 15px; color: var(--text-1); }
+    .nav-logo { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 14px; color: var(--text-1); }
     .nav-logo .dot { color: var(--accent); }
-    .nav-links { display: flex; align-items: center; gap: 28px; }
-    .nav-links a.link { font-size: 13px; color: var(--text-2); transition: color 150ms ease; }
+    .nav-links { display: flex; align-items: center; gap: 26px; }
+    .nav-links a.link { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-2); transition: color 150ms ease; }
     .nav-links a.link:hover { color: var(--text-1); }
     .nav-cta {
-      background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 13px;
-      padding: 8px 18px; border-radius: var(--radius); transition: filter 150ms ease;
+      font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 12px;
+      background: var(--accent); color: var(--on-accent);
+      padding: 7px 16px; border-radius: var(--radius); transition: background 150ms ease;
     }
-    .nav-cta:hover { filter: brightness(1.08); }
+    .nav-cta:hover { background: var(--accent-dark); }
 
     /* ── Shared buttons ── */
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
-      background: var(--accent); color: var(--on-accent); font-family: 'Syne', sans-serif;
-      font-weight: 700; font-size: 15px; padding: 12px 28px; border-radius: var(--radius);
-      border: none; cursor: pointer; transition: filter 150ms ease;
+      font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px;
+      background: var(--accent); color: var(--on-accent);
+      padding: 11px 24px; border-radius: var(--radius); border: none; cursor: pointer;
+      transition: background 150ms ease;
     }
-    .btn-primary:hover { filter: brightness(1.08); }
-    .btn-primary.lg { padding: 16px 40px; font-size: 16px; }
+    .btn-primary:hover { background: var(--accent-dark); }
     .btn-link {
-      font-family: 'Syne', sans-serif; font-size: 14px; color: var(--text-2);
+      font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-3);
       transition: color 150ms ease;
     }
-    .btn-link:hover { color: var(--text-1); }
+    .btn-link:hover { color: var(--text-2); }
 
     /* ── Eyebrow / section heads ── */
     .eyebrow {
-      font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--accent);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent);
       letter-spacing: 0.12em; text-transform: uppercase;
     }
-    .sec-head { max-width: 1200px; margin: 0 auto 56px; padding: 0 48px; }
+    .sec-head { max-width: 1200px; margin: 0 auto 52px; padding: 0 48px; }
     .sec-head h2 {
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(2rem, 3vw, 3rem);
-      color: var(--text-1); letter-spacing: -0.02em; margin: 14px 0 12px;
+      font-family: 'IBM Plex Sans', sans-serif; font-weight: 700; font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+      color: var(--text-1); letter-spacing: -0.01em; margin: 14px 0 12px;
     }
-    .sec-head p { font-size: 16px; color: var(--text-2); }
+    .sec-head p { font-size: 15px; color: var(--text-2); line-height: 1.7; }
 
     /* ── HERO ── */
     .hero {
+      position: relative;
       max-width: 1200px; margin: 0 auto; padding: 0 48px;
       display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
       align-items: center; min-height: 100vh;
     }
+    .hero::before {
+      content: ""; position: absolute; inset: 0; z-index: 0; opacity: 0.8;
+      background-image: radial-gradient(circle, var(--dot) 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%);
+              mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%);
+    }
+    .hero-left, .hero-right { position: relative; z-index: 1; }
     .hero-eyebrow { display: block; margin-bottom: 24px; }
     .hero h1 {
-      font-family: 'Syne', sans-serif; font-weight: 800;
-      font-size: clamp(2.8rem, 4.5vw, 5rem); color: var(--text-1);
-      letter-spacing: -0.03em; line-height: 1.0; margin-bottom: 24px;
+      font-family: 'IBM Plex Sans', sans-serif; font-weight: 700;
+      font-size: clamp(2.8rem, 5vw, 4.5rem); color: var(--text-1);
+      letter-spacing: -0.02em; line-height: 1.08; margin-bottom: 24px;
     }
     .hero-sub {
-      font-family: 'Syne', sans-serif; font-weight: 400; font-size: 17px;
-      color: var(--text-2); line-height: 1.7; max-width: 420px; margin-bottom: 40px;
+      font-family: 'IBM Plex Sans', sans-serif; font-size: 15px;
+      color: var(--text-2); line-height: 1.7; max-width: 440px; margin-bottom: 36px;
     }
-    .hero-cta { display: flex; gap: 16px; align-items: center; }
+    .hero-cta { display: flex; gap: 18px; align-items: center; }
     .trust { margin-top: 32px; display: flex; gap: 20px; flex-wrap: wrap; }
-    .trust span { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-2); }
-    .trust .ck { color: var(--accent); }
+    .trust span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); }
+    .trust .ck { color: var(--accent); font-weight: 600; }
 
     /* ── Terminal ── */
     .term {
       background: var(--term-bg); border: 1px solid var(--border);
       border-radius: var(--radius-lg); overflow: hidden;
-      font-family: 'Geist Mono', monospace;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
     }
     .term-bar {
-      background: var(--surface-2); padding: 10px 16px;
-      display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border);
+      background: var(--term-chrome); padding: 10px 14px;
+      display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--term-chrome-border);
     }
     .tl { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
     .tl.r { background: var(--tl-r); }
     .tl.y { background: var(--tl-y); }
     .tl.g { background: var(--tl-g); }
-    .term-tab { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); margin-left: 12px; }
+    .term-tab { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--term-tab); margin-left: 12px; }
     .term-body {
-      padding: 24px 28px; min-height: 320px; font-size: 13px; line-height: 2;
+      padding: 20px 24px; min-height: 320px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.9; color: var(--term-text);
     }
-    .tw-line { white-space: pre; min-height: 26px; }
-    .tw-cursor { color: var(--accent); animation: blink 1s step-end infinite; }
+    .tw-line { white-space: pre; min-height: 25px; }
+    .tw-cursor { color: var(--term-green); animation: blink 1s step-end infinite; }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
-    /* ── HOW IT WORKS ── */
-    .section { padding: 120px 48px; }
+    /* ── Sections ── */
+    .section { padding: 100px 48px; }
     .section.bordered { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .section.surface { background: var(--surface); }
     .grid-wrap { max-width: 1200px; margin: 0 auto; }
+
+    /* ── HOW IT WORKS ── */
     .steps {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border);
       border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
     }
     .step {
-      background: var(--surface); padding: 48px 40px; position: relative; overflow: hidden;
-      transition: background 200ms ease;
+      background: var(--bg); padding: 40px 36px; position: relative; overflow: hidden;
+      border-left: 3px solid transparent;
+      transition: background 200ms ease, border-left-color 200ms ease;
     }
-    .step:hover { background: var(--surface-2); }
+    .step:hover { background: var(--surface); border-left-color: var(--accent); }
     .step .watermark {
-      position: absolute; top: -10px; right: 16px; font-family: 'Geist Mono', monospace;
-      font-size: 8rem; font-weight: 500; color: var(--border); line-height: 1;
+      position: absolute; top: -6px; right: 16px; font-family: 'IBM Plex Mono', monospace;
+      font-size: 7rem; font-weight: 500; color: var(--accent-light); line-height: 1;
       pointer-events: none; user-select: none;
     }
     .step .body { position: relative; z-index: 1; }
-    .step h3 { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 17px; color: var(--text-1); margin-bottom: 10px; }
-    .step p { font-family: 'Syne', sans-serif; font-weight: 400; font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    .step h3 { font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-1); margin-bottom: 10px; }
+    .step p { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: var(--text-2); line-height: 1.7; }
 
     /* ── USE CASES ── */
     .cases {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border);
       border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
     }
-    .case { background: var(--surface); padding: 48px; transition: background 200ms ease; }
+    .case { background: var(--surface); padding: 40px; transition: background 200ms ease; }
     .case:hover { background: var(--surface-2); }
-    .case .ic { font-family: 'Geist Mono', monospace; font-size: 1.2rem; color: var(--accent); margin-bottom: 20px; }
-    .case h3 { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 18px; color: var(--text-1); margin-bottom: 12px; }
-    .case p { font-family: 'Syne', sans-serif; font-weight: 400; font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    .case .ic {
+      font-family: 'IBM Plex Mono', monospace; font-size: 1.1rem; color: var(--accent);
+      background: var(--accent-light); padding: 6px 10px; border-radius: var(--radius);
+      display: inline-block; margin-bottom: 16px;
+    }
+    .case h3 { font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-1); margin-bottom: 12px; }
+    .case p { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: var(--text-2); line-height: 1.7; }
 
     /* ── WHAT'S IN THE CSV ── */
-    .section.csv { background: var(--surface); }
     .tabs {
       display: inline-flex; background: var(--bg); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 3px; margin-bottom: 32px;
     }
     .tab {
-      font-family: 'Geist Mono', monospace; font-size: 12px; padding: 6px 16px;
-      background: transparent; color: var(--text-2); border: none; cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 5px 14px;
+      background: transparent; color: var(--text-3); border: none; cursor: pointer;
       border-radius: calc(var(--radius) - 2px); transition: color 150ms ease, background 150ms ease;
     }
-    .tab:hover { color: var(--text-1); }
-    .tab.active { background: var(--accent); color: var(--on-accent); font-weight: 500; }
-    .table-box { overflow-x: auto; }
+    .tab:hover { color: var(--text-2); }
+    .tab.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+    .table-box { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
     .panel { display: none; }
     .panel.active { display: block; }
-    table.cols { width: 100%; border-collapse: collapse; font-family: 'Geist Mono', monospace; font-size: 12px; min-width: 680px; }
+    table.cols { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 12px; min-width: 680px; }
     table.cols th {
-      color: var(--text-3); border-bottom: 1px solid var(--border);
-      padding: 8px 16px; text-align: left; font-weight: 500; white-space: nowrap;
+      font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border); padding: 8px 12px; text-align: left; font-weight: 500; white-space: nowrap;
     }
-    table.cols td { color: var(--text-2); padding: 10px 16px; white-space: nowrap; }
+    table.cols td { color: var(--text-2); padding: 10px 12px; white-space: nowrap; }
     table.cols tbody tr:nth-child(odd) { background: var(--row-alt); }
-    .csv-caption { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); text-align: center; margin-top: 24px; }
+    table.cols tbody tr:hover { background: var(--accent-light); }
+    .csv-caption { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); text-align: center; margin-top: 20px; }
 
     /* ── FINAL CTA ── */
-    .final-cta { padding: 160px 48px; text-align: center; }
+    .final-cta { padding: 130px 48px; text-align: center; background: var(--accent-dark); }
     .final-cta h2 {
-      font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.5rem, 5vw, 4.5rem);
-      color: var(--text-1); letter-spacing: -0.03em; line-height: 1.0; margin-bottom: 16px;
+      font-family: 'IBM Plex Sans', sans-serif; font-weight: 700; font-size: clamp(2rem, 4vw, 3.4rem);
+      color: var(--on-accent); letter-spacing: -0.02em; line-height: 1.08; margin-bottom: 16px;
     }
-    .final-cta .sub { font-family: 'Geist Mono', monospace; font-size: 13px; color: var(--text-3); margin-bottom: 48px; }
+    .final-cta .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--cta-sub); margin-bottom: 44px; }
+    .btn-invert {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px;
+      background: var(--on-accent); color: var(--accent-dark);
+      padding: 13px 32px; border-radius: var(--radius); transition: background 150ms ease;
+    }
+    .btn-invert:hover { background: var(--accent-light); }
 
     /* ── FOOTER ── */
     footer {
-      border-top: 1px solid var(--border); padding: 48px;
+      background: var(--bg); border-top: 1px solid var(--border); padding: 40px 48px;
       display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
     }
-    .foot-logo { font-family: 'Geist Mono', monospace; font-size: 14px; color: var(--text-1); }
+    .foot-logo { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: var(--text-1); }
     .foot-logo .dot { color: var(--accent); }
-    .foot-tagline { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); margin-top: 4px; }
+    .foot-tagline { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); margin-top: 4px; }
     .foot-right { text-align: right; }
     .foot-links { display: flex; gap: 24px; justify-content: flex-end; margin-bottom: 6px; }
-    .foot-links a { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
+    .foot-links a { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
     .foot-links a:hover { color: var(--text-2); }
-    .foot-copy { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-3); }
+    .foot-copy { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); }
 
     /* ── Scroll animations ── */
     .animate-in {
@@ -250,7 +283,7 @@
       .steps, .cases { grid-template-columns: 1fr; }
       .section { padding: 80px 24px; }
       .sec-head { padding: 0 24px; }
-      .final-cta { padding: 100px 24px; }
+      .final-cta { padding: 90px 24px; }
       footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
       .foot-right { text-align: left; }
       .foot-links { justify-content: flex-start; }
@@ -301,7 +334,7 @@
   </header>
 
   <!-- ── HOW IT WORKS ── -->
-  <section class="section bordered" id="how">
+  <section class="section bordered surface" id="how">
     <div class="sec-head">
       <span class="eyebrow">HOW IT WORKS</span>
       <h2 class="animate-in">Three steps. Ten seconds.</h2>
@@ -367,7 +400,7 @@
   </section>
 
   <!-- ── WHAT'S IN THE CSV ── -->
-  <section class="section bordered csv">
+  <section class="section bordered surface">
     <div class="sec-head">
       <span class="eyebrow">WHAT YOU GET</span>
       <h2 class="animate-in">Every column. Import-ready.</h2>
@@ -410,7 +443,7 @@
   <section class="final-cta">
     <h2 class="animate-in">Start exporting in 10 seconds.</h2>
     <p class="sub">Free. No account. No limits.</p>
-    <a href="http://76.13.149.203:5050" class="btn-primary lg">Open StoreCSV →</a>
+    <a href="http://76.13.149.203:5050" class="btn-invert">Open StoreCSV →</a>
   </section>
 
   <!-- ── FOOTER ── -->
@@ -430,9 +463,9 @@
   </footer>
 
   <script>
-    // ── NAV: appear after 60px scroll ──
+    // ── NAV: appear after 40px scroll ──
     const nav = document.getElementById('nav');
-    function onScroll() { nav.classList.toggle('show', window.scrollY > 60); }
+    function onScroll() { nav.classList.toggle('show', window.scrollY > 40); }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
@@ -456,22 +489,22 @@
 
     // ── Typewriter terminal ──
     const LINES = [
-      { text: "$ storecsv scrape", color: "var(--text-1)", delay: 0 },
-      { text: "> URL: https://example-store.com", color: "var(--text-2)", delay: 500 },
+      { text: "$ storecsv scrape", color: "var(--term-text)", delay: 0 },
+      { text: "> URL: https://example-store.com", color: "var(--term-prompt)", delay: 500 },
       { text: "", delay: 300 },
-      { text: "Detecting platform...", color: "var(--text-2)", delay: 400 },
-      { text: "✓ WooCommerce detected", color: "var(--accent)", delay: 700 },
+      { text: "Detecting platform...", color: "var(--term-muted)", delay: 400 },
+      { text: "✓ WooCommerce detected", color: "var(--term-green)", delay: 700 },
       { text: "", delay: 200 },
-      { text: "Fetching products...", color: "var(--text-2)", delay: 300 },
-      { text: "  → Page 1: 47 products", color: "var(--text-2)", delay: 600 },
-      { text: "  → Page 2: 47 products", color: "var(--text-2)", delay: 500 },
+      { text: "Fetching products...", color: "var(--term-muted)", delay: 300 },
+      { text: "  → Page 1: 47 products", color: "var(--term-muted)", delay: 600 },
+      { text: "  → Page 2: 47 products", color: "var(--term-muted)", delay: 500 },
       { text: "", delay: 200 },
-      { text: "████████████████████ 100%", color: "var(--accent)", delay: 800 },
+      { text: "████████████████████ 100%", color: "var(--term-green)", delay: 800 },
       { text: "", delay: 100 },
-      { text: "✓ 94 products exported", color: "var(--accent)", delay: 300 },
-      { text: "  187 rows (incl. variations, images, SKUs)", color: "var(--text-2)", delay: 200 },
+      { text: "✓ 94 products exported", color: "var(--term-green)", delay: 300 },
+      { text: "  187 rows (incl. variations, images, SKUs)", color: "var(--term-muted)", delay: 200 },
       { text: "", delay: 300 },
-      { text: "[ ↓ download: example-store_woo_20260624.csv ]", color: "var(--accent)", delay: 400 },
+      { text: "[ ↓ download: example-store_woo_20260624.csv ]", color: "var(--term-green)", delay: 400 },
     ];
 
     const body = document.getElementById('term-body');
@@ -484,7 +517,7 @@
     async function typeLine(line) {
       const div = document.createElement('div');
       div.className = 'tw-line';
-      div.style.color = line.color || 'var(--text-2)';
+      div.style.color = line.color || 'var(--term-muted)';
       const txt = document.createElement('span');
       div.appendChild(txt);
       div.appendChild(cursor);
@@ -506,7 +539,6 @@
           await typeLine(line);
           if (line.delay) await sleep(line.delay);
         }
-        // cursor blinks at end for 3s, then fade out + restart
         await sleep(3000);
         body.style.transition = 'opacity 400ms ease';
         body.style.opacity = '0';
