@@ -1,0 +1,25 @@
+[Unit]
+Description=StoreCSV Flask backend
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/storerip
+# Loads PORT, DEBUG, ANTHROPIC_API_KEY, etc. (optional — app.py also reads .env)
+EnvironmentFile=-/root/storerip/.env
+ExecStart=/usr/bin/python3 /root/storerip/app.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+# ── Install ────────────────────────────────────────────────
+#   sudo cp storecsv.service /etc/systemd/system/storecsv.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now storecsv
+#   systemctl status storecsv          # check it's running
+#   journalctl -u storecsv -f          # follow logs (stdout banner + prints)

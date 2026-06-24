@@ -2,6 +2,7 @@ import requests
 import csv
 import sys
 import re
+import time
 from urllib.parse import urlparse
 import warnings
 warnings.filterwarnings("ignore")
@@ -24,12 +25,21 @@ def detect_platform(base_url):
 def fetch_woocommerce_products(base_url):
     products = []
     page = 1
+    started = time.monotonic()
     while True:
         url = f"{base_url}/wp-json/wc/store/v1/products?per_page=100&page={page}"
-        r = requests.get(url, timeout=15)
+        try:
+            r = requests.get(url, timeout=15)
+        except requests.RequestException as e:
+            print(f"  ! Errore di rete a pagina {page}: {e}")
+            break
         if r.status_code != 200:
             break
-        data = r.json()
+        try:
+            data = r.json()
+        except ValueError as e:
+            print(f"  ! Risposta non valida a pagina {page}: {e}")
+            break
         if not data:
             break
         products.extend(data)
@@ -37,17 +47,27 @@ def fetch_woocommerce_products(base_url):
         if len(data) < 100:
             break
         page += 1
+    print(f"  WooCommerce: {len(products)} prodotti in {time.monotonic() - started:.1f}s")
     return products
 
 def fetch_shopify_products(base_url):
     products = []
     page = 1
+    started = time.monotonic()
     while True:
         url = f"{base_url}/products.json?limit=250&page={page}"
-        r = requests.get(url, timeout=15)
+        try:
+            r = requests.get(url, timeout=15)
+        except requests.RequestException as e:
+            print(f"  ! Errore di rete a pagina {page}: {e}")
+            break
         if r.status_code != 200:
             break
-        data = r.json().get("products", [])
+        try:
+            data = r.json().get("products", [])
+        except ValueError as e:
+            print(f"  ! Risposta non valida a pagina {page}: {e}")
+            break
         if not data:
             break
         products.extend(data)
@@ -55,6 +75,7 @@ def fetch_shopify_products(base_url):
         if len(data) < 250:
             break
         page += 1
+    print(f"  Shopify: {len(products)} prodotti in {time.monotonic() - started:.1f}s")
     return products
 
 def clean_html(value):

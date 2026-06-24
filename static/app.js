@@ -124,7 +124,7 @@
       }
       currentJob = data.job_id;
       lastLogLen = 0;
-      $("p-jobid").textContent = currentJob;
+      $("p-jobid").textContent = "job: " + currentJob;
       $("p-status").textContent = "RUNNING";
       $("p-log").textContent = "";
       $("p-bar").textContent = asciiBar(0);
@@ -219,6 +219,24 @@
   }
   $("btn-new").addEventListener("click", resetToInput);
   $("btn-retry").addEventListener("click", resetToInput);
+
+  // ── Copy Job ID on click, with "Copied!" tooltip ──
+  const jobIdEl = $("p-jobid");
+  if (jobIdEl) {
+    jobIdEl.addEventListener("click", async () => {
+      if (!currentJob) return;
+      try {
+        await navigator.clipboard.writeText(currentJob);
+      } catch (e) {
+        // clipboard API unavailable (e.g. non-HTTPS) — fail quietly
+      }
+      const toast = $("copied-toast");
+      if (toast) {
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1200);
+      }
+    });
+  }
 
   // ── Init ──
   show("input");

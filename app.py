@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-app.py  —  StoreRip Flask backend.
+app.py  —  StoreCSV Flask backend.
 
 Wraps the existing scraper.py to scrape WooCommerce/Shopify stores via their
 public APIs and serve a ready-to-import CSV. Optional AI copy enhancement via
@@ -17,9 +17,11 @@ Run:  python3 app.py   ->  http://0.0.0.0:$PORT  (default 5050)
 
 import csv
 import io
+import ipaddress
 import json
 import os
 import re
+import socket
 import threading
 import time
 import uuid
@@ -27,6 +29,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 
 from flask import Flask, jsonify, render_template, request, send_file
+from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 
 # --- Existing scraper (imported, never modified) ---
@@ -40,6 +43,8 @@ from scraper import (
 import ai_enhance
 
 load_dotenv()
+
+APP_VERSION = "1.0"
 
 # --- Tunable defaults, overridable via config.json in the project root ---
 CONFIG_DEFAULTS = {
@@ -74,6 +79,19 @@ MAX_CONCURRENT_JOBS = int(CONFIG["max_jobs"])
 JOB_TTL_SECONDS = int(CONFIG["job_ttl_minutes"]) * 60
 ENHANCE_RATE_LIMIT_SEC = float(CONFIG["enhance_rate_limit_sec"])
 
+# Debug comes from .env, defaults False — never debug=True in production.
+DEBUG = os.environ.get("DEBUG", "false").strip().lower() in ("1", "true", "yes", "on")
+
+# CORS: only the Vercel landing origin may call the API cross-origin.
+ALLOWED_ORIGIN = os.environ.get(
+    "ALLOWED_ORIGIN",
+    "https://storerip-opil7d97i-marfofofos-projects.vercel.app",
+).rstrip("/")
+
+# Per-IP rate limit on /api/scrape.
+RATE_LIMIT_MAX = 3
+RATE_LIMIT_WINDOW = 3600  # 1 hour, in seconds
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "dev-insecure-key")
 
@@ -82,6 +100,10 @@ app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "dev-insecure-key"
 #             platform, output, enhanced, error, domain, created }
 jobs = {}
 jobs_lock = threading.Lock()
+
+# --- In-memory per-IP rate-limit ledger: ip -> [timestamps] ---
+ip_hits = {}
+ip_lock = threading.Lock()
 
 
 # ──────────────────────────────────────────────
@@ -97,12 +119,13 @@ def _active_job_count():
 
 
 def _cleanup_jobs():
-    """Drop jobs older than the TTL. Called opportunistically."""
+    """Drop jobs older than the TTL. Called opportunistically + by the janitor."""
     cutoff = _now() - JOB_TTL_SECONDS
     with jobs_lock:
         stale = [jid for jid, j in jobs.items() if j["created"] < cutoff]
         for jid in stale:
             jobs.pop(jid, None)
+    return len(stale)
 
 
 def _set(job_id, **fields):
@@ -124,6 +147,117 @@ def _append_log(job_id, line):
 def _domain_from_url(url):
     netloc = urlparse(url).netloc or url
     return re.sub(r"[^A-Za-z0-9_.-]", "", netloc.replace(".", "_")) or "store"
+
+
+# ── Input validation / SSRF guard ──
+
+_BLOCKED_HOSTNAMES = {"localhost", "ip6-localhost", "ip6-loopback"}
+
+
+def _is_blocked_ip(ip_str):
+    """True if the literal IP is loopback / private / link-local / reserved."""
+    try:
+        ip = ipaddress.ip_address(ip_str)
+    except ValueError:
+        return False
+    return (
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_reserved
+        or ip.is_multicast
+        or ip.is_unspecified
+    )
+
+
+def validate_target_url(raw):
+    """
+    Validate a user-supplied store URL.
+
+    Returns (clean_url, None) on success or (None, reason) on rejection.
+    Rejects: empty, >500 chars, missing http(s) scheme, localhost / *.local,
+    and hosts that are (or resolve to) loopback/private/link-local addresses.
+    This is the primary SSRF defense around scraper.py's outbound requests.
+    """
+    url = (raw or "").strip()
+    if not url:
+        return None, "URL required."
+    if len(url) > 500:
+        return None, "URL too long (max 500 characters)."
+    if not re.match(r"^https?://", url, re.IGNORECASE):
+        return None, "URL must start with http:// or https://"
+
+    host = urlparse(url).hostname
+    if not host:
+        return None, "URL has no host."
+    h = host.lower()
+    if h in _BLOCKED_HOSTNAMES or h.endswith(".local"):
+        return None, "Local and private hosts are not allowed."
+    if _is_blocked_ip(host):
+        return None, "Private or loopback IP addresses are not allowed."
+
+    # Resolve and re-check every address the host maps to (SSRF / DNS rebinding).
+    try:
+        for info in socket.getaddrinfo(host, None):
+            if _is_blocked_ip(info[4][0]):
+                return None, "Host resolves to a private or loopback address."
+    except OSError:
+        # Unresolvable here — let the scraper try; network errors are handled later.
+        pass
+
+    return url.rstrip("/"), None
+
+
+# ── Rate limiting ──
+
+def _client_ip():
+    """Best-effort client IP, honoring a single nginx X-Forwarded-For hop."""
+    xff = request.headers.get("X-Forwarded-For", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.remote_addr or "unknown"
+
+
+def _rate_limited(ip):
+    """Record a hit and return True if this IP is over the window limit."""
+    now = _now()
+    with ip_lock:
+        hits = [t for t in ip_hits.get(ip, []) if now - t < RATE_LIMIT_WINDOW]
+        if len(hits) >= RATE_LIMIT_MAX:
+            ip_hits[ip] = hits
+            return True
+        hits.append(now)
+        ip_hits[ip] = hits
+        return False
+
+
+def _prune_ip_hits():
+    now = _now()
+    with ip_lock:
+        for ip in list(ip_hits.keys()):
+            fresh = [t for t in ip_hits[ip] if now - t < RATE_LIMIT_WINDOW]
+            if fresh:
+                ip_hits[ip] = fresh
+            else:
+                ip_hits.pop(ip, None)
+
+
+# ── Background janitor: guarantees TTL cleanup even with no traffic ──
+
+def _janitor_loop():
+    while True:
+        time.sleep(300)  # every 5 minutes
+        try:
+            removed = _cleanup_jobs()
+            _prune_ip_hits()
+            if removed:
+                print(f"[janitor] cleaned {removed} expired job(s).")
+        except Exception as e:  # noqa: BLE001 — janitor must never die
+            print(f"[janitor] error: {e}")
+
+
+def start_janitor():
+    threading.Thread(target=_janitor_loop, daemon=True).start()
 
 
 # ──────────────────────────────────────────────
@@ -230,7 +364,11 @@ def _build_shopify_csv(rows):
 # ──────────────────────────────────────────────
 
 def _run_scrape(job_id, url, target, output, enhance):
-    """Background worker: detect -> fetch -> convert -> (enhance) -> store rows."""
+    """Background worker: detect -> fetch -> convert -> (enhance) -> store rows.
+
+    Any unhandled exception is caught and recorded as job status "error" so a
+    crashed thread never leaves a job stuck on "running".
+    """
     try:
         url = url.rstrip("/")
         _set(job_id, progress=5)
@@ -280,6 +418,8 @@ def _run_scrape(job_id, url, target, output, enhance):
         enhanced_done = False
         if enhance:
             if ai_enhance.is_available():
+                if len(raw) > ai_enhance.LARGE_CATALOG_THRESHOLD:
+                    _append_log(job_id, ai_enhance.LARGE_CATALOG_WARNING)
                 _append_log(job_id, "AI enhancing copy (Claude)...")
 
                 def _cb(done, tot):
@@ -315,6 +455,31 @@ def _run_scrape(job_id, url, target, output, enhance):
 
 
 # ──────────────────────────────────────────────
+#  Cross-origin + error handling
+# ──────────────────────────────────────────────
+
+@app.after_request
+def _apply_cors(resp):
+    """Only echo CORS headers back to the approved Vercel origin."""
+    origin = request.headers.get("Origin")
+    if origin and origin.rstrip("/") == ALLOWED_ORIGIN:
+        resp.headers["Access-Control-Allow-Origin"] = origin
+        resp.headers["Vary"] = "Origin"
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return resp
+
+
+@app.errorhandler(Exception)
+def _on_unhandled(e):
+    """Never leak a stack trace to the client; return clean JSON instead."""
+    if isinstance(e, HTTPException):
+        return e
+    print(f"[unhandled] {type(e).__name__}: {e}")
+    return jsonify({"error": "Internal server error."}), 500
+
+
+# ──────────────────────────────────────────────
 #  Routes
 # ──────────────────────────────────────────────
 
@@ -326,12 +491,19 @@ def index():
     )
 
 
+@app.route("/api/health")
+def api_health():
+    with jobs_lock:
+        n = len(jobs)
+    return jsonify({"status": "ok", "jobs": n}), 200
+
+
 @app.route("/api/detect", methods=["POST"])
 def api_detect():
     data = request.get_json(silent=True) or {}
-    url = (data.get("url") or "").strip().rstrip("/")
-    if not url:
-        return jsonify({"platform": None, "error": "URL required"}), 400
+    url, err = validate_target_url(data.get("url"))
+    if err:
+        return jsonify({"platform": None, "error": err}), 400
     try:
         platform = detect_platform(url)
     except Exception as e:  # noqa: BLE001
@@ -343,15 +515,23 @@ def api_detect():
 def api_scrape():
     _cleanup_jobs()
     data = request.get_json(silent=True) or {}
-    url = (data.get("url") or "").strip()
+
+    # Validate + sanitize the URL (length, scheme, SSRF guard).
+    url, err = validate_target_url(data.get("url"))
+    if err:
+        return jsonify({"error": err}), 400
+
     target = (data.get("target") or "auto").strip().lower()
     output = (data.get("output") or "woocommerce").strip().lower()
     enhance = bool(data.get("enhance", False))
 
-    if not url:
-        return jsonify({"error": "URL required"}), 400
-    if not re.match(r"^https?://", url):
-        url = "https://" + url
+    # Per-IP rate limit: max RATE_LIMIT_MAX scrapes per RATE_LIMIT_WINDOW.
+    ip = _client_ip()
+    if _rate_limited(ip):
+        return jsonify({
+            "error": f"Rate limit reached: max {RATE_LIMIT_MAX} scrapes per hour per IP. "
+                     "Try again later."
+        }), 429
 
     if _active_job_count() >= MAX_CONCURRENT_JOBS:
         return jsonify({"error": "Too many concurrent jobs. Try again shortly."}), 429
@@ -449,11 +629,18 @@ def api_abort(job_id):
     return jsonify({"aborted": existed}), 200
 
 
+def _print_banner(port):
+    ai_state = "enabled" if ai_enhance.is_available() else "disabled"
+    print("================================")
+    print(f"StoreCSV Backend v{APP_VERSION}")
+    print(f"Port: {port} | Debug: {DEBUG}")
+    print(f"Max jobs: {MAX_CONCURRENT_JOBS} | AI: {ai_state}")
+    print("================================")
+
+
 if __name__ == "__main__":
     # PORT env var takes precedence; otherwise fall back to config.json / default.
     port = int(os.environ.get("PORT", CONFIG["port"]))
-    print(f"StoreRip starting on http://0.0.0.0:{port}")
-    print(f"  max_jobs={MAX_CONCURRENT_JOBS}  job_ttl={JOB_TTL_SECONDS // 60}min  "
-          f"enhance_rate_limit={ENHANCE_RATE_LIMIT_SEC}s")
-    print(f"AI enhance available: {ai_enhance.is_available()}")
-    app.run(host="0.0.0.0", port=port, threaded=True)
+    _print_banner(port)
+    start_janitor()
+    app.run(host="0.0.0.0", port=port, debug=DEBUG, threaded=True)

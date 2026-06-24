@@ -29,6 +29,11 @@ SYSTEM_PROMPT = (
 # Internal rate limit: at most 1 request per second.
 _MIN_INTERVAL = 1.0
 
+# Above this product count, enhancement is slow enough to warrant a heads-up
+# in the job message (one Claude call per product at ~1 req/sec).
+LARGE_CATALOG_THRESHOLD = 50
+LARGE_CATALOG_WARNING = "AI enhance on large catalogs may take several minutes"
+
 
 def is_available():
     """True if enhancement can run (API key present + SDK importable)."""

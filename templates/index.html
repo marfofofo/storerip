@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STORERIP_</title>
+  <title>StoreCSV — Export</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <header class="app-header">
+    <a class="logo" href="https://storerip-opil7d97i-marfofofos-projects.vercel.app">
+      <span class="led">●</span> StoreCSV
+    </a>
+  </header>
+
   <main class="console">
 
     <!-- ── STEP 1 — INPUT ───────────────────────────────── -->
     <section id="step-input" class="panel">
-      <header class="panel-head">
-        <h1 class="brand">STORERIP<span class="cursor">_</span></h1>
-        <p class="tagline">// WOOCOMMERCE &amp; SHOPIFY PRODUCT EXTRACTOR</p>
-      </header>
-      <hr class="rule">
-
       <div class="field">
-        <label class="label">&gt; URL TARGET</label>
+        <label class="label">URL TARGET</label>
         <input type="text" id="url" class="text-input" placeholder="https://example-store.com" autocomplete="off" spellcheck="false">
       </div>
 
@@ -57,16 +57,16 @@
         </label>
       </div>
 
-      <button id="btn-run" class="btn btn-primary">&#9654; RUN SCRAPE</button>
+      <button id="btn-run" class="btn btn-primary">▶ RUN SCRAPE</button>
     </section>
 
     <!-- ── STEP 2 — PROGRESS ────────────────────────────── -->
     <section id="step-progress" class="panel hidden">
-      <header class="panel-head">
-        <h2 class="status-line">JOB_ID: <span id="p-jobid" class="hl">------</span></h2>
-        <h2 class="status-line">STATUS: <span id="p-status" class="hl">RUNNING</span></h2>
-      </header>
-      <hr class="rule">
+      <div class="job-head">
+        <span class="job-id" id="p-jobid" title="Click to copy">job: ------</span>
+        <span class="status-pill" id="p-status">RUNNING</span>
+        <span class="copied-toast" id="copied-toast">Copied!</span>
+      </div>
 
       <pre id="p-log" class="log"></pre>
 
@@ -74,41 +74,37 @@
         <pre id="p-bar" class="bar">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0%</pre>
       </div>
 
-      <button id="btn-abort" class="btn btn-danger">&#9632; ABORT</button>
+      <button id="btn-abort" class="btn btn-danger">■ ABORT</button>
     </section>
 
     <!-- ── STEP 3 — DONE ────────────────────────────────── -->
     <section id="step-done" class="panel hidden">
-      <header class="panel-head">
-        <h2 class="status-line ok">&#10003; COMPLETE</h2>
-      </header>
-      <hr class="rule">
+      <div class="done-mark">✓</div>
+      <h2 class="done-title">Export complete</h2>
 
-      <dl class="summary">
-        <div><dt>Products scraped</dt><dd id="d-products">0</dd></div>
-        <div><dt>Rows in CSV</dt><dd id="d-rows">0</dd></div>
-        <div><dt>Platform detected</dt><dd id="d-platform">—</dd></div>
-        <div><dt>Output format</dt><dd id="d-output">—</dd></div>
-        <div><dt>AI enhanced</dt><dd id="d-enhanced">No</dd></div>
-      </dl>
+      <div class="metrics">
+        <div class="metric"><div class="metric-val" id="d-products">0</div><div class="metric-key">Products</div></div>
+        <div class="metric"><div class="metric-val" id="d-rows">0</div><div class="metric-key">Rows</div></div>
+        <div class="metric"><div class="metric-val" id="d-platform">—</div><div class="metric-key">Platform</div></div>
+        <div class="metric"><div class="metric-val" id="d-enhanced">No</div><div class="metric-key">AI Enhanced</div></div>
+      </div>
+      <div class="output-line">Output format: <span id="d-output">—</span></div>
 
-      <button id="btn-download" class="btn btn-primary">&#8595; DOWNLOAD CSV</button>
-      <button id="btn-new" class="btn btn-ghost">&#8592; NEW SCRAPE</button>
+      <button id="btn-download" class="btn btn-primary">↓ DOWNLOAD CSV</button>
+      <button id="btn-new" class="btn btn-ghost">← NEW SCRAPE</button>
     </section>
 
     <!-- ── STEP 4 — ERROR ───────────────────────────────── -->
     <section id="step-error" class="panel hidden">
-      <header class="panel-head">
-        <h2 class="status-line err">&#10007; ERROR</h2>
-      </header>
-      <hr class="rule">
+      <div class="err-mark">✗</div>
+      <h2 class="err-title">Error</h2>
       <p id="e-message" class="err-message"></p>
-      <button id="btn-retry" class="btn btn-ghost">&#8592; RETRY</button>
+      <button id="btn-retry" class="btn btn-ghost">← RETRY</button>
     </section>
 
   </main>
 
-  <footer class="foot">STORERIP // NO DB · NO LOGS · NO ACCOUNTS</footer>
+  <footer class="foot">STORECSV // NO DB · NO LOGS · NO ACCOUNTS</footer>
 
   <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
