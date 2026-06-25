@@ -545,6 +545,12 @@ def index():
     )
 
 
+@app.route("/dashboard")
+def dashboard():
+    # Front-end-only product demo. All data is hardcoded in the template.
+    return render_template("dashboard.html")
+
+
 @app.route("/api/health")
 def api_health():
     with jobs_lock:

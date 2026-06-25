@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datafork — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a0a0a; --surface:#0f0f0f; --surface-2:#141414;
+      --border:#2a2a2a; --border-h:#3a3a3a;
+      --text-1:#f0f0f0; --text-2:#aaaaaa; --text-3:#555555;
+      --accent:#00ff41; --accent-dim:#00cc33; --accent-bg:rgba(0,255,65,0.08);
+      --danger:#ff4444; --warning:#ffaa00;
+      --radius:2px; --radius-lg:4px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background:var(--bg); color:var(--text-1);
+      font-family:'Share Tech Mono','Courier New',monospace;
+      font-size:13px; line-height:1.7; -webkit-font-smoothing:antialiased;
+    }
+    a { color:inherit; text-decoration:none; }
+    button { font-family:inherit; cursor:pointer; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position:fixed; top:0; left:0; width:220px; height:100vh;
+      background:#0d0d0d; border-right:1px solid var(--border);
+      padding:20px 0; display:flex; flex-direction:column; z-index:10;
+    }
+    .sb-logo { font-size:15px; padding:0 20px; margin-bottom:8px; }
+    .sb-status { color:var(--accent); font-size:10px; padding:0 20px; margin-bottom:24px; }
+    .nav { display:flex; flex-direction:column; flex:1; }
+    .nav-item {
+      display:flex; align-items:center; gap:10px; padding:10px 20px;
+      color:var(--text-2); font-size:12px; border-left:2px solid transparent;
+      transition:color .14s, background .14s, border-color .14s;
+    }
+    .nav-item:hover { color:var(--text-1); }
+    .nav-item.active { color:var(--accent); border-left:2px solid var(--accent); background:rgba(0,255,65,0.04); }
+    .nav-item .ico { width:18px; text-align:center; color:inherit; }
+    .nav-badge {
+      margin-left:auto; background:var(--danger); color:#000; font-size:9px;
+      border-radius:999px; padding:1px 6px; line-height:1.5;
+    }
+    .sb-plan { color:var(--text-3); font-size:10px; padding:20px; border-top:1px solid var(--border); }
+
+    /* ── MAIN ── */
+    .main { margin-left:220px; padding:32px 40px; min-height:100vh; }
+    .section { display:none; }
+    .section.active { display:block; animation:fade .2s ease; }
+    @keyframes fade { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+    .topbar { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; gap:16px; flex-wrap:wrap; }
+    h1 { font-weight:400; font-size:20px; color:var(--text-1); margin-bottom:4px; }
+    .subtitle { color:var(--text-3); font-size:12px; }
+    .topbar-right { color:var(--text-3); font-size:11px; white-space:nowrap; }
+
+    .eyebrow { color:var(--text-3); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:12px; }
+
+    .card { background:#0d0d0d; border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; }
+
+    /* health hero */
+    .health-hero { display:grid; grid-template-columns:240px 1fr; gap:40px; padding:32px; margin-bottom:20px; align-items:center; }
+    .hs-num { font-size:72px; line-height:1; color:var(--accent); }
+    .hs-num small { font-size:24px; color:var(--text-3); }
+    .hs-label { color:var(--text-3); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; margin-top:8px; }
+    .bars { display:flex; flex-direction:column; gap:10px; }
+    .bar-row { display:grid; grid-template-columns:110px 1fr 44px; align-items:center; gap:14px; }
+    .bar-lbl { color:var(--text-2); font-size:11px; }
+    .bar-track { font-size:13px; letter-spacing:1px; white-space:nowrap; }
+    .bf { color:var(--accent); }
+    .be { color:var(--text-3); }
+    .bar-pct { color:var(--text-2); font-size:11px; text-align:right; }
+
+    /* metric cards */
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+    .metric { background:#0d0d0d; border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+    .metric .ml { color:var(--text-3); font-size:10px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+    .metric .mv { font-size:28px; color:var(--text-1); }
+    .mv.warn { color:var(--warning); }
+    .mv.danger { color:var(--danger); }
+
+    /* agent message card */
+    .agent-card {
+      background:rgba(0,255,65,0.04); border:1px solid rgba(0,255,65,0.2);
+      border-left:3px solid var(--accent); border-radius:var(--radius-lg);
+      padding:24px; margin:20px 0;
+    }
+    .agent-head { color:var(--accent); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; }
+    .agent-msg { color:var(--text-1); font-size:14px; line-height:1.7; margin-bottom:18px; }
+    .btn-row { display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* buttons */
+    .btn { font-size:12px; padding:10px 18px; border-radius:var(--radius); letter-spacing:0.06em; border:1px solid transparent; transition:background .14s, color .14s, border-color .14s; }
+    .btn-primary { background:var(--accent); color:#000; border-color:var(--accent); }
+    .btn-primary:hover { background:var(--accent-dim); border-color:var(--accent-dim); }
+    .btn-ghost { background:transparent; color:var(--text-2); border:1px solid var(--border); }
+    .btn-ghost:hover { color:var(--text-1); border-color:var(--border-h); }
+    .btn-sm { font-size:11px; padding:7px 14px; }
+
+    /* activity */
+    .activity { margin-top:24px; }
+    .act-item { display:flex; gap:14px; padding:8px 0; border-bottom:1px solid var(--border); color:var(--text-2); font-size:12px; }
+    .act-item:last-child { border-bottom:none; }
+    .act-time { color:var(--text-3); width:60px; flex-shrink:0; }
+    .act-ico { color:var(--accent); width:16px; text-align:center; flex-shrink:0; }
+    .act-ico.warn { color:var(--warning); }
+
+    /* health check */
+    .hc-card { background:#0d0d0d; border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:12px; }
+    .hc-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+    .hc-title { font-size:13px; color:var(--text-1); }
+    .hc-title .pct { color:var(--accent); }
+    .hc-title .cnt { color:var(--text-3); font-size:11px; margin-left:8px; }
+    .hc-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+    .hc-list li { color:var(--text-2); font-size:12px; }
+    .x { color:var(--danger); }
+    .w { color:var(--warning); }
+    .more { color:var(--text-3); font-size:11px; }
+
+    /* chat */
+    .chat-wrap { display:flex; flex-direction:column; height:calc(100vh - 160px); max-width:860px; }
+    .chat-msgs { flex:1; overflow-y:auto; max-height:500px; padding:4px; margin-bottom:14px; }
+    .msg { padding:14px 18px; border-radius:var(--radius-lg); max-width:75%; margin-bottom:12px; white-space:pre-line; }
+    .msg.agent { background:#0d0d0d; border:1px solid var(--border); border-left:2px solid var(--accent); }
+    .msg.agent .mh { color:var(--accent); font-size:10px; margin-bottom:6px; }
+    .msg.agent .mt { color:var(--text-1); font-size:13px; }
+    .msg.user { background:var(--surface-2); margin-left:auto; text-align:right; }
+    .msg.user .mt { color:var(--text-2); font-size:13px; }
+    .chat-input { display:flex; gap:10px; }
+    .chat-input input {
+      flex:1; background:#000; border:1px solid var(--border); color:var(--text-1);
+      font-family:inherit; font-size:13px; padding:12px 14px; border-radius:var(--radius); outline:none;
+    }
+    .chat-input input::placeholder { color:var(--text-3); }
+    .chat-input input:focus { border-color:var(--accent); box-shadow:0 0 0 2px rgba(0,255,65,0.06); }
+
+    /* alerts */
+    .alert { border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 22px; margin-bottom:12px; }
+    .alert.danger { border-left:3px solid var(--danger); background:rgba(255,68,68,0.04); }
+    .alert.warning { border-left:3px solid var(--warning); background:rgba(255,170,0,0.04); }
+    .alert-top { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .alert-tag { font-size:10px; text-transform:uppercase; letter-spacing:0.08em; }
+    .alert.danger .alert-tag { color:var(--danger); }
+    .alert.warning .alert-tag { color:var(--warning); }
+    .alert-time { margin-left:auto; color:var(--text-3); font-size:11px; }
+    .alert-text { color:var(--text-1); font-size:13px; line-height:1.6; margin-bottom:14px; }
+
+    /* report */
+    .email { background:#0d0d0d; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; max-width:680px; margin-bottom:24px; }
+    .email-head { border-bottom:1px solid var(--border); padding:16px 22px; }
+    .email-subj { color:var(--text-1); font-size:14px; margin-bottom:4px; }
+    .email-date { color:var(--text-3); font-size:11px; }
+    .email-body { padding:22px; color:var(--text-2); font-size:13px; line-height:1.9; white-space:pre-line; }
+    .email-body .acc { color:var(--accent); }
+    .email-body .dn { color:var(--danger); }
+    .report-list { list-style:none; }
+    .report-list li { padding:10px 0; border-bottom:1px solid var(--border); color:var(--text-2); font-size:12px; cursor:pointer; transition:color .14s; }
+    .report-list li:hover { color:var(--accent); }
+
+    /* backups */
+    .table { width:100%; border-collapse:collapse; font-size:12px; margin:16px 0; }
+    .table th { color:var(--text-3); font-size:10px; text-transform:uppercase; letter-spacing:0.08em; text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); }
+    .table td { color:var(--text-2); padding:10px 12px; border-bottom:1px solid var(--border); }
+    .table td .ok { color:var(--accent); }
+    .note { color:var(--text-3); font-size:11px; margin-top:12px; }
+
+    /* tools + settings */
+    .tools-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+    .tool { background:#0d0d0d; border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; transition:border-color .14s; }
+    .tool:hover { border-color:var(--border-h); }
+    .tool .ic { display:inline-block; color:var(--accent); background:var(--accent-bg); border:1px solid rgba(0,255,65,0.15); padding:4px 9px; border-radius:var(--radius); font-size:12px; margin-bottom:12px; }
+    .tool h3 { font-weight:400; font-size:14px; color:var(--text-1); margin-bottom:8px; }
+    .tool p { color:var(--text-2); font-size:12px; line-height:1.6; margin-bottom:14px; }
+    .tool .open { color:var(--accent); font-size:11px; letter-spacing:0.08em; }
+
+    .set-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .set-row .sk { color:var(--text-3); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; }
+    .set-row .sv { color:var(--text-1); font-size:13px; }
+    .pill-row { display:flex; gap:8px; }
+    .pill { font-size:11px; padding:6px 14px; border-radius:var(--radius); border:1px solid var(--border); background:transparent; color:var(--text-2); }
+    .pill.active { background:var(--accent); color:#000; border-color:var(--accent); }
+    .toggle { width:40px; height:20px; border-radius:999px; background:var(--accent); position:relative; }
+    .toggle::after { content:""; position:absolute; top:2px; right:2px; width:16px; height:16px; border-radius:50%; background:#000; }
+
+    .mt20 { margin-top:20px; }
+    @media (max-width:720px){
+      .sidebar { width:64px; }
+      .sb-logo, .sb-status, .sb-plan, .nav-item span.lbl { display:none; }
+      .nav-item { justify-content:center; }
+      .main { margin-left:64px; padding:24px 18px; }
+      .health-hero, .metrics, .health-hero { grid-template-columns:1fr; }
+      .metrics { grid-template-columns:1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sb-logo"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></div>
+    <div class="sb-status">● store connected</div>
+    <nav class="nav">
+      <a class="nav-item active" data-section="overview"><span class="ico">▦</span><span class="lbl">Overview</span></a>
+      <a class="nav-item" data-section="health"><span class="ico">♡</span><span class="lbl">Health Check</span></a>
+      <a class="nav-item" data-section="agent"><span class="ico">✦</span><span class="lbl">Agent</span></a>
+      <a class="nav-item" data-section="alerts"><span class="ico">⚠</span><span class="lbl">Alerts</span><span class="nav-badge">3</span></a>
+      <a class="nav-item" data-section="reports"><span class="ico">▤</span><span class="lbl">Weekly Reports</span></a>
+      <a class="nav-item" data-section="backups"><span class="ico">⛁</span><span class="lbl">Backups</span></a>
+      <a class="nav-item" data-section="tools"><span class="ico">⚒</span><span class="lbl">Tools</span></a>
+      <a class="nav-item" data-section="settings"><span class="ico">⚙</span><span class="lbl">Settings</span></a>
+    </nav>
+    <div class="sb-plan">PRO PLAN · $29/mo</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ═══ SECTION 1 — OVERVIEW ═══ -->
+    <section class="section active" id="sec-overview">
+      <div class="topbar">
+        <div>
+          <h1>Overview</h1>
+          <div class="subtitle">mystore.com · WooCommerce · 247 products</div>
+        </div>
+        <div class="topbar-right">Last scan: 2 hours ago</div>
+      </div>
+
+      <div class="card health-hero">
+        <div>
+          <div class="hs-num">73<small>/100</small></div>
+          <div class="hs-label">Health Score</div>
+        </div>
+        <div class="bars">
+          <div class="bar-row"><span class="bar-lbl">Images</span><span class="bar-track"><span class="bf">████████</span><span class="be">░░</span></span><span class="bar-pct">78%</span></div>
+          <div class="bar-row"><span class="bar-lbl">Pricing</span><span class="bar-track"><span class="bf">██████████</span></span><span class="bar-pct">95%</span></div>
+          <div class="bar-row"><span class="bar-lbl">SEO</span><span class="bar-track"><span class="bf">█████</span><span class="be">░░░░░</span></span><span class="bar-pct">52%</span></div>
+          <div class="bar-row"><span class="bar-lbl">Descriptions</span><span class="bar-track"><span class="bf">███████</span><span class="be">░░░</span></span><span class="bar-pct">68%</span></div>
+          <div class="bar-row"><span class="bar-lbl">Feed</span><span class="bar-track"><span class="bf">█████████</span><span class="be">░</span></span><span class="bar-pct">91%</span></div>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="ml">Products tracked</div><div class="mv">247</div></div>
+        <div class="metric"><div class="ml">Issues found</div><div class="mv warn">23</div></div>
+        <div class="metric"><div class="ml">Alerts open</div><div class="mv danger">3</div></div>
+        <div class="metric"><div class="ml">Last backup</div><div class="mv">2h ago</div></div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-head">[ ✦ ] Datafork Agent</div>
+        <div class="agent-msg">I scanned your 247 products this morning. Found 12 broken images, 8 products with pricing issues, and 5 products missing descriptions. I can fix most of these automatically. Want me to start?</div>
+        <div class="btn-row">
+          <button class="btn btn-primary">[ FIX ALL ISSUES ]</button>
+          <button class="btn btn-ghost">[ REVIEW FIRST ]</button>
+        </div>
+      </div>
+
+      <div class="activity">
+        <div class="eyebrow">Recent Activity</div>
+        <div class="act-item"><span class="act-time">2h ago</span><span class="act-ico">✓</span><span>Weekly scan completed — 23 issues found</span></div>
+        <div class="act-item"><span class="act-time">1d ago</span><span class="act-ico">✓</span><span>Catalog backup created (247 products)</span></div>
+        <div class="act-item"><span class="act-time">2d ago</span><span class="act-ico">✦</span><span>Fixed 14 product descriptions (IT)</span></div>
+        <div class="act-item"><span class="act-time">3d ago</span><span class="act-ico warn">⚠</span><span>Google Shopping feed had 6 invalid items</span></div>
+        <div class="act-item"><span class="act-time">5d ago</span><span class="act-ico">✓</span><span>Translated 32 products to French</span></div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 2 — HEALTH CHECK ═══ -->
+    <section class="section" id="sec-health">
+      <div class="topbar"><div><h1>Health Check</h1><div class="subtitle">Full catalog scan · 247 products</div></div></div>
+
+      <div class="hc-card">
+        <div class="hc-head"><div class="hc-title">Images <span class="pct">78%</span><span class="cnt">12 issues</span></div><button class="btn btn-primary btn-sm">[ FIX THESE ]</button></div>
+        <ul class="hc-list">
+          <li><span class="x">✗</span> shoe-042 — image returns 404</li>
+          <li><span class="x">✗</span> bag-018 — no image URL</li>
+          <li><span class="w">⚠</span> tee-091 — image too small (320x240)</li>
+          <li class="more">9 more...</li>
+        </ul>
+      </div>
+
+      <div class="hc-card">
+        <div class="hc-head"><div class="hc-title">Pricing <span class="pct">95%</span><span class="cnt">2 issues</span></div><button class="btn btn-primary btn-sm">[ FIX THESE ]</button></div>
+        <ul class="hc-list">
+          <li><span class="x">✗</span> shoe-001 — variable parent has price set</li>
+          <li><span class="w">⚠</span> bag-033 — variation missing price</li>
+        </ul>
+      </div>
+
+      <div class="hc-card">
+        <div class="hc-head"><div class="hc-title">SEO <span class="pct">52%</span><span class="cnt">47 issues</span></div><button class="btn btn-primary btn-sm">[ FIX THESE ]</button></div>
+        <ul class="hc-list">
+          <li><span class="w">⚠</span> 23 products — title too short (&lt;30 chars)</li>
+          <li><span class="w">⚠</span> 18 products — missing meta description</li>
+          <li><span class="w">⚠</span> 6 products — duplicate titles</li>
+        </ul>
+      </div>
+
+      <div class="hc-card">
+        <div class="hc-head"><div class="hc-title">Descriptions <span class="pct">68%</span><span class="cnt">15 issues</span></div><button class="btn btn-primary btn-sm">[ FIX THESE ]</button></div>
+        <ul class="hc-list">
+          <li><span class="x">✗</span> 5 products — no description</li>
+          <li><span class="w">⚠</span> 10 products — description under 50 words</li>
+        </ul>
+      </div>
+
+      <div class="hc-card">
+        <div class="hc-head"><div class="hc-title">Feed <span class="pct">91%</span><span class="cnt">3 issues</span></div><button class="btn btn-primary btn-sm">[ FIX THESE ]</button></div>
+        <ul class="hc-list">
+          <li><span class="x">✗</span> 3 products — missing GTIN for Google Shopping</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 3 — AGENT ═══ -->
+    <section class="section" id="sec-agent">
+      <div class="topbar"><div><h1>Agent</h1><div class="subtitle">Your AI developer · always on</div></div></div>
+      <div class="chat-wrap">
+        <div class="chat-msgs" id="chat-msgs"></div>
+        <div class="chat-input">
+          <input type="text" id="chat-input" placeholder="Ask your agent..." autocomplete="off">
+          <button class="btn btn-primary" id="chat-send">[ SEND ]</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 4 — ALERTS ═══ -->
+    <section class="section" id="sec-alerts">
+      <div class="topbar"><div><h1>Alerts</h1><div class="subtitle">3 open</div></div></div>
+
+      <div class="alert danger">
+        <div class="alert-top"><span class="alert-tag">✗ Danger</span><span class="alert-time">2 hours ago</span></div>
+        <div class="alert-text">Google Shopping feed rejected 6 products — missing GTIN. Your ads for these are paused.</div>
+        <button class="btn btn-primary btn-sm">[ FIX FEED ]</button>
+      </div>
+      <div class="alert warning">
+        <div class="alert-top"><span class="alert-tag">⚠ Warning</span><span class="alert-time">5 hours ago</span></div>
+        <div class="alert-text">12 product images are broken (404). Customers see empty thumbnails.</div>
+        <button class="btn btn-ghost btn-sm">[ VIEW PRODUCTS ]</button>
+      </div>
+      <div class="alert warning">
+        <div class="alert-top"><span class="alert-tag">⚠ Warning</span><span class="alert-time">1 day ago</span></div>
+        <div class="alert-text">Catalog grew 18 products but health score dropped 4 points. New products need attention.</div>
+        <button class="btn btn-ghost btn-sm">[ REVIEW ]</button>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 5 — WEEKLY REPORTS ═══ -->
+    <section class="section" id="sec-reports">
+      <div class="topbar"><div><h1>Weekly Reports</h1></div></div>
+
+      <div class="email">
+        <div class="email-head">
+          <div class="email-subj">Datafork Weekly — mystore.com health report</div>
+          <div class="email-date">Monday, June 22, 2026</div>
+        </div>
+        <div class="email-body">Hi, here's your store health this week.
+
+HEALTH SCORE: 73/100 (<span class="dn">▼ 4</span> from last week)
+
+<span class="acc">✓ FIXED THIS WEEK</span>
+- 14 product descriptions enhanced
+- 32 products translated to French
+- 1 catalog backup created
+
+<span class="w">⚠ NEEDS ATTENTION</span>
+- 12 broken product images
+- 6 products rejected by Google Shopping
+- 47 products with weak SEO
+
+Datafork can fix most of these automatically. Open your dashboard to review.</div>
+      </div>
+
+      <div class="eyebrow">Past Reports</div>
+      <ul class="report-list">
+        <li>Jun 22, 2026 — 73/100</li>
+        <li>Jun 15, 2026 — 77/100</li>
+        <li>Jun 8, 2026 — 81/100</li>
+      </ul>
+    </section>
+
+    <!-- ═══ SECTION 6 — BACKUPS ═══ -->
+    <section class="section" id="sec-backups">
+      <div class="topbar"><div><h1>Backups</h1><div class="subtitle">Your store, recoverable in under 1 hour</div></div></div>
+
+      <div class="card">
+        <div class="agent-head" style="margin-bottom:10px">[ ⛁ ] Latest Backup</div>
+        <div class="subtitle" style="font-size:13px;color:var(--text-2);margin-bottom:18px">247 products · 2 hours ago · 4.2 MB</div>
+        <div class="btn-row">
+          <button class="btn btn-primary">[ ↓ DOWNLOAD BACKUP ]</button>
+          <button class="btn btn-ghost">[ ⟳ RESTORE TO STORE ]</button>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead><tr><th>Date</th><th>Products</th><th>Size</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Jun 25, 14:00</td><td>247</td><td>4.2 MB</td><td><span class="ok">✓ Complete</span></td></tr>
+          <tr><td>Jun 24, 14:00</td><td>246</td><td>4.2 MB</td><td><span class="ok">✓ Complete</span></td></tr>
+          <tr><td>Jun 23, 14:00</td><td>245</td><td>4.1 MB</td><td><span class="ok">✓ Complete</span></td></tr>
+        </tbody>
+      </table>
+      <div class="note">Automatic daily backups. Restore your entire catalog in under 1 hour if anything breaks.</div>
+    </section>
+
+    <!-- ═══ SECTION 7 — TOOLS ═══ -->
+    <section class="section" id="sec-tools">
+      <div class="topbar"><div><h1>Tools</h1><div class="subtitle">The full Datafork toolkit</div></div></div>
+      <div class="tools-grid">
+        <div class="tool"><span class="ic">[ → ]</span><h3>Store Scraper</h3><p>Export any WooCommerce or Shopify store to an import-ready CSV.</p><a class="open" href="/">[ OPEN ] →</a></div>
+        <div class="tool"><span class="ic">[ ✓ ]</span><h3>CSV Validator</h3><p>Catch missing columns, duplicate SKUs and bad prices before import.</p><a class="open" href="/validator">[ OPEN ] →</a></div>
+        <div class="tool"><span class="ic">[ AI ]</span><h3>Description Enhancer</h3><p>AI-rewrite product descriptions in bulk, any language and tone.</p><a class="open" href="/enhancer">[ OPEN ] →</a></div>
+        <div class="tool"><span class="ic">[ § ]</span><h3>Legal Generator</h3><p>Six EU-compliant legal documents in five languages.</p><a class="open" href="/legal">[ OPEN ] →</a></div>
+        <div class="tool"><span class="ic">[ € ]</span><h3>Price Editor</h3><p>Bulk-edit prices with stacked percentage, fixed and rounding ops.</p><a class="open" href="/price-editor">[ OPEN ] →</a></div>
+        <div class="tool"><span class="ic">[ ⌘ ]</span><h3>Shopping Feed</h3><p>Generate a Google Merchant Center TSV feed for 6 countries.</p><a class="open" href="/shopping-feed">[ OPEN ] →</a></div>
+        <div class="tool"><span class="ic">[ ⇄ ]</span><h3>Catalog Translator</h3><p>Translate names and descriptions in bulk between 5 languages.</p><a class="open" href="/translator">[ OPEN ] →</a></div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 8 — SETTINGS ═══ -->
+    <section class="section" id="sec-settings">
+      <div class="topbar"><div><h1>Settings</h1></div></div>
+      <div class="card" style="max-width:680px">
+        <div class="set-row">
+          <div><div class="sk">Store connection</div><div class="sv">mystore.com — WooCommerce — <span style="color:var(--accent)">✓ Connected</span></div></div>
+          <button class="btn btn-ghost btn-sm">[ DISCONNECT ]</button>
+        </div>
+        <div class="set-row">
+          <div class="sk">Scan frequency</div>
+          <div class="pill-row"><span class="pill">Daily</span><span class="pill active">Weekly ✓</span><span class="pill">Manual</span></div>
+        </div>
+        <div class="set-row">
+          <div class="sk">Email reports</div>
+          <div class="toggle" title="ON"></div>
+        </div>
+        <div class="set-row" style="border-bottom:none">
+          <div><div class="sk">Plan</div><div class="sv">PRO — $29/mo</div></div>
+          <button class="btn btn-ghost btn-sm">[ MANAGE BILLING ]</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── Sidebar section switching ──
+    const items = document.querySelectorAll('.nav-item');
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === 'sec-' + id));
+      items.forEach(n => n.classList.toggle('active', n.dataset.section === id));
+      window.scrollTo(0, 0);
+    }
+    items.forEach(it => it.addEventListener('click', () => showSection(it.dataset.section)));
+
+    // ── Agent chat (mock) ──
+    const CHAT = [
+      { who:'agent', text:"Good morning. Your store health is 73/100. Down 4 points from last week — mostly from new products added without descriptions. Want a breakdown?" },
+      { who:'user', text:"yes show me" },
+      { who:'agent', text:"You added 18 products in the last 7 days. 5 have no description, 8 have no images, and none have Google Shopping fields. I can fix the descriptions with AI and flag the missing images for you. Should I proceed?" },
+      { who:'user', text:"fix the descriptions in italian" },
+      { who:'agent', text:"On it. Generating Italian descriptions for 5 products using your store's tone...\n✓ Done. 5 descriptions written and saved as draft. Review them in the Tools → Description Enhancer tab before publishing. Anything else?" },
+    ];
+    const msgs = document.getElementById('chat-msgs');
+    const esc = s => (s + '').replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
+
+    function appendMsg(m) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + m.who;
+      div.innerHTML = (m.who === 'agent' ? '<div class="mh">[ ✦ ] AGENT</div>' : '') +
+        '<div class="mt">' + esc(m.text) + '</div>';
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    CHAT.forEach(appendMsg);
+
+    const input = document.getElementById('chat-input');
+    function send() {
+      const v = input.value.trim();
+      if (!v) return;
+      appendMsg({ who:'user', text:v });
+      input.value = '';
+      setTimeout(() => appendMsg({
+        who:'agent',
+        text:"Got it — I'm on it. I'll scan the affected products and apply the fix, then save the changes as a draft for your review. (demo response)"
+      }), 600);
+    }
+    document.getElementById('chat-send').addEventListener('click', send);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+  </script>
+</body>
+</html>
