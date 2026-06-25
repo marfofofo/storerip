@@ -203,6 +203,41 @@
     .case p { font-size: 13px; color: var(--text-2); line-height: 1.7; }
     .case .open { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--accent); }
 
+    /* ── TOOL CAROUSEL ── */
+    .carousel { display: grid; grid-template-columns: 40% 60%; gap: 24px; align-items: stretch; }
+    .carousel-list {
+      display: flex; flex-direction: column; gap: 2px;
+      border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px; background: var(--surface);
+    }
+    .carousel-item {
+      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 12px; color: var(--text-3);
+      padding: 12px 16px; border-left: 2px solid transparent; cursor: pointer;
+      letter-spacing: 0.06em; transition: all 150ms;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .carousel-item:hover { color: var(--text-2); border-left-color: var(--border-h); }
+    .carousel-item.active { color: var(--accent); border-left: 2px solid var(--accent); background: rgba(0,255,65,0.04); }
+    .carousel-item .ci-num { color: var(--text-3); font-size: 10px; }
+    .carousel-card {
+      background: #0d0d0d; border: 1px solid #2f2f2f; border-radius: 4px; padding: 40px; min-height: 320px;
+      opacity: 1; transform: translateX(0); transition: opacity 200ms ease, transform 200ms ease;
+    }
+    .carousel-card.swap { opacity: 0; transform: translateX(8px); }
+    .cc-badges { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
+    .cc-badges .ic { margin-bottom: 0; }
+    .cc-name { font-size: 24px; color: #f0f0f0; margin-bottom: 16px; }
+    .cc-desc { font-size: 13px; color: #888888; line-height: 1.8; max-width: 480px; margin-bottom: 28px; }
+    .cc-cta { color: var(--accent); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: inline-block; margin-bottom: 28px; }
+    .cc-term {
+      background: #000; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 16px; font-family: 'Share Tech Mono', 'Courier New', monospace;
+      font-size: 11px; line-height: 1.9; color: var(--accent); white-space: pre; overflow-x: auto;
+    }
+    @media (max-width: 768px) {
+      .carousel { grid-template-columns: 1fr; }
+      .carousel-card { padding: 24px; }
+    }
+
     /* ── WHAT'S IN THE CSV ── */
     .tabs {
       display: inline-flex; background: var(--bg); border: 1px solid var(--border);
@@ -294,7 +329,7 @@
   <header class="hero">
     <div class="hero-left">
       <span class="eyebrow hero-eyebrow">FREE · NO ACCOUNT · NO RATE LIMITS</span>
-      <h1>Fork your <span class="ac">store data</span>.</h1>
+      <h1 class="hero-h1">Fork your <span class="ac">store data.</span></h1>
       <p class="hero-sub">Seven free tools that take raw store data and make it work somewhere else. No account. No limits.</p>
       <div class="hero-cta">
         <a href="http://76.13.149.203:5050/" class="btn-primary">[ TRY IT FREE → ]</a>
@@ -326,56 +361,9 @@
       <p>One URL. Free forever. WooCommerce &amp; Shopify.</p>
     </div>
     <div class="grid-wrap">
-      <div class="cases">
-        <div class="case animate-in">
-          <span class="badge">CORE TOOL</span>
-          <div class="ic">[ → ]</div>
-          <h3>Store Scraper</h3>
-          <p>Paste any public WooCommerce or Shopify URL. Get every product — variations, SKUs, stock, images — as an import-ready CSV in 30 seconds.</p>
-          <a href="http://76.13.149.203:5050/" class="open">Open tool →</a>
-        </div>
-        <div class="case animate-in">
-          <span class="badge">FREE · NO AI</span>
-          <div class="ic">[ ✓ ]</div>
-          <h3>CSV Validator</h3>
-          <p>Upload any WooCommerce or Shopify CSV before importing. Get a full error report — missing columns, duplicate SKUs, wrong price placement, encoding issues.</p>
-          <a href="http://76.13.149.203:5050/validator" class="open">Validate a CSV →</a>
-        </div>
-        <div class="case animate-in">
-          <span class="badge">AI-POWERED</span>
-          <div class="ic">[ AI ]</div>
-          <h3>Description Enhancer</h3>
-          <p>Upload a product CSV. Choose language and tone. Get AI-rewritten descriptions — SEO-optimized, conversion-focused — for every product in bulk.</p>
-          <a href="http://76.13.149.203:5050/enhancer" class="open">Enhance descriptions →</a>
-        </div>
-        <div class="case animate-in">
-          <span class="badge">AI-POWERED</span>
-          <div class="ic">[ § ]</div>
-          <h3>Legal Generator</h3>
-          <p>Fill in your business details. Get 6 ready-to-publish legal documents — Privacy, T&amp;Cs, Cookies, Returns, Shipping, Legal Notice — compliant with EU law, in 5 languages.</p>
-          <a href="http://76.13.149.203:5050/legal" class="open">Generate legal pages →</a>
-        </div>
-        <div class="case animate-in">
-          <span class="badge">FREE · NO AI</span>
-          <div class="ic">[ € ]</div>
-          <h3>Price Editor</h3>
-          <p>Bulk-edit prices across your catalog. Stack percentage, fixed, set, and rounding operations with category and product-type filters. Pure CSV math.</p>
-          <a href="http://76.13.149.203:5050/price-editor" class="open">Edit prices →</a>
-        </div>
-        <div class="case animate-in">
-          <span class="badge">FREE · NO AI</span>
-          <div class="ic">[ ⌘ ]</div>
-          <h3>Shopping Feed</h3>
-          <p>Turn a WooCommerce or Shopify CSV into a Google Merchant Center TSV feed — required columns, shipping rules, and category mapping for 6 countries.</p>
-          <a href="http://76.13.149.203:5050/shopping-feed" class="open">Build a feed →</a>
-        </div>
-        <div class="case animate-in">
-          <span class="badge">AI-POWERED</span>
-          <div class="ic">[ ⇆ ]</div>
-          <h3>Catalog Translator</h3>
-          <p>Translate product names and descriptions in bulk between 5 languages. Variation rows inherit the translated parent name. WooCommerce &amp; Shopify.</p>
-          <a href="http://76.13.149.203:5050/translator" class="open">Translate catalog →</a>
-        </div>
+      <div class="carousel" id="tool-carousel">
+        <div class="carousel-list" id="carousel-list"></div>
+        <div class="carousel-card" id="carousel-card"></div>
       </div>
     </div>
   </section>
@@ -597,6 +585,166 @@
       }
     }
     runTerminal();
+  </script>
+
+  <!-- ── COMPONENT 1: Matrix text effect on H1 ── -->
+  <script>
+  function matrixText(element, options = {}) {
+    const {
+      initialDelay = 500,
+      letterDuration = 400,
+      letterInterval = 80,
+      matrixColor = '#00ff41',
+      chars = '01アイウエオ#$@%&'
+    } = options;
+
+    // Walk child nodes so we keep track of which chars are accent-colored.
+    const data = [];
+    element.childNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent.split('').forEach(ch => data.push({ ch, accent: false }));
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const accent = node.classList.contains('ac') ||
+                       (node.getAttribute('style') || '').includes('--accent');
+        node.textContent.split('').forEach(ch => data.push({ ch, accent }));
+      }
+    });
+
+    const esc = s => s.replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    // Normal space (not &nbsp;) so the H1 can still wrap on narrow screens.
+    element.innerHTML = data.map(d =>
+      d.ch === ' '
+        ? '<span> </span>'
+        : `<span data-char="${esc(d.ch)}" data-accent="${d.accent ? 1 : 0}">${esc(d.ch)}</span>`
+    ).join('');
+
+    const spans = element.querySelectorAll('span[data-char]');
+
+    function animateLetter(span, delay) {
+      const originalChar = span.dataset.char;
+      const isAccent = span.dataset.accent === '1';
+      setTimeout(() => {
+        let iterations = 0;
+        const maxIterations = 6;
+        const interval = setInterval(() => {
+          span.textContent = chars[Math.floor(Math.random() * chars.length)];
+          span.style.color = matrixColor;
+          span.style.textShadow = `0 0 8px ${matrixColor}`;
+          iterations++;
+          if (iterations >= maxIterations) {
+            clearInterval(interval);
+            setTimeout(() => {
+              span.textContent = originalChar;
+              // Restore accent green where it belonged; otherwise inherit text-1.
+              span.style.color = isAccent ? 'var(--accent)' : '';
+              span.style.textShadow = '';
+            }, 50);
+          }
+        }, 40);
+      }, delay);
+    }
+
+    function runAnimation() {
+      spans.forEach((span, i) => animateLetter(span, initialDelay + i * letterInterval));
+      const totalDuration = initialDelay + spans.length * letterInterval + letterDuration + 2000;
+      setTimeout(runAnimation, totalDuration);
+    }
+    runAnimation();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const h1 = document.querySelector('.hero-h1');
+    if (h1) matrixText(h1, {
+      initialDelay: 500, letterInterval: 80, letterDuration: 400,
+      chars: '01アイウエオ#$@%&'
+    });
+  });
+  </script>
+
+  <!-- ── COMPONENT 2: Feature carousel for the tools section ── -->
+  <script>
+  (function () {
+    const TOOLS = [
+      { id:"scraper", badge:"CORE TOOL", icon:"[ → ]", name:"Store Scraper",
+        desc:"Paste any public WooCommerce or Shopify URL. Get every product — variations, SKUs, stock, images — as an import-ready CSV in 30 seconds.",
+        cta:"Open tool", href:"http://76.13.149.203:5050/",
+        terminal:["$ datafork scrape https://mystore.com","✓ WooCommerce detected","✓ 94 products · 187 rows","↓ mystore_woo_20260624.csv"] },
+      { id:"validator", badge:"FREE · NO AI", icon:"[ ✓ ]", name:"CSV Validator",
+        desc:"Upload any WooCommerce or Shopify CSV before importing. Get a full error report — missing columns, duplicate SKUs, wrong price placement, encoding issues.",
+        cta:"Validate a CSV", href:"http://76.13.149.203:5050/validator",
+        terminal:["✓ 94 rows analyzed","✗ 2 errors found","  Row 12: variation missing price","  SKU 'shoe-001' duplicated x3"] },
+      { id:"enhancer", badge:"AI-POWERED", icon:"[ AI ]", name:"Description Enhancer",
+        desc:"Upload a product CSV. Choose language and tone. Get AI-rewritten descriptions — SEO-optimized, conversion-focused — for every product in bulk.",
+        cta:"Enhance descriptions", href:"http://76.13.149.203:5050/enhancer",
+        terminal:["Processing product 12 of 94...","✓ Sneaker Classic → enhanced (IT)","✓ Blue T-Shirt → enhanced (IT)","↓ enhanced_woo_20260624.csv"] },
+      { id:"legal", badge:"AI-POWERED", icon:"[ § ]", name:"Legal Generator",
+        desc:"Fill in your business details. Get 6 ready-to-publish legal documents — Privacy Policy, T&Cs, Cookie Policy, Returns, Shipping, Legal Notice — compliant with EU law, in 5 languages.",
+        cta:"Generate legal pages", href:"http://76.13.149.203:5050/legal",
+        terminal:["Generating: Privacy Policy (IT)...","✓ Privacy Policy — 847 words","✓ Terms & Conditions — 1,203 words","↓ legal_MyStore_2026.txt"] },
+      { id:"price-editor", badge:"FREE · NO AI", icon:"[ € ]", name:"Price Editor",
+        desc:"Bulk-edit prices across your entire catalog. Stack percentage, fixed, set, and rounding operations with category and product-type filters. Pure CSV math.",
+        cta:"Edit prices", href:"http://76.13.149.203:5050/price-editor",
+        terminal:["Op 1: +15% on all products","Op 2: round to .99","✓ 94 prices updated","↓ price_edited_20260624.csv"] },
+      { id:"shopping-feed", badge:"FREE · NO AI", icon:"[ ⌘ ]", name:"Shopping Feed",
+        desc:"Turn a WooCommerce or Shopify CSV into a Google Merchant Center TSV feed — required columns, shipping rules, and category mapping for 6 countries.",
+        cta:"Build a feed", href:"http://76.13.149.203:5050/shopping-feed",
+        terminal:["Platform: WooCommerce → GMC","Country: IT · Currency: EUR","✓ 87 products in feed","↓ shopping_feed_IT_20260624.tsv"] },
+      { id:"translator", badge:"AI-POWERED", icon:"[ ⇄ ]", name:"Catalog Translator",
+        desc:"Translate product names and descriptions in bulk between 5 languages. Variation rows inherit the translated parent name. WooCommerce & Shopify.",
+        cta:"Translate catalog", href:"http://76.13.149.203:5050/translator",
+        terminal:["IT → FR · 94 products","✓ Sneaker Classic → Sneaker Classique","✓ 94/94 translated","↓ translated_fr_woo_20260624.csv"] },
+    ];
+
+    const list = document.getElementById('carousel-list');
+    const card = document.getElementById('carousel-card');
+    const root = document.getElementById('tool-carousel');
+    if (!list || !card || !root) return;
+
+    const esc = s => (s + '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    let active = 0, timer = null;
+
+    // Left list (built once)
+    list.innerHTML = TOOLS.map((t, i) =>
+      `<div class="carousel-item" data-i="${i}" role="button" tabindex="0">` +
+        `<span class="ci-num">0${i + 1}</span>${esc(t.name)}</div>`
+    ).join('');
+    const items = list.querySelectorAll('.carousel-item');
+
+    function renderCard() {
+      const t = TOOLS[active];
+      const term = t.terminal.map(esc).join('\n');
+      // Animate: snap to swap state without transition, then release.
+      card.style.transition = 'none';
+      card.classList.add('swap');
+      card.innerHTML =
+        `<div class="cc-badges"><span class="badge">${esc(t.badge)}</span><span class="ic">${esc(t.icon)}</span></div>` +
+        `<div class="cc-name">${esc(t.name)}</div>` +
+        `<div class="cc-desc">${esc(t.desc)}</div>` +
+        `<a class="cc-cta" href="${esc(t.href)}">${esc(t.cta)} →</a>` +
+        `<div class="cc-term">${term}</div>`;
+      void card.offsetWidth;            // force reflow
+      card.style.transition = '';
+      card.classList.remove('swap');
+      items.forEach((el, i) => el.classList.toggle('active', i === active));
+    }
+
+    function setActive(i) { active = (i + TOOLS.length) % TOOLS.length; renderCard(); }
+
+    function start() { stop(); timer = setInterval(() => setActive(active + 1), 4000); }
+    function stop() { if (timer) clearInterval(timer); timer = null; }
+
+    items.forEach(el => {
+      el.addEventListener('click', () => { setActive(+el.dataset.i); start(); });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive(+el.dataset.i); start(); }
+      });
+    });
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+
+    renderCard();
+    start();
+  })();
   </script>
 </body>
 </html>
