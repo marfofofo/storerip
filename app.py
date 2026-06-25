@@ -132,6 +132,10 @@ ip_lock = threading.Lock()
 enhancer_jobs = {}
 enhancer_jobs_lock = threading.Lock()
 
+# --- In-memory translator jobs (bulk AI catalog translation) ---
+translator_jobs = {}
+translator_jobs_lock = threading.Lock()
+
 
 # ──────────────────────────────────────────────
 #  Helpers
@@ -292,6 +296,9 @@ def _janitor_loop():
             with enhancer_jobs_lock:
                 for jid in [j for j, v in enhancer_jobs.items() if v["created_at"] < cutoff]:
                     enhancer_jobs.pop(jid, None)
+            with translator_jobs_lock:
+                for jid in [j for j, v in translator_jobs.items() if v["created_at"] < cutoff]:
+                    translator_jobs.pop(jid, None)
             if removed:
                 print(f"[janitor] cleaned {removed} expired job(s).")
         except Exception as e:  # noqa: BLE001 — janitor must never die
@@ -1826,6 +1833,301 @@ def api_enhancer_download(job_id):
 
     with enhancer_jobs_lock:
         enhancer_jobs.pop(job_id, None)
+
+    return send_file(csv_bytes, mimetype="text/csv; charset=utf-8",
+                     as_attachment=True, download_name=filename)
+
+
+# ──────────────────────────────────────────────
+#  Catalog Translator (Google Gemini Flash 2.5)
+# ──────────────────────────────────────────────
+
+TRANSLATOR_MAX_PRODUCTS = 300
+TRANSLATOR_VALID_LANGS = ("it", "fr", "de", "es", "en")
+TRANSLATOR_SOURCE_LANGS = ("it", "fr", "de", "es", "en", "auto")
+
+_LANG_LABELS = {"it": "Italian", "fr": "French", "de": "German",
+                "es": "Spanish", "en": "English"}
+
+# Per-platform column mapping for the translatable fields.
+_TRANS_COLS = {
+    "woocommerce": {"name": "Nome", "short_description": "Descrizione breve",
+                    "description": "Descrizione"},
+    "shopify": {"name": "Title", "short_description": None,
+                "description": "Body (HTML)"},
+}
+
+
+def _translate_one(row, platform, fields, source_lang, target_lang):
+    """Translate a single product row in place via Gemini. Raises on failure.
+
+    Returns the row's resulting name (translated or original) so the worker can
+    propagate it to WooCommerce variation rows.
+    """
+    cols = _TRANS_COLS.get(platform, _TRANS_COLS["woocommerce"])
+    name_col, sdesc_col, desc_col = cols["name"], cols["short_description"], cols["description"]
+    name = (row.get(name_col) or "").strip() if name_col else ""
+    short_desc = (row.get(sdesc_col) or "").strip() if sdesc_col else ""
+    description = (row.get(desc_col) or "").strip() if desc_col else ""
+
+    source_lang_label = {
+        "it": "Italian", "fr": "French", "de": "German",
+        "es": "Spanish", "en": "English", "auto": "the source language",
+    }.get(source_lang, "the source language")
+    target_lang_label = _LANG_LABELS.get(target_lang, "English")
+
+    prompt = f"""
+Translate the following product content from
+{source_lang_label} to {target_lang_label}.
+
+Product name: {name}
+Short description: {short_desc}
+Long description: {description[:600]}
+
+Rules:
+- Translate naturally, not literally
+- Keep product names recognizable
+  (brand names, model numbers stay in original)
+- Keep HTML tags if present in description
+- Keep technical specs (sizes, weights, measurements) as-is
+- Return ONLY raw JSON, no markdown, no code fences:
+{{"name": "...", "short_description": "...",
+  "description": "..."}}
+
+CRITICAL: Start with {{ and end with }}
+""".strip()
+
+    model = genai.GenerativeModel(
+        "gemini-2.5-flash",
+        generation_config={"temperature": 0.2, "max_output_tokens": 1024},
+    )
+    response = model.generate_content(prompt)
+    translated = _parse_gemini_json(getattr(response, "text", ""))
+    if translated is None:
+        raise ValueError("Gemini returned unparseable JSON")
+
+    new_name = (translated.get("name") or "").strip()
+    new_short = (translated.get("short_description") or "").strip()
+    new_desc = (translated.get("description") or "").strip()
+    if "name" in fields and name_col and new_name:
+        row[name_col] = new_name
+    if "short_description" in fields and sdesc_col and new_short:
+        row[sdesc_col] = new_short
+    if "description" in fields and desc_col and new_desc:
+        row[desc_col] = new_desc
+
+    return (row.get(name_col) or "").strip() if name_col else name
+
+
+def _run_translator(job_id):
+    """Background worker: translate each target row, propagate names to variations."""
+    with translator_jobs_lock:
+        job = translator_jobs.get(job_id)
+    if not job:
+        return
+    try:
+        rows = job["_all_rows"]
+        platform, fields = job["platform"], job["_fields"]
+        source_lang, target_lang = job["source_lang"], job["target_lang"]
+        targets = job["_targets"]
+        cols = _TRANS_COLS.get(platform, _TRANS_COLS["woocommerce"])
+        total = len(targets)
+        processed = skipped = 0
+        name_by_sku = {}
+
+        for idx in targets:
+            row = rows[idx]
+            label = (row.get(cols["name"]) or "").strip() or "product"
+            try:
+                _translate_one(row, platform, fields, source_lang, target_lang)
+                if platform == "woocommerce" and "name" in fields:
+                    sku = (row.get("SKU") or "").strip()
+                    if sku:
+                        name_by_sku[sku] = (row.get(cols["name"]) or "").strip()
+            except Exception as e:  # noqa: BLE001 — keep original on per-row failure
+                skipped += 1
+                print(f"[translator {job_id}] row {idx} kept original: {e}")
+
+            processed += 1
+            with translator_jobs_lock:
+                j = translator_jobs.get(job_id)
+                if not j:
+                    return  # aborted / expired
+                j["processed"] = processed
+                j["skipped"] = skipped
+                j["progress"] = int(processed / total * 100) if total else 100
+                j["message"] = f"Translating product {processed} of {total} — {label}"
+            time.sleep(0.4)  # rate limit between calls
+
+        # Propagate translated parent names onto WooCommerce variation rows.
+        if platform == "woocommerce" and "name" in fields and name_by_sku:
+            for row in rows:
+                if (row.get("Tipo") or "").strip() == "variation":
+                    parent = (row.get("Genitore") or "").strip()
+                    if parent in name_by_sku:
+                        row["Nome"] = name_by_sku[parent]
+
+        with translator_jobs_lock:
+            j = translator_jobs.get(job_id)
+            if j:
+                j["rows"] = rows
+                j["status"] = "done"
+                j["progress"] = 100
+                j["skipped"] = skipped
+                j["message"] = f"Done — {processed - skipped} products translated."
+
+    except Exception as e:  # noqa: BLE001 — never crash the thread
+        print(f"[translator {job_id}] error: {e}")
+        with translator_jobs_lock:
+            j = translator_jobs.get(job_id)
+            if j:
+                j["status"] = "error"
+                j["error"] = "Translation failed. Please try again."
+
+
+@app.route("/translator")
+def translator_page():
+    return render_template("translator.html", ai_available=bool(GEMINI_API_KEY))
+
+
+@app.route("/api/translator/start", methods=["POST"])
+def api_translator_start():
+    try:
+        if not GEMINI_API_KEY or genai is None:
+            return jsonify({
+                "error": "api_key_missing",
+                "message": "Translator requires Gemini API key. Add GEMINI_API_KEY to .env",
+            }), 503
+
+        file = request.files.get("file")
+        if file is None or not file.filename:
+            return jsonify({"error": "no_file", "message": "No CSV file uploaded."}), 400
+
+        platform = (request.form.get("platform") or "woocommerce").strip().lower()
+        source_lang = (request.form.get("source_lang") or "auto").strip().lower()
+        target_lang = (request.form.get("target_lang") or "en").strip().lower()
+        if source_lang not in TRANSLATOR_SOURCE_LANGS:
+            source_lang = "auto"
+        if target_lang not in TRANSLATOR_VALID_LANGS:
+            target_lang = "en"
+        if source_lang == target_lang:
+            return jsonify({"error": "same_language",
+                            "message": "Source and target language must be different."}), 400
+
+        fields_raw = request.form.get("fields") or "name,short_description,description"
+        fields = [f.strip() for f in fields_raw.split(",") if f.strip()]
+        if not fields:
+            return jsonify({"error": "no_fields",
+                            "message": "Select at least one field to translate."}), 400
+
+        raw = file.read()
+        if len(raw) > 5 * 1024 * 1024:
+            return jsonify({"error": "too_large", "message": "File too large (max 5MB)."}), 413
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("latin-1")
+
+        reader = csv.DictReader(io.StringIO(text))
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
+        targets = _enhancer_targets(rows, platform)  # same selection rules
+
+        truncated = len(targets) > TRANSLATOR_MAX_PRODUCTS
+        if truncated:
+            targets = targets[:TRANSLATOR_MAX_PRODUCTS]
+        if not targets:
+            return jsonify({"error": "no_products",
+                            "message": "No translatable products found in this CSV."}), 400
+
+        total = len(targets)
+        message = "Starting translation..."
+        if truncated:
+            message = f"Starting translation... (limited to the first {TRANSLATOR_MAX_PRODUCTS} products)"
+
+        job_id = uuid.uuid4().hex[:6]
+        with translator_jobs_lock:
+            translator_jobs[job_id] = {
+                "status": "running",
+                "progress": 0,
+                "message": message,
+                "total": total,
+                "processed": 0,
+                "skipped": 0,
+                "rows": [],
+                "platform": platform,
+                "source_lang": source_lang,
+                "target_lang": target_lang,
+                "truncated": truncated,
+                "error": None,
+                "created_at": _now(),
+                "fieldnames": fieldnames,
+                "_all_rows": rows,
+                "_targets": targets,
+                "_fields": fields,
+            }
+
+        threading.Thread(target=_run_translator, args=(job_id,), daemon=True).start()
+        return jsonify({"job_id": job_id, "status": "running", "total": total}), 200
+
+    except Exception as e:  # noqa: BLE001
+        print(f"[translator] start error: {type(e).__name__}: {e}")
+        return jsonify({"error": "server_error",
+                        "message": "Could not start translation."}), 500
+
+
+@app.route("/api/translator/status/<job_id>")
+def api_translator_status(job_id):
+    with translator_jobs_lock:
+        job = translator_jobs.get(job_id)
+        if not job:
+            return jsonify({"status": "error", "error": "Unknown job"}), 404
+        return jsonify({
+            "status": job["status"],
+            "progress": job["progress"],
+            "message": job["message"],
+            "processed": job["processed"],
+            "skipped": job["skipped"],
+            "total": job["total"],
+            "platform": job["platform"],
+            "source_lang": job["source_lang"],
+            "target_lang": job["target_lang"],
+            "error": job["error"],
+        }), 200
+
+
+@app.route("/api/translator/download/<job_id>")
+def api_translator_download(job_id):
+    with translator_jobs_lock:
+        job = translator_jobs.get(job_id)
+        if not job:
+            return jsonify({"error": "job_not_found",
+                            "message": "Job expired or not found"}), 404
+        if job.get("status") != "done":
+            return jsonify({"error": "not_ready", "message": "Job not ready"}), 400
+        rows = job.get("rows") or []
+        if not rows:
+            return jsonify({"error": "no_data", "message": "No rows to export"}), 400
+        fieldnames = job["fieldnames"]
+        platform = job["platform"]
+        target_lang = job["target_lang"]
+
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=fieldnames, extrasaction="ignore")
+    writer.writeheader()
+    for r in rows:
+        writer.writerow({k: r.get(k, "") for k in fieldnames})
+
+    csv_bytes = io.BytesIO()
+    csv_bytes.write(b"\xef\xbb\xbf")  # UTF-8 BOM
+    csv_bytes.write(buf.getvalue().encode("utf-8"))
+    csv_bytes.seek(0)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    filename = f"translated_{target_lang}_{platform}_{timestamp}.csv"
+
+    with translator_jobs_lock:
+        translator_jobs.pop(job_id, None)
 
     return send_file(csv_bytes, mimetype="text/csv; charset=utf-8",
                      as_attachment=True, download_name=filename)

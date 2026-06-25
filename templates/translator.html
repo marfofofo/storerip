@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreCSV — Catalog Translator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#ffffff; --surface:#f9fafb; --surface-2:#f3f4f6; --border:#e5e7eb;
+      --border-h:#d1d5db; --text-1:#0d0d0d; --text-2:#4b5563; --text-3:#9ca3af;
+      --accent:#16a34a; --accent-light:#dcfce7; --accent-dark:#14532d; --on-accent:#ffffff;
+      --danger:#dc2626; --radius:6px; --radius-lg:10px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--surface); color:var(--text-1); font-family:'IBM Plex Sans',sans-serif;
+      min-height:100vh; display:flex; flex-direction:column;
+      background-image:radial-gradient(circle,#d1fae5 1px,transparent 1px); background-size:24px 24px;
+      -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+
+    .app-header { display:flex; align-items:center; justify-content:space-between;
+      padding:18px 24px; background:var(--bg); border-bottom:1px solid var(--border); }
+    .logo { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; color:var(--text-1); }
+    .logo .dot { color:var(--accent); }
+    .app-nav a { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-2); transition:color .15s; }
+    .app-nav a:hover { color:var(--accent); }
+
+    .page { flex:1; width:100%; max-width:720px; margin:0 auto; padding:48px 24px; }
+    .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent);
+      text-transform:uppercase; letter-spacing:.12em; }
+    h1 { font-weight:700; font-size:2.2rem; letter-spacing:-.01em; margin:12px 0 10px; }
+    .subline { font-size:15px; color:var(--text-2); max-width:580px; margin-bottom:24px; }
+
+    .warn-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--radius);
+      padding:12px 16px; margin-bottom:20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#92400e; }
+
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+      padding:24px 28px; margin-bottom:16px; }
+    .card-title { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; color:var(--text-1);
+      margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+
+    .lbl { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; display:block; }
+
+    .pill-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .pill { font-family:'IBM Plex Mono',monospace; font-size:12px; border:1px solid var(--border);
+      background:var(--bg); color:var(--text-2); padding:6px 14px; border-radius:var(--radius);
+      cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
+    .pill:hover { color:var(--text-1); border-color:var(--border-h); }
+    .pill.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
+
+    .drop { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:40px 32px;
+      text-align:center; background:var(--bg); cursor:pointer; transition:border-color .2s,background .2s; margin-top:14px; }
+    .drop.dragover, .drop.has-file { border-color:var(--accent); background:var(--accent-light); }
+    .drop-icon { font-family:'IBM Plex Mono',monospace; font-size:1.4rem; color:var(--text-3); margin-bottom:10px; }
+    .drop-text { font-size:14px; color:var(--text-2); }
+    .drop-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-top:6px; }
+    .drop-file { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent-dark); }
+
+    /* language direction */
+    .dir { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+    .dir-col { flex:1; min-width:220px; }
+    .dir-arrow { font-family:'IBM Plex Mono',monospace; font-size:20px; color:var(--text-3); align-self:center; padding-top:18px; }
+    .lang-err { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--danger); margin-top:10px; min-height:14px; }
+
+    .docs-grid { display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+    .check { display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-size:14px; color:var(--text-1); }
+    .check input { position:absolute; opacity:0; width:0; height:0; }
+    .box { width:16px; height:16px; border:1px solid var(--border); border-radius:4px; background:transparent;
+      flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; transition:background .14s,border-color .14s; }
+    .check input:checked + .box { background:var(--accent); border-color:var(--accent); }
+    .check input:checked + .box::after { content:"✓"; color:#fff; font-size:11px; font-weight:700; }
+    .info-note { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-top:14px; }
+
+    .btn-main { width:100%; background:var(--accent); color:#000; font-family:'IBM Plex Mono',monospace;
+      font-size:14px; font-weight:600; padding:14px; border:none; border-radius:var(--radius);
+      letter-spacing:.04em; cursor:pointer; transition:background .15s,color .15s; margin-top:6px; }
+    .btn-main:hover:not(:disabled) { background:var(--accent-dark); color:#fff; }
+    .btn-main:disabled { opacity:.4; cursor:not-allowed; }
+    .btn-ghost { width:100%; background:transparent; border:1px solid var(--border); color:var(--text-2);
+      font-family:'IBM Plex Mono',monospace; font-size:13px; padding:12px; border-radius:var(--radius);
+      cursor:pointer; margin-top:12px; transition:border-color .15s,color .15s; }
+    .btn-ghost:hover { color:var(--text-1); border-color:var(--border-h); }
+    .note { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); text-align:center; margin-top:12px; }
+
+    .hidden { display:none; }
+
+    /* progress */
+    .prog-job { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-bottom:14px; }
+    .prog-status { font-size:15px; color:var(--text-2); margin-bottom:14px; }
+    .prog-track { width:100%; height:6px; background:var(--border); border-radius:999px; overflow:hidden; margin-bottom:8px; }
+    .prog-fill { height:100%; width:0; background:var(--accent); transition:width .3s ease; }
+    .prog-pct { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent); margin-bottom:6px; }
+    .prog-skip { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-bottom:14px; }
+    .prog-log { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px;
+      max-height:80px; overflow:hidden; white-space:pre-wrap; }
+
+    /* done */
+    .done-ok { font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--accent); margin-bottom:18px; }
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+    .stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center; }
+    .stat-num { font-family:'IBM Plex Sans',sans-serif; font-weight:700; font-size:22px; color:var(--text-1); word-break:break-word; }
+    .stat-lbl { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+
+    .foot { text-align:center; padding:24px; color:var(--text-3); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; }
+
+    @media (max-width:560px){ .stats{ grid-template-columns:1fr 1fr; } .dir-arrow{ display:none; } }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/">StoreCSV<span class="dot">.</span></a>
+    <nav class="app-nav"><a href="/">← Back to app</a></nav>
+  </header>
+
+  <main class="page">
+    <span class="eyebrow">CATALOG TRANSLATOR</span>
+    <h1>Translate Your Entire Catalog.</h1>
+    <p class="subline">Upload your product CSV. Choose source and target language. Get a fully translated CSV ready to import — product names, short descriptions, and full descriptions translated in bulk.</p>
+
+    {% if not ai_available %}
+    <div class="warn-banner">⚠ GEMINI_API_KEY not configured. Add it to .env to enable translation.</div>
+    {% endif %}
+
+    <!-- FORM -->
+    <div id="form-area">
+      <div class="card">
+        <div class="card-title">01 / UPLOAD</div>
+        <span class="lbl">Platform</span>
+        <div class="pill-row" id="platform-row">
+          <button type="button" class="pill active" data-platform="woocommerce">WooCommerce</button>
+          <button type="button" class="pill" data-platform="shopify">Shopify</button>
+        </div>
+        <div class="drop" id="drop">
+          <div class="drop-icon">[ CSV ]</div>
+          <div class="drop-text" id="drop-text">Drop your CSV here or click to browse</div>
+          <div class="drop-sub">Max 5MB · WooCommerce or Shopify format</div>
+          <input type="file" id="file-input" accept=".csv" class="hidden">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">02 / TRANSLATION SETTINGS</div>
+
+        <div class="dir">
+          <div class="dir-col">
+            <span class="lbl">From</span>
+            <div class="pill-row" id="from-row">
+              <button type="button" class="pill active" data-lang="auto">AUTO</button>
+              <button type="button" class="pill" data-lang="it">🇮🇹 IT</button>
+              <button type="button" class="pill" data-lang="fr">🇫🇷 FR</button>
+              <button type="button" class="pill" data-lang="de">🇩🇪 DE</button>
+              <button type="button" class="pill" data-lang="es">🇪🇸 ES</button>
+              <button type="button" class="pill" data-lang="en">🇬🇧 EN</button>
+            </div>
+          </div>
+          <div class="dir-arrow">→</div>
+          <div class="dir-col">
+            <span class="lbl">To</span>
+            <div class="pill-row" id="to-row">
+              <button type="button" class="pill" data-lang="it">🇮🇹 IT</button>
+              <button type="button" class="pill active" data-lang="fr">🇫🇷 FR</button>
+              <button type="button" class="pill" data-lang="de">🇩🇪 DE</button>
+              <button type="button" class="pill" data-lang="es">🇪🇸 ES</button>
+              <button type="button" class="pill" data-lang="en">🇬🇧 EN</button>
+            </div>
+          </div>
+        </div>
+        <div class="lang-err" id="lang-err"></div>
+
+        <span class="lbl" style="margin-top:16px">Fields to translate</span>
+        <div class="docs-grid">
+          <label class="check"><input type="checkbox" name="fields" value="name" checked><span class="box"></span>Product name</label>
+          <label class="check"><input type="checkbox" name="fields" value="short_description" checked><span class="box"></span>Short description</label>
+          <label class="check"><input type="checkbox" name="fields" value="description" checked><span class="box"></span>Long description</label>
+        </div>
+        <p class="info-note">Brand names, model numbers, and technical specs are kept in the original language.</p>
+      </div>
+
+      <button type="button" class="btn-main" id="btn-translate" disabled>[ TRANSLATE CATALOG ]</button>
+      <p class="note">~2 sec per product · 100 products ≈ 3 minutes · Max 300</p>
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="progress-area" class="hidden">
+      <div class="card">
+        <div class="prog-job" id="prog-job">job: ------</div>
+        <div class="prog-status" id="prog-status">Starting...</div>
+        <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="prog-pct" id="prog-pct">0%</div>
+        <div class="prog-skip hidden" id="prog-skip"></div>
+        <div class="prog-log" id="prog-log"></div>
+      </div>
+    </div>
+
+    <!-- DONE -->
+    <div id="done-area" class="hidden">
+      <div class="card">
+        <div class="done-ok" id="done-ok">✓ translated</div>
+        <div class="stats">
+          <div class="stat"><div class="stat-num" id="d-translated">0</div><div class="stat-lbl">Translated</div></div>
+          <div class="stat"><div class="stat-num" id="d-skipped">0</div><div class="stat-lbl">Skipped</div></div>
+          <div class="stat"><div class="stat-num" id="d-platform">—</div><div class="stat-lbl">Platform</div></div>
+          <div class="stat"><div class="stat-num" id="d-pair">—</div><div class="stat-lbl">Language</div></div>
+        </div>
+        <button type="button" class="btn-main" id="btn-download">[ ↓ DOWNLOAD TRANSLATED CSV ]</button>
+        <p class="note">Variation rows inherit the translated name from their parent product.</p>
+        <button type="button" class="btn-ghost" id="btn-another">[ ← TRANSLATE ANOTHER ]</button>
+      </div>
+    </div>
+
+    <!-- ERROR -->
+    <div id="error-area" class="hidden">
+      <div class="card">
+        <div class="done-ok" style="color:#dc2626">✗ Translation failed</div>
+        <div class="prog-status" id="err-msg"></div>
+        <button type="button" class="btn-ghost" id="btn-retry">[ ← RETRY ]</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">STORECSV // CATALOG TRANSLATOR · AI-GENERATED · REVIEW BEFORE PUBLISHING</footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const LANG_NAME = { it:"Italian", fr:"French", de:"German", es:"Spanish", en:"English", auto:"Auto" };
+    let selectedPlatform = "woocommerce";
+    let fromLang = "auto";
+    let toLang = "fr";
+    let selectedFile = null;
+    let currentJob = null;
+    let pollTimer = null;
+
+    function show(area){ ["form-area","progress-area","done-area","error-area"].forEach(a => $(a).classList.toggle("hidden", a !== area)); }
+
+    // platform toggle
+    document.querySelectorAll('#platform-row .pill').forEach(p => p.addEventListener('click', () => {
+      document.querySelectorAll('#platform-row .pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active'); selectedPlatform = p.dataset.platform;
+    }));
+    // language direction toggles
+    document.querySelectorAll('#from-row .pill').forEach(p => p.addEventListener('click', () => {
+      document.querySelectorAll('#from-row .pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active'); fromLang = p.dataset.lang; validateLangs();
+    }));
+    document.querySelectorAll('#to-row .pill').forEach(p => p.addEventListener('click', () => {
+      document.querySelectorAll('#to-row .pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active'); toLang = p.dataset.lang; validateLangs();
+    }));
+
+    function validateLangs() {
+      const same = fromLang !== 'auto' && fromLang === toLang;
+      $('lang-err').textContent = same ? '✗ Source and target language must be different.' : '';
+      updateButton();
+      return !same;
+    }
+    function updateButton() {
+      const same = fromLang !== 'auto' && fromLang === toLang;
+      $('btn-translate').disabled = !(selectedFile && !same);
+    }
+
+    // drop zone
+    const drop = $('drop'), fileInput = $('file-input');
+    drop.addEventListener('click', () => fileInput.click());
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('dragover');
+      if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) setFile(fileInput.files[0]); });
+
+    function setFile(file) {
+      if (!file.name.toLowerCase().endsWith('.csv')) { alert('Please select a .csv file.'); return; }
+      selectedFile = file; drop.classList.add('has-file');
+      $('drop-text').innerHTML = '<span class="drop-file">' + file.name + ' · ' + (file.size/1024).toFixed(1) + ' KB</span>';
+      updateButton();
+    }
+
+    // start
+    $('btn-translate').addEventListener('click', async () => {
+      if (!selectedFile) return;
+      if (!validateLangs()) return;
+      const fields = Array.from(document.querySelectorAll('input[name="fields"]:checked')).map(c => c.value);
+      if (fields.length === 0) { alert('Select at least one field to translate.'); return; }
+
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+      fd.append('platform', selectedPlatform);
+      fd.append('source_lang', fromLang);
+      fd.append('target_lang', toLang);
+      fd.append('fields', fields.join(','));
+
+      show('progress-area');
+      $('prog-fill').style.width = '0%'; $('prog-pct').textContent = '0%'; $('prog-log').textContent = '';
+      $('prog-skip').classList.add('hidden');
+      try {
+        const res = await fetch('/api/translator/start', { method:'POST', body:fd });
+        const json = await res.json();
+        if (!res.ok || json.error) { showError(json.message || 'Could not start.'); return; }
+        currentJob = json.job_id;
+        $('prog-job').textContent = 'job: ' + currentJob;
+        startPolling();
+      } catch (e) { showError('Network error. Please try again.'); }
+    });
+
+    function startPolling(){ stopPolling(); pollTimer = setInterval(poll, 2000); poll(); }
+    function stopPolling(){ if (pollTimer) clearInterval(pollTimer); pollTimer = null; }
+
+    async function poll() {
+      if (!currentJob) return;
+      try {
+        const res = await fetch('/api/translator/status/' + currentJob);
+        if (res.status === 404) { stopPolling(); return; }
+        const s = await res.json();
+        $('prog-status').textContent = s.message || ('Translating ' + s.processed + ' of ' + s.total);
+        $('prog-fill').style.width = (s.progress || 0) + '%';
+        $('prog-pct').textContent = (s.progress || 0) + '%';
+        if (s.skipped > 0) { $('prog-skip').textContent = 'Skipped: ' + s.skipped; $('prog-skip').classList.remove('hidden'); }
+        const log = $('prog-log');
+        log.textContent = (log.textContent + (s.message ? s.message + '\n' : '')).split('\n').slice(-3).join('\n');
+        if (s.status === 'done') { stopPolling(); renderDone(s); }
+        else if (s.status === 'error') { stopPolling(); showError(s.error || 'Translation failed.'); }
+      } catch (e) { /* keep polling */ }
+    }
+
+    function renderDone(s) {
+      const translated = (s.processed ?? 0) - (s.skipped ?? 0);
+      $('done-ok').textContent = '✓ ' + translated + ' products translated to ' + (LANG_NAME[s.target_lang] || (s.target_lang || '').toUpperCase());
+      $('d-translated').textContent = translated;
+      $('d-skipped').textContent = s.skipped ?? 0;
+      $('d-platform').textContent = (s.platform || '—').toUpperCase();
+      const from = (s.source_lang || 'auto').toUpperCase();
+      $('d-pair').textContent = from + ' → ' + (s.target_lang || '').toUpperCase();
+      show('done-area');
+    }
+
+    $('btn-download').addEventListener('click', () => { if (currentJob) window.location = '/api/translator/download/' + currentJob; });
+
+    function showError(msg){ stopPolling(); $('err-msg').textContent = msg; show('error-area'); }
+    function reset(){ stopPolling(); currentJob = null; selectedFile = null; fileInput.value = '';
+      drop.classList.remove('has-file'); $('drop-text').textContent = 'Drop your CSV here or click to browse';
+      updateButton(); show('form-area'); }
+    $('btn-another').addEventListener('click', reset);
+    $('btn-retry').addEventListener('click', reset);
+
+    show('form-area');
+  </script>
+</body>
+</html>
