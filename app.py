@@ -19,6 +19,7 @@ import csv
 import io
 import ipaddress
 import json
+import math
 import os
 import re
 import socket
@@ -1077,6 +1078,172 @@ def api_validator_check():
         print(f"[validator] error: {type(e).__name__}: {e}")
         return jsonify({"error": "server_error",
                         "message": "Validation failed. Check the file is a valid CSV."}), 500
+
+
+# ──────────────────────────────────────────────
+#  Bulk Price Editor (no AI — pure CSV math)
+# ──────────────────────────────────────────────
+
+# Per-platform column mapping for the price + filter fields.
+_PRICE_COLS = {
+    "woocommerce": {"price": "Prezzo di listino", "sale_price": "Prezzo di vendita",
+                    "category": "Categorie", "type": "Tipo"},
+    "shopify": {"price": "Variant Price", "sale_price": "Variant Compare At Price",
+                "category": "Type", "type": None},
+}
+
+
+def _parse_price(raw):
+    """Parse a price cell to float, tolerating €, spaces, and comma decimals.
+
+    Returns None for empty or non-numeric cells (which are then left untouched).
+    """
+    s = re.sub(r"[^\d,.\-]", "", (raw or "").strip())  # drop currency / spaces
+    if not s:
+        return None
+    if "," in s and "." in s:
+        s = s.replace(".", "").replace(",", ".")   # European 1.234,56 -> 1234.56
+    elif "," in s:
+        s = s.replace(",", ".")
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def _round_price(price, round_to):
+    """Round price UP to the nearest .99/.95/.00-style ending (per spec)."""
+    base = math.ceil(round_to) or 1
+    return math.ceil(price / base) * base - (base - round_to)
+
+
+def _apply_price_op(price, op):
+    t = op.get("type")
+    if t == "percentage":
+        return price * (1 + float(op.get("value", 0)) / 100)
+    if t == "fixed":
+        return price + float(op.get("value", 0))
+    if t == "set":
+        return float(op.get("value", 0))
+    if t == "round":
+        return _round_price(price, float(op.get("round_to", 0.99)))
+    return price
+
+
+def _row_matches_filters(row, cols, op):
+    fcat = (op.get("filter_category") or "").strip().lower()
+    if fcat and fcat not in (row.get(cols["category"]) or "").lower():
+        return False
+    ftype = (op.get("filter_type") or "").strip().lower()
+    if ftype:
+        if cols["type"] is None:            # Shopify has no product-type column
+            return False
+        if (row.get(cols["type"]) or "").strip().lower() != ftype:
+            return False
+    return True
+
+
+def _op_target_cols(op, cols):
+    field = (op.get("field") or "price").strip().lower()
+    if field == "both":
+        return [cols["price"], cols["sale_price"]]
+    if field == "sale_price":
+        return [cols["sale_price"]]
+    return [cols["price"]]
+
+
+def _process_price_row(row, platform, cols, operations):
+    """Apply every operation, in order, to one row. Returns True if changed."""
+    # Never touch the (empty) price on a WooCommerce variable parent row.
+    if platform == "woocommerce" and (row.get(cols["type"]) or "").strip() == "variable":
+        return False
+
+    changed = False
+    for op in operations:
+        if not _row_matches_filters(row, cols, op):
+            continue
+        for col in _op_target_cols(op, cols):
+            if not col:
+                continue
+            cur = _parse_price(row.get(col))
+            if cur is None:                 # empty / non-numeric -> leave as-is
+                continue
+            new_price = _apply_price_op(cur, op)
+            if new_price < 0:
+                new_price = 0.0
+            row[col] = f"{new_price:.2f}"
+            changed = True
+    return changed
+
+
+@app.route("/price-editor")
+def price_editor_page():
+    return render_template("price-editor.html")
+
+
+@app.route("/api/price-editor/process", methods=["POST"])
+def api_price_editor_process():
+    try:
+        file = request.files.get("file")
+        if file is None or not file.filename:
+            return jsonify({"error": "no_file", "message": "No CSV file uploaded."}), 400
+
+        platform = (request.form.get("platform") or "woocommerce").strip().lower()
+        if platform not in _PRICE_COLS:
+            platform = "woocommerce"
+        cols = _PRICE_COLS[platform]
+
+        try:
+            operations = json.loads(request.form.get("operations") or "[]")
+        except (json.JSONDecodeError, TypeError):
+            return jsonify({"error": "bad_operations",
+                            "message": "Operations payload is not valid JSON."}), 400
+        if not isinstance(operations, list) or not operations:
+            return jsonify({"error": "no_operations",
+                            "message": "Add at least one price operation."}), 400
+
+        raw = file.read()
+        if len(raw) > 5 * 1024 * 1024:
+            return jsonify({"error": "too_large", "message": "File too large (max 5MB)."}), 413
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("latin-1")
+
+        reader = csv.DictReader(io.StringIO(text))
+        fieldnames = reader.fieldnames or []
+        if not fieldnames:
+            return jsonify({"error": "empty_csv", "message": "CSV has no columns."}), 400
+        rows = list(reader)
+
+        modified = sum(1 for row in rows
+                       if _process_price_row(row, platform, cols, operations))
+        skipped = len(rows) - modified
+
+        buf = io.StringIO()
+        writer = csv.DictWriter(buf, fieldnames=fieldnames, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({k: row.get(k, "") for k in fieldnames})
+
+        csv_bytes = io.BytesIO()
+        csv_bytes.write(b"\xef\xbb\xbf")  # UTF-8 BOM for Excel / importers
+        csv_bytes.write(buf.getvalue().encode("utf-8"))
+        csv_bytes.seek(0)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        resp = send_file(csv_bytes, mimetype="text/csv; charset=utf-8",
+                         as_attachment=True, download_name=f"price_edited_{timestamp}.csv")
+        resp.headers["X-Rows-Modified"] = str(modified)
+        resp.headers["X-Rows-Skipped"] = str(skipped)
+        # Allow the cross-origin Vercel front-end JS to read the stat headers.
+        resp.headers["Access-Control-Expose-Headers"] = "X-Rows-Modified, X-Rows-Skipped"
+        return resp
+
+    except Exception as e:  # noqa: BLE001 — never crash the server
+        print(f"[price-editor] error: {type(e).__name__}: {e}")
+        return jsonify({"error": "server_error",
+                        "message": "Processing failed. Check the file is a valid CSV."}), 500
 
 
 # ──────────────────────────────────────────────

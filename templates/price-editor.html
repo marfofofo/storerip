@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreCSV — Bulk Price Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#ffffff; --surface:#f9fafb; --surface-2:#f3f4f6; --border:#e5e7eb;
+      --border-h:#d1d5db; --text-1:#0d0d0d; --text-2:#4b5563; --text-3:#9ca3af;
+      --accent:#16a34a; --accent-light:#dcfce7; --accent-dark:#14532d; --on-accent:#ffffff;
+      --danger:#dc2626; --radius:6px; --radius-lg:10px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--surface); color:var(--text-1); font-family:'IBM Plex Sans',sans-serif;
+      min-height:100vh; display:flex; flex-direction:column;
+      background-image:radial-gradient(circle,#d1fae5 1px,transparent 1px); background-size:24px 24px;
+      -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+    .mono { font-family:'IBM Plex Mono',monospace; }
+
+    .app-header { display:flex; align-items:center; justify-content:space-between;
+      padding:18px 24px; background:var(--bg); border-bottom:1px solid var(--border); }
+    .logo { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; color:var(--text-1); }
+    .logo .dot { color:var(--accent); }
+    .app-nav a { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-2); transition:color .15s; }
+    .app-nav a:hover { color:var(--accent); }
+
+    .page { flex:1; width:100%; max-width:720px; margin:0 auto; padding:48px 24px; }
+    .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent);
+      text-transform:uppercase; letter-spacing:.12em; }
+    h1 { font-weight:700; font-size:2.2rem; letter-spacing:-.01em; margin:12px 0 10px; }
+    .subline { font-size:15px; color:var(--text-2); max-width:560px; margin-bottom:28px; }
+
+    .sec-head { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin:30px 0 4px; }
+    .sec-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-bottom:14px; }
+
+    /* pills */
+    .pill-label { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; display:block; }
+    .pill-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+    .pill { font-family:'IBM Plex Mono',monospace; font-size:12px; border:1px solid var(--border);
+      background:var(--bg); color:var(--text-2); padding:6px 16px; border-radius:var(--radius);
+      cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
+    .pill:hover { color:var(--text-1); border-color:var(--border-h); }
+    .pill.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
+
+    /* drop zone */
+    .drop { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:40px 32px;
+      text-align:center; background:var(--surface); cursor:pointer;
+      transition:border-color .2s,background .2s; }
+    .drop.dragover, .drop.has-file { border-color:var(--accent); background:var(--accent-light); }
+    .drop-icon { font-family:'IBM Plex Mono',monospace; font-size:1.6rem; color:var(--text-3); margin-bottom:12px; }
+    .drop-text { font-size:15px; color:var(--text-2); }
+    .drop-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-top:6px; }
+    .drop-file { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent-dark); }
+
+    /* operation cards */
+    #ops-list { margin-bottom:10px; }
+    .op-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+      padding:20px; margin-bottom:8px; position:relative; }
+    .op-handle { position:absolute; left:8px; top:18px; color:var(--text-3);
+      font-family:'IBM Plex Mono',monospace; font-size:14px; user-select:none; }
+    .op-del { position:absolute; right:12px; top:12px; color:var(--text-3); cursor:pointer;
+      font-family:'IBM Plex Mono',monospace; font-size:14px; line-height:1; transition:color .15s; }
+    .op-del:hover { color:var(--danger); }
+    .op-body { margin-left:18px; }
+    .op-num { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent);
+      letter-spacing:.08em; margin-bottom:12px; }
+    .op-row { margin-bottom:14px; }
+    .op-row:last-child { margin-bottom:0; }
+    .field-label { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; display:block; }
+
+    .mini-pill-row { display:flex; gap:6px; flex-wrap:wrap; }
+    .mini-pill { font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid var(--border);
+      background:var(--bg); color:var(--text-2); padding:5px 12px; border-radius:var(--radius);
+      cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
+    .mini-pill:hover { color:var(--text-1); border-color:var(--border-h); }
+    .mini-pill.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
+
+    .val-wrap { position:relative; display:inline-flex; align-items:center; max-width:240px; }
+    .val-input { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-1);
+      background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
+      padding:9px 12px; width:160px; }
+    .val-input:focus { outline:none; border-color:var(--accent); }
+    .val-affix { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-3); margin:0 8px; }
+
+    .select { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-1);
+      background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
+      padding:9px 12px; cursor:pointer; }
+    .select:focus { outline:none; border-color:var(--accent); }
+
+    .filter-toggle { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-2);
+      cursor:pointer; user-select:none; display:inline-block; }
+    .filter-toggle:hover { color:var(--text-1); }
+    .filter-body { margin-top:12px; display:grid; gap:12px; }
+    .text-in { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-1);
+      background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
+      padding:9px 12px; width:100%; }
+    .text-in:focus { outline:none; border-color:var(--accent); }
+
+    .add-op { background:transparent; border:1px solid var(--border); color:var(--text-1);
+      font-family:'IBM Plex Mono',monospace; font-size:12px; padding:8px 16px; border-radius:var(--radius);
+      cursor:pointer; transition:border-color .15s,color .15s,background .15s; }
+    .add-op:hover { border-color:var(--accent); color:var(--accent-dark); background:var(--accent-light); }
+
+    .ops-empty { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-3);
+      padding:18px; text-align:center; border:1px dashed var(--border); border-radius:var(--radius);
+      margin-bottom:10px; }
+
+    .preview { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-3);
+      background:var(--surface); border:1px solid var(--border); padding:12px 14px;
+      border-radius:var(--radius); margin-top:14px; white-space:pre-line; line-height:1.7; }
+    .preview .res { color:var(--accent-dark); }
+
+    .btn-main { width:100%; background:var(--accent); color:#000; font-family:'IBM Plex Mono',monospace;
+      font-size:14px; font-weight:600; padding:14px; border:none; border-radius:var(--radius);
+      letter-spacing:.04em; cursor:pointer; transition:background .15s,color .15s; margin-top:24px; }
+    .btn-main:hover:not(:disabled) { background:var(--accent-dark); color:#fff; }
+    .btn-main:disabled { opacity:.4; cursor:not-allowed; }
+
+    .msg { font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 18px;
+      border-radius:var(--radius-lg); margin-top:18px; }
+    .msg.ok { background:var(--accent-light); border:1px solid var(--accent); color:var(--accent-dark); }
+    .msg.bad { background:#fef2f2; border:1px solid #fca5a5; color:var(--danger); }
+
+    .hidden { display:none; }
+    .foot { text-align:center; padding:24px; color:var(--text-3); font-family:'IBM Plex Mono',monospace;
+      font-size:11px; letter-spacing:.12em; }
+
+    @media (max-width:560px){ .op-body{ margin-left:8px; } }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/">StoreCSV<span class="dot">.</span></a>
+    <nav class="app-nav"><a href="/">← Back to app</a></nav>
+  </header>
+
+  <main class="page">
+    <span class="eyebrow">BULK PRICE EDITOR</span>
+    <h1>Edit Prices Across Your Entire Catalog.</h1>
+    <p class="subline">Upload your CSV. Stack multiple price operations. Download the updated file — ready to import.</p>
+
+    <!-- SECTION 1 — UPLOAD -->
+    <div class="sec-head">01 / UPLOAD</div>
+    <div class="sec-sub">No AI. Pure CSV math — your file never leaves the server.</div>
+
+    <span class="pill-label">Platform</span>
+    <div class="pill-row" id="platform-row">
+      <button type="button" class="pill active" data-platform="woocommerce">WooCommerce</button>
+      <button type="button" class="pill" data-platform="shopify">Shopify</button>
+    </div>
+
+    <div class="drop" id="drop">
+      <div class="drop-icon">[ CSV ]</div>
+      <div class="drop-text" id="drop-text">Drop your CSV here or click to browse</div>
+      <div class="drop-sub">Max 5MB · WooCommerce or Shopify format</div>
+      <input type="file" id="file-input" accept=".csv" class="hidden">
+    </div>
+
+    <!-- SECTION 2 — OPERATIONS -->
+    <div class="sec-head">02 / PRICE OPERATIONS</div>
+    <div class="sec-sub">Operations are applied in order, top to bottom.</div>
+
+    <div id="ops-list"></div>
+    <button type="button" class="add-op" id="btn-add">+ ADD OPERATION</button>
+
+    <div class="preview" id="preview">Add an operation to see a live preview.</div>
+
+    <button type="button" class="btn-main" id="btn-process" disabled>[ PROCESS &amp; DOWNLOAD CSV ]</button>
+
+    <div id="message"></div>
+  </main>
+
+  <footer class="foot">STORECSV // BULK PRICE EDITOR</footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    let selectedPlatform = "woocommerce";
+    let currentFile = null;
+    let operations = [];
+
+    const TYPES = [
+      { key:"percentage", label:"% Percentage" },
+      { key:"fixed",      label:"+ Fixed Amount" },
+      { key:"set",        label:"= Set Price" },
+      { key:"round",      label:"~ Round" },
+    ];
+    const FIELDS = [
+      { key:"price",      label:"Regular Price" },
+      { key:"sale_price", label:"Sale Price" },
+      { key:"both",       label:"Both" },
+    ];
+    const ROUND_OPTS = [
+      { v:0.99, label:".99 (19.99, 29.99…)" },
+      { v:0.95, label:".95 (19.95, 29.95…)" },
+      { v:0.90, label:".90 (19.90, 29.90…)" },
+      { v:0.50, label:".50 (19.50, 29.50…)" },
+      { v:1.00, label:".00 (20.00, 30.00…)" },
+    ];
+
+    function esc(s){ return (s+'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    // ── platform toggle ──
+    document.querySelectorAll('#platform-row .pill').forEach(p => {
+      p.addEventListener('click', () => {
+        document.querySelectorAll('#platform-row .pill').forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        selectedPlatform = p.dataset.platform;
+        renderOperations();
+      });
+    });
+
+    // ── drop zone ──
+    const drop = $('drop'), fileInput = $('file-input');
+    drop.addEventListener('click', () => fileInput.click());
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', e => {
+      e.preventDefault(); drop.classList.remove('dragover');
+      if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) setFile(fileInput.files[0]); });
+
+    function setFile(file) {
+      if (!file.name.toLowerCase().endsWith('.csv')) { alert('Please select a .csv file.'); return; }
+      currentFile = file;
+      drop.classList.add('has-file');
+      const kb = (file.size / 1024).toFixed(1);
+      // Rough row estimate: ~120 bytes/row average; shown only as a hint.
+      const estRows = Math.max(1, Math.round(file.size / 120));
+      $('drop-text').innerHTML = '<span class="drop-file">' + esc(file.name) + ' · ' + kb +
+        ' KB · ~' + estRows.toLocaleString() + ' rows</span>';
+      updateProcessButton();
+    }
+
+    // ── operations ──
+    $('btn-add').addEventListener('click', addOperation);
+
+    function addOperation() {
+      operations.push({
+        id: Date.now() + Math.floor(Math.random()*1000),
+        type: 'percentage', field: 'price', value: 0,
+        round_to: 0.99, filter_category: '', filter_type: '', filtersOpen: false,
+      });
+      renderOperations();
+    }
+    function removeOperation(id) {
+      operations = operations.filter(op => op.id !== id);
+      renderOperations();
+    }
+
+    function renderOperations() {
+      const list = $('ops-list');
+      if (!operations.length) {
+        list.innerHTML = '<div class="ops-empty">No operations yet — click “+ ADD OPERATION” to start.</div>';
+        updatePreview(); updateProcessButton();
+        return;
+      }
+      list.innerHTML = operations.map((op, i) => opCard(op, i)).join('');
+
+      operations.forEach(op => {
+        const root = list.querySelector('[data-card="'+op.id+'"]');
+        if (!root) return;
+
+        root.querySelector('.op-del').addEventListener('click', () => removeOperation(op.id));
+
+        root.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', () => {
+          op.type = b.dataset.type; renderOperations();
+        }));
+        root.querySelectorAll('[data-field]').forEach(b => b.addEventListener('click', () => {
+          op.field = b.dataset.field; renderOperations();
+        }));
+        const valIn = root.querySelector('.val-input');
+        if (valIn) valIn.addEventListener('input', () => { op.value = parseFloat(valIn.value) || 0; updatePreview(); });
+        const roundSel = root.querySelector('.round-sel');
+        if (roundSel) roundSel.addEventListener('change', () => { op.round_to = parseFloat(roundSel.value); updatePreview(); });
+
+        const ft = root.querySelector('.filter-toggle');
+        if (ft) ft.addEventListener('click', () => { op.filtersOpen = !op.filtersOpen; renderOperations(); });
+        const cat = root.querySelector('.f-cat');
+        if (cat) cat.addEventListener('input', () => { op.filter_category = cat.value; updatePreview(); });
+        const typ = root.querySelector('.f-type');
+        if (typ) typ.addEventListener('change', () => { op.filter_type = typ.value; updatePreview(); });
+      });
+
+      updatePreview(); updateProcessButton();
+    }
+
+    function opCard(op, i) {
+      const typePills = TYPES.map(t =>
+        '<button type="button" class="mini-pill'+(op.type===t.key?' active':'')+'" data-type="'+t.key+'">'+t.label+'</button>'
+      ).join('');
+      const fieldPills = FIELDS.map(f =>
+        '<button type="button" class="mini-pill'+(op.field===f.key?' active':'')+'" data-field="'+f.key+'">'+f.label+'</button>'
+      ).join('');
+
+      let valueRow = '';
+      if (op.type === 'round') {
+        const opts = ROUND_OPTS.map(o =>
+          '<option value="'+o.v+'"'+(Math.abs(op.round_to-o.v)<1e-9?' selected':'')+'>'+o.label+'</option>'
+        ).join('');
+        valueRow = '<div class="op-row"><span class="field-label">Round to</span>' +
+          '<select class="select round-sel">'+opts+'</select></div>';
+      } else {
+        const affix = op.type === 'percentage'
+          ? '<span class="val-affix">%</span>'
+          : (op.type === 'set' ? '' : '');
+        const prefix = (op.type === 'fixed' || op.type === 'set') ? '<span class="val-affix">€</span>' : '';
+        valueRow = '<div class="op-row"><span class="field-label">Value</span>' +
+          '<span class="val-wrap">'+prefix+'<input type="number" step="0.01" class="val-input" value="'+esc(op.value)+'">'+affix+'</span></div>';
+      }
+
+      const typeFilterOpts = ['','simple','variable','variation'].map(t => {
+        const lbl = t === '' ? 'All types' : (t.charAt(0).toUpperCase()+t.slice(1)+(t==='variation'?'s':' only'));
+        return '<option value="'+t+'"'+(op.filter_type===t?' selected':'')+'>'+lbl+'</option>';
+      }).join('');
+
+      const arrow = op.filtersOpen ? '▼' : '▶';
+      const filterBody = op.filtersOpen ? (
+        '<div class="filter-body">' +
+          '<div><span class="field-label">Category contains</span>' +
+            '<input type="text" class="text-in f-cat" placeholder="e.g. Electronics (leave empty for all)" value="'+esc(op.filter_category)+'"></div>' +
+          (selectedPlatform === 'woocommerce' ?
+            '<div><span class="field-label">Product type</span><select class="select f-type">'+typeFilterOpts+'</select></div>'
+            : '<div class="sec-sub" style="margin:0">Product-type filter applies to WooCommerce only.</div>') +
+        '</div>'
+      ) : '';
+
+      return '<div class="op-card" data-card="'+op.id+'">' +
+        '<span class="op-handle">⠿</span>' +
+        '<span class="op-del" title="Remove">✕</span>' +
+        '<div class="op-body">' +
+          '<div class="op-num">OPERATION '+(i+1)+'</div>' +
+          '<div class="op-row"><span class="field-label">Type</span><div class="mini-pill-row">'+typePills+'</div></div>' +
+          valueRow +
+          '<div class="op-row"><span class="field-label">Apply to</span><div class="mini-pill-row">'+fieldPills+'</div></div>' +
+          '<div class="op-row"><span class="filter-toggle">'+arrow+' Add filters</span>'+filterBody+'</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function fieldLabel(key){ return (FIELDS.find(f => f.key === key) || {}).label || key; }
+
+    function describeOp(op) {
+      let head;
+      if (op.type === 'percentage') head = (op.value >= 0 ? '+' : '') + op.value + '% on ' + fieldLabel(op.field);
+      else if (op.type === 'fixed') head = (op.value >= 0 ? '+' : '') + '€' + op.value + ' on ' + fieldLabel(op.field);
+      else if (op.type === 'set')   head = 'Set ' + fieldLabel(op.field) + ' to €' + op.value;
+      else                          head = 'Round ' + fieldLabel(op.field) + ' to ' + op.round_to.toFixed(2).replace(/^0/, '');
+      const scope = op.filter_category
+        ? ('category “' + op.filter_category + '”')
+        : (op.filter_type ? (op.filter_type + ' products') : 'all products');
+      return head + ' → ' + scope;
+    }
+
+    // Mirror the backend math so the preview example is accurate.
+    function applyOp(price, op) {
+      if (op.type === 'percentage') return price * (1 + op.value / 100);
+      if (op.type === 'fixed')      return price + op.value;
+      if (op.type === 'set')        return op.value;
+      if (op.type === 'round') {
+        const base = Math.ceil(op.round_to) || 1;
+        return Math.ceil(price / base) * base - (base - op.round_to);
+      }
+      return price;
+    }
+
+    function updatePreview() {
+      const box = $('preview');
+      if (!operations.length) { box.textContent = 'Add an operation to see a live preview.'; return; }
+      const lines = operations.map((op, i) => (i+1) + '. ' + describeOp(op));
+      // Walk a sample €20.00 product through every op that targets the regular price.
+      let sample = 20.00, touched = false;
+      operations.forEach(op => {
+        if (op.field === 'sale_price') return;
+        sample = applyOp(sample, op); touched = true;
+      });
+      let result = '';
+      if (touched) result = '\nResult: a €20.00 product becomes <span class="res">€' + sample.toFixed(2) + '</span>';
+      box.innerHTML = esc(lines.join('\n')) + result;
+    }
+
+    function updateProcessButton() {
+      $('btn-process').disabled = !(currentFile && operations.length);
+    }
+
+    // ── process & download ──
+    $('btn-process').addEventListener('click', processAndDownload);
+
+    function showMessage(kind, html) {
+      $('message').innerHTML = '<div class="msg ' + kind + '">' + html + '</div>';
+    }
+
+    async function processAndDownload() {
+      if (!currentFile) return;
+      if (!operations.length) { showMessage('bad', 'Add at least one operation.'); return; }
+
+      const fd = new FormData();
+      fd.append('file', currentFile);
+      fd.append('platform', selectedPlatform);
+      fd.append('operations', JSON.stringify(
+        operations.map(({ id, filtersOpen, ...op }) => op)
+      ));
+
+      const btn = $('btn-process');
+      btn.disabled = true; btn.textContent = '[ PROCESSING... ]';
+      $('message').innerHTML = '';
+
+      try {
+        const res = await fetch('/api/price-editor/process', { method:'POST', body:fd });
+        if (!res.ok) {
+          let msg = 'Processing failed.';
+          try { const err = await res.json(); msg = err.message || msg; } catch(_) {}
+          showMessage('bad', '✗ ' + esc(msg));
+          return;
+        }
+        const modified = res.headers.get('X-Rows-Modified') || '?';
+        const skipped = res.headers.get('X-Rows-Skipped');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const stamp = new Date().toISOString().slice(0,16).replace(/[-T:]/g,'');
+        a.download = 'price_edited_' + stamp + '.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        let m = '✓ CSV downloaded — ' + modified + ' prices updated';
+        if (skipped !== null) m += ' · ' + skipped + ' rows unchanged';
+        showMessage('ok', m);
+      } catch (e) {
+        showMessage('bad', '✗ Network error. Please try again.');
+      } finally {
+        btn.disabled = false; btn.innerHTML = '[ PROCESS &amp; DOWNLOAD CSV ]';
+        updateProcessButton();
+      }
+    }
+
+    // initial render
+    renderOperations();
+  </script>
+</body>
+</html>
