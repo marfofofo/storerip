@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreCSV — Google Shopping Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#ffffff; --surface:#f9fafb; --surface-2:#f3f4f6; --border:#e5e7eb;
+      --border-h:#d1d5db; --text-1:#0d0d0d; --text-2:#4b5563; --text-3:#9ca3af;
+      --accent:#16a34a; --accent-light:#dcfce7; --accent-dark:#14532d; --on-accent:#ffffff;
+      --danger:#dc2626; --radius:6px; --radius-lg:10px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--surface); color:var(--text-1); font-family:'IBM Plex Sans',sans-serif;
+      min-height:100vh; display:flex; flex-direction:column;
+      background-image:radial-gradient(circle,#d1fae5 1px,transparent 1px); background-size:24px 24px;
+      -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+
+    .app-header { display:flex; align-items:center; justify-content:space-between;
+      padding:18px 24px; background:var(--bg); border-bottom:1px solid var(--border); }
+    .logo { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; color:var(--text-1); }
+    .logo .dot { color:var(--accent); }
+    .app-nav a { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-2); transition:color .15s; }
+    .app-nav a:hover { color:var(--accent); }
+
+    .page { flex:1; width:100%; max-width:720px; margin:0 auto; padding:48px 24px; }
+    .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent);
+      text-transform:uppercase; letter-spacing:.12em; }
+    h1 { font-weight:700; font-size:2.2rem; letter-spacing:-.01em; margin:12px 0 10px; }
+    .subline { font-size:15px; color:var(--text-2); max-width:560px; margin-bottom:28px; }
+
+    .sec-head { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin:30px 0 14px; }
+
+    .pill-label { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; display:block; }
+    .pill-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+    .pill { font-family:'IBM Plex Mono',monospace; font-size:12px; border:1px solid var(--border);
+      background:var(--bg); color:var(--text-2); padding:6px 16px; border-radius:var(--radius);
+      cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
+    .pill:hover { color:var(--text-1); border-color:var(--border-h); }
+    .pill.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
+
+    .drop { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:40px 32px;
+      text-align:center; background:var(--surface); cursor:pointer; transition:border-color .2s,background .2s; }
+    .drop.dragover, .drop.has-file { border-color:var(--accent); background:var(--accent-light); }
+    .drop-icon { font-family:'IBM Plex Mono',monospace; font-size:1.6rem; color:var(--text-3); margin-bottom:12px; }
+    .drop-text { font-size:15px; color:var(--text-2); }
+    .drop-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-top:6px; }
+    .drop-file { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent-dark); }
+
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:8px; }
+    .fld { display:flex; flex-direction:column; }
+    .fld.full { grid-column:1 / -1; }
+    .label { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+    .input, .select { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-1);
+      background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; width:100%; }
+    .input:focus, .select:focus { outline:none; border-color:var(--accent); }
+    .hint { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); margin-top:5px; }
+
+    .btn-main { width:100%; background:var(--accent); color:#000; font-family:'IBM Plex Mono',monospace;
+      font-size:14px; font-weight:600; padding:14px; border:none; border-radius:var(--radius);
+      letter-spacing:.04em; cursor:pointer; transition:background .15s,color .15s; margin-top:26px; }
+    .btn-main:hover:not(:disabled) { background:var(--accent-dark); color:#fff; }
+    .btn-main:disabled { opacity:.4; cursor:not-allowed; }
+    .btn-ghost { width:100%; background:transparent; border:1px solid var(--border); color:var(--text-2);
+      font-family:'IBM Plex Mono',monospace; font-size:13px; padding:12px; border-radius:var(--radius);
+      cursor:pointer; margin-top:14px; transition:border-color .15s,color .15s; }
+    .btn-ghost:hover { color:var(--text-1); border-color:var(--border-h); }
+
+    .infobox { background:var(--accent-light); border:1px solid var(--accent); border-radius:var(--radius);
+      padding:12px 16px; margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:11px;
+      color:var(--accent-dark); line-height:1.8; white-space:pre-line; }
+
+    .msg { font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 18px;
+      border-radius:var(--radius-lg); margin-top:18px; }
+    .msg.bad { background:#fef2f2; border:1px solid #fca5a5; color:var(--danger); }
+
+    /* results */
+    .results { margin-top:10px; animation:fade .3s ease; }
+    @keyframes fade { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+    .success-card { background:var(--accent-light); border:1px solid var(--accent); border-radius:var(--radius-lg);
+      padding:16px 20px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent-dark); }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:18px 0; }
+    .stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center; }
+    .stat-num { font-weight:700; font-size:22px; color:var(--text-1); }
+    .stat-lbl { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+    .note { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-3); line-height:1.7; }
+
+    .hidden { display:none; }
+    .foot { text-align:center; padding:24px; color:var(--text-3); font-family:'IBM Plex Mono',monospace;
+      font-size:11px; letter-spacing:.12em; }
+
+    @media (max-width:560px){ .grid2{ grid-template-columns:1fr; } .stats{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/">StoreCSV<span class="dot">.</span></a>
+    <nav class="app-nav"><a href="/">← Back to app</a></nav>
+  </header>
+
+  <main class="page">
+    <span class="eyebrow">GOOGLE SHOPPING FEED</span>
+    <h1>Generate Your Google Merchant Center Feed.</h1>
+    <p class="subline">Upload your WooCommerce or Shopify CSV. Get a TSV feed ready to upload to Google Merchant Center — with all required columns, properly formatted.</p>
+
+    <div id="form-area">
+      <!-- 1 — UPLOAD -->
+      <div class="sec-head">01 / UPLOAD</div>
+      <span class="pill-label">Platform</span>
+      <div class="pill-row" id="platform-row">
+        <button type="button" class="pill active" data-platform="woocommerce">WooCommerce</button>
+        <button type="button" class="pill" data-platform="shopify">Shopify</button>
+      </div>
+      <div class="drop" id="drop">
+        <div class="drop-icon">[ CSV ]</div>
+        <div class="drop-text" id="drop-text">Drop your CSV here or click to browse</div>
+        <div class="drop-sub">Max 5MB · WooCommerce or Shopify format</div>
+        <input type="file" id="file-input" accept=".csv" class="hidden">
+      </div>
+
+      <!-- 2 — STORE INFO -->
+      <div class="sec-head">02 / STORE INFO</div>
+      <div class="grid2">
+        <div class="fld full">
+          <label class="label" for="store_url">Store URL (for product links)</label>
+          <input class="input" type="url" id="store_url" placeholder="https://mystore.com" autocomplete="off">
+          <span class="hint">Used to build product page URLs in the feed</span>
+        </div>
+        <div class="fld">
+          <label class="label" for="brand">Default brand</label>
+          <input class="input" type="text" id="brand" placeholder="My Brand Name" autocomplete="off">
+        </div>
+        <div class="fld">
+          <label class="label" for="condition">Condition</label>
+          <select class="select" id="condition">
+            <option value="new" selected>New</option>
+            <option value="used">Used</option>
+            <option value="refurbished">Refurbished</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 3 — MARKET & CURRENCY -->
+      <div class="sec-head">03 / MARKET &amp; CURRENCY</div>
+      <div class="grid2">
+        <div class="fld">
+          <label class="label" for="country">Country</label>
+          <select class="select" id="country">
+            <option value="IT" selected>🇮🇹 Italy</option>
+            <option value="FR">🇫🇷 France</option>
+            <option value="DE">🇩🇪 Germany</option>
+            <option value="ES">🇪🇸 Spain</option>
+            <option value="GB">🇬🇧 United Kingdom</option>
+            <option value="CH">🇨🇭 Switzerland</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label class="label" for="currency">Currency</label>
+          <select class="select" id="currency">
+            <option value="EUR" selected>EUR €</option>
+            <option value="GBP">GBP £</option>
+            <option value="CHF">CHF ₣</option>
+          </select>
+        </div>
+        <div class="fld full">
+          <label class="label">Language</label>
+          <div class="pill-row" id="lang-row" style="margin-bottom:0">
+            <button type="button" class="pill active" data-lang="it">IT</button>
+            <button type="button" class="pill" data-lang="fr">FR</button>
+            <button type="button" class="pill" data-lang="de">DE</button>
+            <button type="button" class="pill" data-lang="es">ES</button>
+            <button type="button" class="pill" data-lang="en">EN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 — SHIPPING -->
+      <div class="sec-head">04 / SHIPPING</div>
+      <div class="grid2">
+        <div class="fld">
+          <label class="label" for="shipping_price">Shipping cost</label>
+          <input class="input" type="number" step="0.01" id="shipping_price" placeholder="4.99">
+        </div>
+        <div class="fld">
+          <label class="label" for="shipping_free_threshold">Free shipping above</label>
+          <input class="input" type="number" step="0.01" id="shipping_free_threshold" placeholder="50.00 (0 = never free)">
+        </div>
+      </div>
+
+      <button type="button" class="btn-main" id="btn-generate" disabled>[ GENERATE GOOGLE SHOPPING FEED ]</button>
+
+      <div class="infobox">ℹ After downloading:
+1. Go to Google Merchant Center → Products → Feeds
+2. Create new feed → select your country and language
+3. Upload the .tsv file
+4. Update YOURSTORE.COM in the feed with your real domain</div>
+
+      <div id="message"></div>
+    </div>
+
+    <div id="results" class="results hidden"></div>
+  </main>
+
+  <footer class="foot">STORECSV // GOOGLE SHOPPING FEED</footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    let selectedPlatform = "woocommerce";
+    let selectedLanguage = "it";
+    let currentFile = null;
+
+    function esc(s){ return (s+'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function f(id){ return ($(id).value || '').trim(); }
+
+    // platform toggle
+    document.querySelectorAll('#platform-row .pill').forEach(p => {
+      p.addEventListener('click', () => {
+        document.querySelectorAll('#platform-row .pill').forEach(x => x.classList.remove('active'));
+        p.classList.add('active'); selectedPlatform = p.dataset.platform;
+      });
+    });
+    // language toggle
+    document.querySelectorAll('#lang-row .pill').forEach(p => {
+      p.addEventListener('click', () => {
+        document.querySelectorAll('#lang-row .pill').forEach(x => x.classList.remove('active'));
+        p.classList.add('active'); selectedLanguage = p.dataset.lang;
+      });
+    });
+    // auto-select currency from country
+    $('country').addEventListener('change', e => {
+      const map = {IT:'EUR',FR:'EUR',DE:'EUR',ES:'EUR',GB:'GBP',CH:'CHF'};
+      $('currency').value = map[e.target.value] || 'EUR';
+    });
+
+    // drop zone
+    const drop = $('drop'), fileInput = $('file-input');
+    drop.addEventListener('click', () => fileInput.click());
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', e => {
+      e.preventDefault(); drop.classList.remove('dragover');
+      if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) setFile(fileInput.files[0]); });
+
+    function setFile(file) {
+      if (!file.name.toLowerCase().endsWith('.csv')) { alert('Please select a .csv file.'); return; }
+      currentFile = file;
+      drop.classList.add('has-file');
+      const kb = (file.size / 1024).toFixed(1);
+      $('drop-text').innerHTML = '<span class="drop-file">' + esc(file.name) + ' · ' + kb + ' KB</span>';
+      $('btn-generate').disabled = false;
+    }
+
+    function showError(msg){ $('message').innerHTML = '<div class="msg bad">✗ ' + esc(msg) + '</div>'; }
+
+    $('btn-generate').addEventListener('click', generateFeed);
+
+    async function generateFeed() {
+      if (!currentFile) return;
+      const fd = new FormData();
+      fd.append('file', currentFile);
+      fd.append('platform', selectedPlatform);
+      fd.append('country', f('country'));
+      fd.append('currency', f('currency'));
+      fd.append('language', selectedLanguage);
+      fd.append('condition', f('condition'));
+      fd.append('brand', f('brand'));
+      fd.append('store_url', f('store_url'));
+      fd.append('shipping_price', f('shipping_price') || '0');
+      fd.append('shipping_free_threshold', f('shipping_free_threshold') || '0');
+
+      const btn = $('btn-generate');
+      btn.disabled = true; btn.textContent = '[ GENERATING... ]';
+      $('message').innerHTML = '';
+
+      try {
+        const res = await fetch('/api/shopping-feed/generate', { method:'POST', body:fd });
+        if (!res.ok) {
+          let msg = 'Generation failed.';
+          try { const err = await res.json(); msg = err.message || msg; } catch(_) {}
+          showError(msg); return;
+        }
+        const count = res.headers.get('X-Products-Count') || '?';
+        const fcountry = res.headers.get('X-Feed-Country') || f('country');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const stamp = new Date().toISOString().slice(0,16).replace(/[-T:]/g,'');
+        a.href = url; a.download = 'shopping_feed_' + fcountry + '_' + stamp + '.tsv';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        showSuccess(count, fcountry, f('currency'));
+      } catch (e) {
+        showError('Network error. Please try again.');
+      } finally {
+        btn.disabled = false; btn.textContent = '[ GENERATE GOOGLE SHOPPING FEED ]';
+      }
+    }
+
+    function showSuccess(count, country, currency) {
+      $('form-area').classList.add('hidden');
+      const out = $('results');
+      out.innerHTML =
+        '<div class="success-card">✓ Feed generated — ' + esc(count) + ' products</div>' +
+        '<div class="stats">' +
+          stat(count, 'Products in feed') + stat(country, 'Country') + stat(currency, 'Currency') +
+        '</div>' +
+        '<p class="note">Remember to replace YOURSTORE.COM with your actual domain before uploading to Google Merchant Center.</p>' +
+        '<button type="button" class="btn-ghost" id="btn-another">[ ← GENERATE ANOTHER ]</button>';
+      out.classList.remove('hidden');
+      $('btn-another').addEventListener('click', resetForm);
+    }
+    function stat(n, lbl){ return '<div class="stat"><div class="stat-num">' + esc(n ?? '?') + '</div><div class="stat-lbl">' + lbl + '</div></div>'; }
+
+    function resetForm(){
+      currentFile = null; fileInput.value = '';
+      drop.classList.remove('has-file');
+      $('drop-text').textContent = 'Drop your CSV here or click to browse';
+      $('btn-generate').disabled = true;
+      $('message').innerHTML = '';
+      $('results').classList.add('hidden'); $('results').innerHTML = '';
+      $('form-area').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

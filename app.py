@@ -1247,6 +1247,309 @@ def api_price_editor_process():
 
 
 # ──────────────────────────────────────────────
+#  Google Shopping Feed generator (no AI — CSV -> GMC TSV)
+# ──────────────────────────────────────────────
+
+FEED_VALID_COUNTRIES = ("IT", "FR", "DE", "ES", "GB", "CH")
+FEED_VALID_CURRENCIES = ("EUR", "GBP", "CHF")
+FEED_VALID_CONDITIONS = ("new", "used", "refurbished")
+
+# Google Merchant Center attribute columns, in output order.
+FEED_COLUMNS = [
+    "id", "title", "description", "link", "image_link", "availability",
+    "price", "sale_price", "brand", "condition", "gtin", "mpn",
+    "product_type", "google_product_category", "identifier_exists", "shipping",
+]
+
+# Heuristic product_type -> Google product category. First substring match wins.
+_GPC_MAP = {
+    "elettronica": "Electronics",
+    "electronic": "Electronics",
+    "informatica": "Electronics > Computers",
+    "computer": "Electronics > Computers",
+    "telefoni": "Electronics > Communications",
+    "phone": "Electronics > Communications",
+    "abbigliamento": "Apparel & Accessories",
+    "clothing": "Apparel & Accessories",
+    "scarpe": "Apparel & Accessories > Shoes",
+    "shoes": "Apparel & Accessories > Shoes",
+    "casa": "Home & Garden",
+    "home": "Home & Garden",
+    "giardino": "Home & Garden",
+    "garden": "Home & Garden",
+    "sport": "Sporting Goods",
+    "beauty": "Health & Beauty",
+    "bellezza": "Health & Beauty",
+    "cosmetici": "Health & Beauty",
+    "giocattoli": "Toys & Games",
+    "toys": "Toys & Games",
+    "auto": "Vehicles & Parts",
+    "alimentari": "Food, Beverages & Tobacco",
+    "food": "Food, Beverages & Tobacco",
+    "libri": "Media > Books",
+    "books": "Media > Books",
+}
+
+
+def _strip_html(s):
+    return re.sub(r"<[^>]+>", "", s or "")
+
+
+def _tsv_clean(s, limit=None):
+    """Make a value safe for a tab-delimited feed: no tabs/newlines, collapsed."""
+    s = re.sub(r"\s+", " ", (s or "").replace("\t", " ")).strip()
+    return s[:limit] if limit else s
+
+
+def _gpc_category(product_type):
+    p = (product_type or "").lower()
+    for key, val in _GPC_MAP.items():
+        if key in p:
+            return val
+    return ""
+
+
+def _shipping_value(price_val, params):
+    """Google shipping format 'COUNTRY:::PRICE CUR' (region+service left empty)."""
+    thr = params["shipping_free_threshold"]
+    cost = 0.0 if (thr > 0 and price_val >= thr) else params["shipping_price"]
+    return f"{params['country']}:::{cost:.2f} {params['currency']}"
+
+
+def _wc_feed_rows(rows, params):
+    cur, base = params["currency"], params["base_url"]
+    items, cur_name, cur_img = [], "", ""
+    for row in rows:
+        tipo = (row.get("Tipo") or "").strip().lower()
+        if tipo in ("simple", "variable"):
+            cur_name = (row.get("Nome") or "").strip() or cur_name
+            imgs = (row.get("Immagini") or "").strip()
+            if imgs:
+                cur_img = imgs.split(",")[0].strip()
+        if tipo not in ("simple", "variation"):
+            continue
+        sku = (row.get("SKU") or "").strip()
+        if not sku:
+            continue
+        price_val = _parse_price(row.get("Prezzo di listino"))
+        if price_val is None or price_val <= 0:
+            continue
+
+        name = (row.get("Nome") or "").strip()
+        if tipo == "variation":
+            base_name = name or cur_name
+            attr = (row.get("Attributo 1 valore(i)") or "").strip()
+            title = (base_name + (" - " + attr if attr else "")).strip()
+        else:
+            title = name
+        title = _tsv_clean(title) or sku
+
+        desc = (row.get("Descrizione breve") or "").strip() or (row.get("Descrizione") or "").strip()
+        desc = _tsv_clean(_strip_html(desc), 500) or title
+
+        imgs = (row.get("Immagini") or "").strip()
+        img = (imgs.split(",")[0].strip() if imgs else "") or cur_img
+
+        stock_raw = row.get("In stock?")
+        if stock_raw is None or not stock_raw.strip():
+            avail = "in stock"
+        else:
+            avail = ("in stock" if stock_raw.strip().lower() in
+                     ("1", "yes", "true", "si", "sì", "instock") else "out of stock")
+
+        sale_val = _parse_price(row.get("Prezzo di vendita"))
+        sale_str = f"{sale_val:.2f} {cur}" if (sale_val and 0 < sale_val < price_val) else ""
+
+        brand = (row.get("Brand") or row.get("Marca") or row.get("Marchio") or "").strip() \
+            or params["brand"]
+        gtin = (row.get("GTIN") or row.get("EAN") or row.get("Codice a barre") or "").strip()
+        ptype = ((row.get("Categorie") or "").split(",")[0]).strip()
+
+        items.append({
+            "id": sku,
+            "title": title,
+            "description": desc,
+            "link": f"{base}/prodotto/{_slugify(name or cur_name or title)}",
+            "image_link": _tsv_clean(img),
+            "availability": avail,
+            "price": f"{price_val:.2f} {cur}",
+            "sale_price": sale_str,
+            "brand": _tsv_clean(brand),
+            "condition": params["condition"],
+            "gtin": _tsv_clean(gtin),
+            "mpn": sku,
+            "product_type": _tsv_clean(ptype),
+            "google_product_category": _gpc_category(ptype),
+            "identifier_exists": "yes" if gtin else "no",
+            "shipping": _shipping_value(price_val, params),
+        })
+    return items
+
+
+def _shopify_feed_rows(rows, params):
+    cur, base = params["currency"], params["base_url"]
+    items = []
+    cur_title = cur_body = cur_type = cur_vendor = cur_img = ""
+    last_handle, pos = None, 0
+    for row in rows:
+        handle = (row.get("Handle") or "").strip()
+        if handle and handle != last_handle:
+            last_handle, pos = handle, 0
+            cur_title = (row.get("Title") or "").strip()
+            cur_body = (row.get("Body (HTML)") or "").strip()
+            cur_type = (row.get("Type") or "").strip()
+            cur_vendor = (row.get("Vendor") or "").strip()
+            cur_img = (row.get("Image Src") or "").strip()
+        else:
+            img = (row.get("Image Src") or "").strip()
+            if img and not cur_img:
+                cur_img = img
+
+        price_val = _parse_price(row.get("Variant Price"))
+        if price_val is None or price_val <= 0:
+            continue  # image-only / empty rows
+
+        pos += 1
+        h = handle or last_handle or ""
+        vsku = (row.get("Variant SKU") or "").strip()
+        item_id = vsku or f"{h}-{pos}"
+
+        opts = []
+        for col in ("Option1 Value", "Option2 Value", "Option3 Value"):
+            v = (row.get(col) or "").strip()
+            if v and v.lower() != "default title":
+                opts.append(v)
+        title = cur_title or h
+        if opts:
+            title = f"{title} - {' / '.join(opts)}"
+        title = _tsv_clean(title) or item_id
+
+        desc = _tsv_clean(_strip_html(cur_body), 500) or title
+        img = (row.get("Image Src") or "").strip() or cur_img
+
+        qty_raw = (row.get("Variant Inventory Qty") or "").strip()
+        if not qty_raw:
+            avail = "in stock"
+        else:
+            try:
+                avail = "in stock" if float(qty_raw) > 0 else "out of stock"
+            except ValueError:
+                avail = "in stock"
+
+        compare = _parse_price(row.get("Variant Compare At Price"))
+        sale_str = f"{compare:.2f} {cur}" if (compare and 0 < compare < price_val) else ""
+        gtin = (row.get("Variant Barcode") or "").strip()
+
+        items.append({
+            "id": item_id,
+            "title": title,
+            "description": desc,
+            "link": f"{base}/products/{h}",
+            "image_link": _tsv_clean(img),
+            "availability": avail,
+            "price": f"{price_val:.2f} {cur}",
+            "sale_price": sale_str,
+            "brand": _tsv_clean(cur_vendor or params["brand"]),
+            "condition": params["condition"],
+            "gtin": _tsv_clean(gtin),
+            "mpn": vsku,
+            "product_type": _tsv_clean(cur_type),
+            "google_product_category": _gpc_category(cur_type),
+            "identifier_exists": "yes" if gtin else "no",
+            "shipping": _shipping_value(price_val, params),
+        })
+    return items
+
+
+@app.route("/shopping-feed")
+def shopping_feed_page():
+    return render_template("shopping-feed.html")
+
+
+@app.route("/api/shopping-feed/generate", methods=["POST"])
+def api_shopping_feed_generate():
+    try:
+        file = request.files.get("file")
+        if file is None or not file.filename:
+            return jsonify({"error": "no_file", "message": "No CSV file uploaded."}), 400
+
+        platform = (request.form.get("platform") or "woocommerce").strip().lower()
+        country = (request.form.get("country") or "IT").strip().upper()
+        if country not in FEED_VALID_COUNTRIES:
+            country = "IT"
+        currency = (request.form.get("currency") or "EUR").strip().upper()
+        if currency not in FEED_VALID_CURRENCIES:
+            currency = "EUR"
+        condition = (request.form.get("condition") or "new").strip().lower()
+        if condition not in FEED_VALID_CONDITIONS:
+            condition = "new"
+        brand = (request.form.get("brand") or "").strip()
+
+        store_url = (request.form.get("store_url") or "").strip().rstrip("/")
+        if store_url and not re.match(r"^https?://", store_url, re.IGNORECASE):
+            store_url = "https://" + store_url
+        base_url = store_url or "https://YOURSTORE.COM"
+
+        params = {
+            "country": country,
+            "currency": currency,
+            "condition": condition,
+            "brand": brand,
+            "base_url": base_url,
+            "shipping_price": _parse_price(request.form.get("shipping_price")) or 0.0,
+            "shipping_free_threshold": _parse_price(request.form.get("shipping_free_threshold")) or 0.0,
+        }
+
+        raw = file.read()
+        if len(raw) > 5 * 1024 * 1024:
+            return jsonify({"error": "too_large", "message": "File too large (max 5MB)."}), 413
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("latin-1")
+
+        reader = csv.DictReader(io.StringIO(text))
+        if not (reader.fieldnames or []):
+            return jsonify({"error": "empty_csv", "message": "CSV has no columns."}), 400
+        rows = list(reader)
+
+        items = (_shopify_feed_rows(rows, params) if platform == "shopify"
+                 else _wc_feed_rows(rows, params))
+        if not items:
+            return jsonify({
+                "error": "no_products",
+                "message": "No eligible products found. Check the platform and that "
+                           "rows have a SKU/price.",
+            }), 400
+
+        # Build the TSV by hand: Google reads raw tabs, so values are sanitized
+        # (no tabs/newlines) and joined directly — never CSV-quoted.
+        lines = ["\t".join(FEED_COLUMNS)]
+        for it in items:
+            lines.append("\t".join(it.get(c, "") for c in FEED_COLUMNS))
+        tsv = "\r\n".join(lines) + "\r\n"
+
+        feed_bytes = io.BytesIO()
+        feed_bytes.write(b"\xef\xbb\xbf")  # UTF-8 BOM
+        feed_bytes.write(tsv.encode("utf-8"))
+        feed_bytes.seek(0)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        resp = send_file(feed_bytes, mimetype="text/tab-separated-values; charset=utf-8",
+                         as_attachment=True,
+                         download_name=f"shopping_feed_{country}_{timestamp}.tsv")
+        resp.headers["X-Products-Count"] = str(len(items))
+        resp.headers["X-Feed-Country"] = country
+        resp.headers["Access-Control-Expose-Headers"] = "X-Products-Count, X-Feed-Country"
+        return resp
+
+    except Exception as e:  # noqa: BLE001 — never crash the server
+        print(f"[shopping-feed] error: {type(e).__name__}: {e}")
+        return jsonify({"error": "server_error",
+                        "message": "Feed generation failed. Check the file is a valid CSV."}), 500
+
+
+# ──────────────────────────────────────────────
 #  Product Description Enhancer (Google Gemini Flash 2.5)
 # ──────────────────────────────────────────────
 
