@@ -5,508 +5,439 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Datafork — Your AI E-commerce Developer</title>
-  <meta name="description" content="Datafork connects to your WooCommerce or Shopify store and maintains your catalog automatically — broken images, pricing errors, weak SEO, invalid Google feeds. The work of a $1000/mo developer, for $99.">
-  <meta name="keywords" content="ai ecommerce developer, woocommerce catalog maintenance, shopify catalog monitoring, automated product data, store health, google shopping feed, ecommerce automation">
+  <meta name="description" content="Datafork connects to your WooCommerce or Shopify store and maintains your catalog automatically — broken images, pricing errors, weak SEO, invalid Google feeds. The work of a €1000/mo developer, for €99.">
   <link rel="canonical" href="https://datafork.io">
-
   <meta property="og:title" content="Datafork — Your AI E-commerce Developer">
-  <meta property="og:description" content="Datafork connects to your WooCommerce or Shopify store and maintains your catalog automatically — broken images, pricing errors, weak SEO, invalid Google feeds. The work of a $1000/mo developer, for $99.">
+  <meta property="og:description" content="Your AI e-commerce developer. Catalog maintenance on autopilot. From €99/mo.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://datafork.io">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
     :root {
-  --bg:#F7F8F7; --surface:#FFFFFF; --surface-2:#F1F3F2; --border:#E3E6E4; --border-2:#D2D6D3;
-  --slate:#0F1A24; --slate-2:#1A2733; --slate-3:#2A3742; --on-slate:#E8EDEA; --on-slate-2:#9DA9A3;
-  --text-1:#0F1A24; --text-2:#5F6E78; --text-3:#94A09A;
-  --accent:#1D9E75; --accent-2:#178563; --accent-bg:#E1F5EE; --accent-text:#0F6E56;
-  --success:#639922; --success-bg:#EAF3DE; --warning:#BA7517; --warning-bg:#FAEEDA;
-  --danger:#C2603A; --danger-bg:#FAECE7;
-  --radius:8px; --radius-lg:12px; --radius-sm:6px;
-  --shadow-sm:0 1px 2px rgba(15,26,36,0.04); --shadow:0 2px 8px rgba(15,26,36,0.06); --shadow-lg:0 8px 24px rgba(15,26,36,0.08);
-  /* compatibility aliases (old token names -> new system) */
-  --border-h:#D2D6D3; --accent-dim:#178563; --accent-dark:#178563; --accent-light:#E1F5EE; --on-accent:#FFFFFF;
-  --nav-bg:rgba(247,248,247,0.9); --row-alt:#F1F3F2; --dot:#E3E6E4;
-  /* refined dark terminal output block (kept dark for code/output only) */
-  --term-bg:#0F1A24; --term-green:#1D9E75; --term-chrome:#1A2733; --term-chrome-border:#2A3742;
-  --term-text:#E8EDEA; --term-prompt:#9DA9A3; --term-muted:#9DA9A3; --term-tab:#9DA9A3;
-  --tl-r:#E0867A; --tl-y:#D9B65A; --tl-g:#7FB069; --cta-sub:rgba(255,255,255,0.6);
-}
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text-1);
-      font-family: 'Inter', system-ui, sans-serif;
-      font-size: 13px;
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
+      --bg:#F7F8F7; --surface:#FFFFFF; --surface-2:#F1F3F2;
+      --border:#E3E6E4; --border-2:#D2D6D3;
+      --slate:#0F1A24; --slate-2:#1A2733; --slate-3:#2A3742;
+      --on-slate:#E8EDEA; --on-slate-2:#9DA9A3;
+      --text-1:#0F1A24; --text-2:#5F6E78; --text-3:#94A09A;
+      --accent:#1D9E75; --accent-2:#178563;
+      --accent-bg:#E1F5EE; --accent-text:#0F6E56;
+      --success:#639922; --success-bg:#EAF3DE;
+      --warning:#BA7517; --warning-bg:#FAEEDA;
+      --danger:#C2603A; --danger-bg:#FAECE7;
+      --radius:8px; --radius-lg:12px; --radius-sm:6px;
+      --shadow-sm:0 1px 2px rgba(15,26,36,0.04);
+      --shadow:0 2px 8px rgba(15,26,36,0.06);
+      --shadow-lg:0 12px 32px rgba(15,26,36,0.10);
+      --max-w:1140px;
     }
-    a { color: inherit; text-decoration: none; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body {
+      background:var(--bg); color:var(--text-1);
+      font-family:'Inter', system-ui, sans-serif; font-size:15px; line-height:1.6;
+      -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    }
+    a { color:inherit; text-decoration:none; }
+    h1,h2,h3,h4 { font-family:'Inter Tight','Inter',sans-serif; font-weight:600; letter-spacing:-0.02em; color:var(--text-1); }
+    .mono { font-family:'JetBrains Mono', monospace; }
+
+    .wrap { max-width:var(--max-w); margin:0 auto; padding:0 24px; }
+    .section { padding:96px 24px; }
+    .section-inner { max-width:var(--max-w); margin:0 auto; }
+    .center { text-align:center; }
+
+    .eyebrow { font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-text); font-weight:500; margin-bottom:14px; }
+    .h2 { font-size:34px; line-height:1.12; margin-bottom:14px; }
+    .lead { font-size:17px; color:var(--text-2); max-width:680px; }
+    .center .lead { margin-left:auto; margin-right:auto; }
+
+    /* buttons */
+    .btn { display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-weight:500;
+      font-size:14px; padding:11px 22px; border-radius:var(--radius); border:1px solid transparent; cursor:pointer;
+      transition:background 150ms ease, border-color 150ms ease, color 150ms ease; white-space:nowrap; }
+    .btn-primary { background:var(--accent); color:#fff; }
+    .btn-primary:hover { background:var(--accent-2); }
+    .btn-ghost { background:transparent; color:var(--text-1); border:1px solid var(--border-2); }
+    .btn-ghost:hover { background:var(--surface-2); }
 
     /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; height: 48px;
-      display: flex; align-items: center;
-      background: var(--nav-bg); backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      opacity: 0; pointer-events: none; transition: opacity 300ms ease;
-    }
-    nav.show { opacity: 1; pointer-events: auto; }
-    .nav-inner { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 48px;
-      display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 14px; }
-    .nav-links { display: flex; align-items: center; gap: 26px; }
-    .nav-links a.link { font-size: 11px; color: var(--text-2); letter-spacing: 0.08em; transition: color 150ms ease; }
-    .nav-links a.link:hover { color: var(--text-1); }
-    .nav-cta {
-      font-size: 11px; letter-spacing: 0.08em;
-      background: var(--accent); color: var(--on-accent);
-      padding: 6px 14px; border-radius: var(--radius); transition: background 150ms ease;
-    }
-    .nav-cta:hover { background: var(--accent-dim); }
-
-    /* ── Buttons ── */
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'Inter', system-ui, sans-serif; font-size: 12px;
-      background: var(--accent); color: var(--on-accent);
-      padding: 10px 20px; border-radius: var(--radius); border: none; cursor: pointer;
-      letter-spacing: 0.08em; transition: background 150ms ease;
-    }
-    .btn-primary:hover { background: var(--accent-dim); }
-    .btn-ghost {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'Inter', system-ui, sans-serif; font-size: 12px;
-      background: transparent; color: var(--text-2); border: 1px solid var(--border);
-      padding: 10px 20px; border-radius: var(--radius); letter-spacing: 0.08em;
-      transition: border-color 150ms ease, color 150ms ease;
-    }
-    .btn-ghost:hover { border-color: var(--border-h); color: var(--text-1); }
-    .btn-link { font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
-    .btn-link:hover { color: var(--text-2); }
-
-    /* ── Eyebrow / section heads ── */
-    .eyebrow {
-      font-size: 10px; color: var(--accent); opacity: 1;
-      letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 12px;
-    }
-    .sec-head { max-width: 1200px; margin: 0 auto 52px; padding: 0 48px; }
-    .sec-head h2 {
-      font-weight: 400; font-size: 20px;
-      color: #d0d0d0; letter-spacing: -0.01em; margin: 14px 0 12px;
-    }
-    .sec-head p { font-size: 12px; color: var(--text-2); line-height: 1.8; }
-
-    /* ── Badge ── */
-    .badge {
-      display: inline-block; margin-bottom: 14px;
-      background: var(--accent-bg); color: var(--accent);
-      border: 1px solid rgba(29,158,117,0.15);
-      font-size: 10px; letter-spacing: 0.12em; padding: 3px 10px;
-      border-radius: var(--radius); text-transform: uppercase;
-    }
+    nav { position:sticky; top:0; z-index:100; height:60px; display:flex; align-items:center;
+      background:rgba(247,248,247,0.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+    .nav-inner { width:100%; max-width:var(--max-w); margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .logo { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:18px; }
+    .logo .a { color:var(--accent); }
+    .nav-mid { display:flex; gap:28px; }
+    .nav-mid a { font-size:14px; color:var(--text-2); transition:color 150ms; }
+    .nav-mid a:hover { color:var(--text-1); }
+    .nav-right { display:flex; gap:10px; align-items:center; }
 
     /* ── HERO ── */
-    .hero {
-      position: relative;
-      max-width: 1200px; margin: 0 auto; padding: 48px 48px 60px;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
-      align-items: center; min-height: auto;
-    }
-    .hero::before {
-      content: ""; position: absolute; inset: 0; z-index: 0;
-      background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
-      background-size: 22px 22px;
-      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%);
-              mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%);
-    }
-    .hero-left, .hero-right { position: relative; z-index: 1; }
-    .hero-eyebrow { display: block; margin-bottom: 24px; font-size: 11px; opacity: 1; }
-    .hero h1 {
-      font-weight: 400; font-size: 32px; color: var(--text-1);
-      letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 24px;
-    }
-    .hero h1 .ac { color: var(--accent); }
-    .hero-sub {
-      font-size: 12px; color: var(--text-2);
-      line-height: 1.8; max-width: 440px; margin-bottom: 36px;
-    }
-    .hero-cta { display: flex; gap: 18px; align-items: center; }
-    .trust { margin-top: 32px; display: flex; gap: 20px; flex-wrap: wrap; }
-    .trust span { font-size: 11px; color: #666666; letter-spacing: 0.06em; }
-    .trust .ck { color: var(--accent); }
+    .hero { padding:72px 24px 80px; text-align:center; }
+    .pill { display:inline-block; background:var(--accent-bg); color:var(--accent-text); font-size:12px; font-weight:500;
+      padding:5px 14px; border-radius:999px; margin-bottom:24px; }
+    .hero h1 { font-size:52px; line-height:1.06; letter-spacing:-0.03em; max-width:840px; margin:0 auto 22px; }
+    .hero h1 .ac { color:var(--accent); }
+    .hero-sub { font-size:18px; color:var(--text-2); max-width:620px; margin:0 auto 30px; }
+    .hero-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:18px; }
+    .trust { font-size:13px; color:var(--text-3); }
+    .trust .ck { color:var(--accent); font-weight:600; }
 
-    /* ── Terminal ── */
-    .term {
-      background: var(--term-bg); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); overflow: hidden; min-height: 300px;
-    }
-    .term-bar {
-      background: var(--term-chrome); padding: 8px 14px;
-      display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--term-chrome-border);
-    }
-    .tl { width: 8px; height: 8px; border-radius:50%; display: inline-block; }
-    .tl.r { background: var(--tl-r); }
-    .tl.y { background: var(--tl-y); }
-    .tl.g { background: var(--tl-g); }
-    .term-tab { font-size: 10px; color: var(--term-tab); margin-left: 12px; }
-    .term-body {
-      padding: 20px 24px; min-height: 360px;
-      font-size: 13px; line-height: 2.0; color: var(--term-text);
-    }
-    .tw-line { white-space: pre; min-height: 24px; }
-    .tw-cursor { color: var(--term-green); animation: blink 1s step-end infinite; }
-    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    /* preview switch */
+    .seg { display:inline-flex; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:4px; gap:4px; margin:34px 0 22px; }
+    .seg button { font-family:'Inter',sans-serif; font-size:13px; font-weight:500; color:var(--text-2); background:transparent; border:none;
+      padding:8px 20px; border-radius:999px; cursor:pointer; transition:background 150ms, color 150ms; }
+    .seg button.active { background:var(--accent); color:#fff; }
 
-    /* ── Sections ── */
-    .section { padding: 100px 48px; }
-    .section.bordered { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .section.surface { background: var(--surface); }
-    .grid-wrap { max-width: 1200px; margin: 0 auto; }
-    /* Keep the carousel below the fixed nav so it never overlaps. */
-    #tools { position: relative; z-index: 1; }
+    /* desktop browser mockup */
+    .mock { max-width:900px; margin:0 auto; background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); overflow:hidden; }
+    .mock-bar { display:flex; align-items:center; gap:8px; padding:11px 16px; background:var(--surface-2); border-bottom:1px solid var(--border); }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .dot.r{background:#E0867A;} .dot.y{background:#D9B65A;} .dot.g{background:#7FB069;}
+    .mock-url { margin-left:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-3);
+      background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:4px 14px; }
+    .mock-body { padding:28px; text-align:left; position:relative; min-height:340px; }
+    .mock-view { transition:opacity 200ms ease; }
+    .mock-view.hide { display:none; }
 
-    /* ── HOW IT WORKS ── */
-    .steps {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border);
-      border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
-    }
-    .step {
-      background: var(--bg); padding: 40px 36px; position: relative; overflow: hidden;
-      border-left: 2px solid transparent;
-      transition: background 200ms ease, border-left-color 200ms ease;
-    }
-    .step:hover { background: var(--surface); border-left-color: var(--accent); }
-    .step .watermark {
-      position: absolute; top: -6px; right: 16px;
-      font-size: 6rem; color: var(--accent-light); line-height: 1;
-      pointer-events: none; user-select: none;
-    }
-    .step .body { position: relative; z-index: 1; }
-    .step h3 { font-weight: 400; font-size: 15px; color: var(--text-1); margin-bottom: 10px; }
-    .step p { font-size: 12px; color: var(--text-2); line-height: 1.8; }
+    .mv-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; gap:20px; flex-wrap:wrap; }
+    .score { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:56px; line-height:1; color:var(--accent); }
+    .score small { font-size:20px; color:var(--text-3); }
+    .score-lbl { font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-3); margin-top:4px; }
+    .bars { flex:1; min-width:260px; display:flex; flex-direction:column; gap:11px; }
+    .bar-row { display:grid; grid-template-columns:80px 1fr 40px; align-items:center; gap:12px; }
+    .bar-row .l { font-size:13px; color:var(--text-2); }
+    .bar-row .p { font-size:12px; color:var(--text-2); text-align:right; }
+    .track { height:8px; background:var(--surface-2); border-radius:999px; overflow:hidden; }
+    .fill { display:block; height:100%; background:var(--accent); border-radius:999px; }
+    .fill.warn { background:var(--warning); }
+    .mv-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+    .mvm { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+    .mvm .n { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:22px; }
+    .mvm .k { font-size:11px; color:var(--text-3); margin-top:2px; }
+    .mvm .n.warn{color:var(--warning);} .mvm .n.danger{color:var(--danger);}
+    .mv-agent { background:var(--accent-bg); border:1px solid var(--accent); border-left:3px solid var(--accent);
+      border-radius:var(--radius); padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .mv-agent .t { font-size:13px; color:var(--text-1); }
+    .mv-agent .t b { color:var(--accent-text); font-weight:600; }
+    .mini-btn { background:var(--accent); color:#fff; font-size:12px; font-weight:500; padding:7px 14px; border:none; border-radius:var(--radius); cursor:pointer; }
 
-    /* ── TOOLS / USE CASES grid ── */
-    .cases {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border);
-      border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
-    }
-    .case { background: var(--surface); padding: 36px 40px; transition: background 200ms ease, border-color 150ms ease; }
-    .case:hover { background: var(--surface-2); }
-    .case .ic {
-      font-size: 1rem; color: var(--accent);
-      background: var(--accent-bg); border: 1px solid rgba(29,158,117,0.15);
-      padding: 5px 10px; border-radius: var(--radius);
-      display: inline-block; margin-bottom: 16px;
-    }
-    .case h3 { font-weight: 400; font-size: 15px; color: var(--text-1); margin-bottom: 12px; }
-    .case p { font-size: 12px; color: var(--text-2); line-height: 1.8; }
-    .case .open { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--accent); }
+    .hc-row { display:flex; align-items:center; gap:12px; padding:13px 4px; border-bottom:1px solid var(--border); }
+    .hc-row:last-child { border-bottom:none; }
+    .hc-ico { width:20px; text-align:center; font-weight:600; }
+    .hc-ico.ok{color:var(--success);} .hc-ico.warn{color:var(--warning);} .hc-ico.bad{color:var(--danger);}
+    .hc-name { flex:1; font-size:14px; color:var(--text-1); }
+    .hc-cnt { font-size:12px; color:var(--text-3); }
 
-    /* ── TOOL CAROUSEL ── */
-    .carousel { display: grid; grid-template-columns: 40% 60%; gap: 24px; align-items: stretch; }
-    .carousel-list {
-      display: flex; flex-direction: column; gap: 2px;
-      border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px; background: var(--surface);
-    }
-    .carousel-item {
-      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: var(--text-3);
-      padding: 12px 16px; border-left: 2px solid transparent; cursor: pointer;
-      letter-spacing: 0.06em; transition: all 150ms;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .carousel-item:hover { color: var(--text-2); border-left-color: var(--border-h); }
-    .carousel-item.active { color: var(--accent); border-left: 2px solid var(--accent); background: rgba(29,158,117,0.04); }
-    .carousel-item .ci-num { color: var(--text-3); font-size: 10px; }
-    .carousel-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 40px; min-height: 320px;
-      opacity: 1; transform: translateX(0); transition: opacity 200ms ease, transform 200ms ease;
-    }
-    .carousel-card.swap { opacity: 0; transform: translateX(8px); }
-    .cc-badges { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
-    .cc-badges .ic { margin-bottom: 0; }
-    .cc-name { font-size: 24px; color: var(--text-1); margin-bottom: 16px; }
-    .cc-desc { font-size: 12px; color: var(--text-2); line-height: 1.8; max-width: 480px; margin-bottom: 28px; }
-    .cc-cta { color: var(--accent); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: inline-block; margin-bottom: 28px; }
-    .cc-term {
-      background: var(--slate); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 14px 16px; font-family: 'Inter', system-ui, sans-serif;
-      font-size: 11px; line-height: 1.9; color: var(--accent); white-space: pre; overflow-x: auto;
-    }
-    @media (max-width: 768px) {
-      .carousel { grid-template-columns: 1fr; }
-      .carousel-card { padding: 24px; }
-    }
+    /* ── SOCIAL PROOF ── */
+    .marquee { overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); }
+    .marquee-track { display:flex; gap:0; width:max-content; animation:scrollx 38s linear infinite; }
+    .marquee:hover .marquee-track { animation-play-state:paused; }
+    @keyframes scrollx { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+    .mlogo { font-family:'Inter Tight',sans-serif; font-weight:500; font-size:18px; color:var(--text-2); opacity:0.6;
+      padding:0 28px; white-space:nowrap; transition:opacity 150ms; }
+    .mlogo:hover { opacity:1; }
+    .stats { display:flex; justify-content:center; gap:64px; margin-top:54px; flex-wrap:wrap; }
+    .stat { text-align:center; }
+    .stat .num { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:40px; color:var(--text-1); }
+    .stat .lbl { font-size:13px; color:var(--text-2); margin-top:4px; }
 
-    /* ── HERO DASHBOARD MOCKUP ── */
-    .dash { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
-      background: var(--surface); box-shadow: var(--shadow-lg); }
-    .dash-bar { background: var(--surface-2); padding: 10px 14px; display: flex; align-items: center; gap: 8px;
-      border-bottom: 1px solid var(--border); }
-    .dash-tab { font-size: 11px; color: var(--text-3); margin-left: 12px; }
-    .dash-body { padding: 24px; }
-    .dash-conn { color: var(--accent-text); font-size: 12px; margin-bottom: 16px; }
-    .dash-score { font-size: 48px; line-height: 1; color: var(--accent); }
-    .dash-score small { font-size: 18px; color: var(--text-3); }
-    .dash-scorelbl { font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase; margin: 4px 0 18px; }
-    .dash-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-    .dbar { display: grid; grid-template-columns: 64px 1fr 38px; gap: 10px; align-items: center; }
-    .dbar .l { color: var(--text-2); font-size: 12px; }
-    .dbar .t { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
-    .dbar .p { color: var(--text-2); font-size: 11px; text-align: right; }
-    .bf { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
-    .bf.warn { background: var(--warning); }
-    .dash-agent { background: var(--accent-bg); border: 1px solid var(--accent);
-      border-left: 2px solid var(--accent); border-radius: var(--radius); padding: 12px 14px;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .dash-agent .am { color: var(--text-1); font-size: 12px; }
-    .dash-mini-btn { background: var(--accent); color: #fff; font-size: 11px; padding: 6px 12px;
-      border-radius: var(--radius); white-space: nowrap; }
+    /* ── cards / grids ── */
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
 
-    /* ── COST CARDS (pain) ── */
-    .cost-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border);
-      border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-    .cost { background: var(--surface); padding: 36px 32px; text-align: center; }
-    .cost .big { font-size: 38px; margin-bottom: 8px; color: var(--text-1); }
-    .cost .big.dn { color: var(--danger); } .cost .big.wn { color: var(--warning); }
-    .cost .lbl { font-size: 12px; color: var(--text-2); }
+    .cost { padding:32px 28px; text-align:center; }
+    .cost .big { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:36px; color:var(--text-1); }
+    .cost .sub { font-size:13px; color:var(--text-2); margin-top:8px; }
 
-    /* ── MONITOR GRID ── */
-    .mon-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1px;
-      background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-    .mon { background: var(--surface); padding: 26px 28px; }
-    .mon .ic { display: inline-block; color: var(--accent); background: var(--accent-bg);
-      border: 1px solid rgba(29,158,117,0.15); padding: 4px 9px; border-radius: var(--radius); font-size: 12px; margin-bottom: 12px; }
-    .mon h3 { font-weight: 400; font-size: 14px; color: var(--text-1); margin-bottom: 6px; }
-    .mon p { font-size: 12px; color: var(--text-2); line-height: 1.7; }
+    /* steps */
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .step { position:relative; padding:32px 28px; overflow:hidden; }
+    .step .wm { position:absolute; top:-14px; right:14px; font-family:'Inter Tight',sans-serif; font-weight:700; font-size:84px; color:var(--surface-2); line-height:1; z-index:0; }
+    .step .in { position:relative; z-index:1; }
+    .step h3 { font-size:17px; margin-bottom:8px; }
+    .step p { font-size:14px; color:var(--text-2); }
 
-    /* ── AGENT CHAT ── */
-    .chat { max-width: 680px; }
-    .cmsg { padding: 14px 18px; border-radius: var(--radius-lg); max-width: 80%; margin-bottom: 12px;
-      white-space: pre-line; font-size: 13px; line-height: 1.6; }
-    .cmsg.agent { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent); color: var(--text-1); }
-    .cmsg.agent .h { color: var(--accent); font-size: 10px; display: block; margin-bottom: 6px; }
-    .cmsg.user { background: var(--surface-2); color: var(--text-2); margin-left: auto; text-align: right; }
-    .chat-cap { color: var(--text-3); font-size: 11px; margin-top: 18px; }
+    /* bento */
+    .bento { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .feat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm);
+      padding:24px; transition:transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+    .feat:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:var(--shadow); }
+    .feat.large { grid-column:span 2; display:flex; flex-direction:column; }
+    .feat .ic { width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius);
+      background:var(--accent-bg); color:var(--accent); font-size:16px; margin-bottom:14px; }
+    .feat h3 { font-size:16px; font-weight:500; margin-bottom:6px; }
+    .feat p { font-size:13.5px; color:var(--text-2); }
+    .thumbs { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:18px; }
+    .thumb { aspect-ratio:1; border-radius:var(--radius-sm); background:var(--surface-2); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; color:var(--text-3); font-size:18px; }
+    .thumb.bad { background:var(--danger-bg); border-color:var(--danger); color:var(--danger); font-family:'JetBrains Mono',monospace; font-size:12px; }
 
-    /* ── PRICING ── */
-    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 840px; }
-    .price { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-      padding: 32px; position: relative; display: flex; flex-direction: column; }
-    .price.pro { border: 2px solid var(--accent); }
-    .price-badge { position: absolute; top: -9px; right: 20px; background: var(--accent); color: #fff;
-      font-size: 9px; letter-spacing: 0.1em; padding: 3px 10px; border-radius: var(--radius); text-transform: uppercase; }
-    .price .tier { font-size: 13px; color: var(--text-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
-    .price .amt { font-size: 34px; color: var(--text-1); margin-bottom: 4px; }
-    .price .amt small { font-size: 14px; color: var(--text-3); }
-    .price .tag { font-size: 12px; color: var(--text-2); margin-bottom: 22px; }
-    .price ul { list-style: none; margin-bottom: 24px; flex: 1; }
-    .price li { font-size: 12px; color: var(--text-2); padding: 5px 0; }
-    .price li .y { color: var(--accent); } .price li .n { color: var(--text-3); }
-    .price li.off { color: var(--text-3); }
-    .price .btn-primary, .price .btn-ghost { width: 100%; justify-content: center; }
-    .price .pnote { font-size: 11px; color: var(--text-3); margin-top: 14px; text-align: center; }
+    /* agent chat */
+    .chat { max-width:680px; margin:0 auto; }
+    .cmsg { padding:14px 18px; border-radius:var(--radius-lg); max-width:80%; margin-bottom:12px; font-size:15px; line-height:1.55; }
+    .cmsg.agent { background:var(--surface); border:1px solid var(--border); border-left:2px solid var(--accent); box-shadow:var(--shadow-sm); }
+    .cmsg.agent .h { display:block; color:var(--accent-text); font-size:11px; font-weight:600; margin-bottom:6px; }
+    .cmsg.user { background:var(--accent-bg); color:var(--text-1); margin-left:auto; text-align:right; }
+    .chat-cap { text-align:center; color:var(--text-3); font-size:13px; margin-top:18px; }
 
-    @media (max-width: 768px) { .cost-grid { grid-template-columns: 1fr; } .price-grid { grid-template-columns: 1fr; } }
+    /* ── feature carousel (free tools) ── */
+    .carousel { display:grid; grid-template-columns:38% 62%; gap:20px; align-items:stretch; }
+    .carousel-list { display:flex; flex-direction:column; gap:2px; border:1px solid var(--border); border-radius:var(--radius-lg); padding:8px; background:var(--surface); box-shadow:var(--shadow-sm); }
+    .carousel-item { font-size:14px; color:var(--text-2); padding:13px 16px; border-left:2px solid transparent; cursor:pointer;
+      transition:all 150ms; display:flex; align-items:center; gap:10px; border-radius:var(--radius-sm); }
+    .carousel-item:hover { color:var(--text-1); background:var(--surface-2); }
+    .carousel-item.active { color:var(--accent-text); border-left:2px solid var(--accent); background:var(--accent-bg); font-weight:500; }
+    .carousel-item .ci-num { color:var(--text-3); font-size:12px; font-family:'JetBrains Mono',monospace; }
+    .carousel-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm);
+      padding:32px; min-height:300px; opacity:1; transform:translateX(0); transition:opacity 200ms ease, transform 200ms ease; }
+    .carousel-card.swap { opacity:0; transform:translateX(8px); }
+    .cc-badges { display:flex; gap:10px; align-items:center; margin-bottom:16px; }
+    .cc-badge { background:var(--accent-bg); color:var(--accent-text); font-size:11px; font-weight:500; letter-spacing:0.04em; padding:3px 10px; border-radius:999px; text-transform:uppercase; }
+    .cc-ic { color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; }
+    .cc-name { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:22px; margin-bottom:12px; }
+    .cc-desc { font-size:14px; color:var(--text-2); line-height:1.7; max-width:480px; margin-bottom:24px; }
+    .cc-cta { color:var(--accent-text); font-size:13px; font-weight:500; display:inline-block; margin-bottom:24px; }
+    .cc-term { background:var(--slate); border-radius:var(--radius); padding:14px 16px; font-family:'JetBrains Mono',monospace;
+      font-size:12px; line-height:1.9; color:var(--on-slate); white-space:pre; overflow-x:auto; }
+    .cc-term .ac { color:var(--accent); }
 
-    /* ── FINAL CTA (slate) ── */
-    .final-cta {
-      padding: 120px 48px; text-align: center; background: var(--slate);
-    }
-    .final-cta h2 {
-      font-weight: 600; font-size: 28px;
-      color: #fff; letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 16px;
-    }
-    .final-cta .sub { font-size: 14px; color: var(--on-slate-2); margin-bottom: 44px; }
-    .final-cta .btn-ghost { color: var(--on-slate); border-color: var(--slate-3); }
-    .final-cta .btn-ghost:hover { background: var(--slate-2); color: #fff; border-color: var(--slate-3); }
+    /* testimonials */
+    .tcard { padding:26px; display:flex; flex-direction:column; }
+    .tcard .q { font-size:15px; color:var(--text-1); line-height:1.6; flex:1; }
+    .tcard .who { display:flex; align-items:center; gap:12px; margin-top:20px; }
+    .avatar { width:38px; height:38px; border-radius:50%; background:var(--accent-bg); color:var(--accent-text);
+      display:flex; align-items:center; justify-content:center; font-family:'Inter Tight',sans-serif; font-weight:600; font-size:14px; }
+    .tcard .nm { font-size:14px; font-weight:500; color:var(--text-1); }
+    .tcard .ro { font-size:12px; color:var(--text-2); }
 
-    /* ── FOOTER ── */
-    footer {
-      background: var(--bg); border-top: 1px solid var(--border); padding: 40px 48px;
-      display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
-    }
-    .foot-logo { font-size: 14px; }
-    .foot-tagline { font-size: 11px; color: var(--text-3); margin-top: 6px; }
-    .foot-right { text-align: right; }
-    .foot-links { display: flex; gap: 24px; justify-content: flex-end; margin-bottom: 6px; }
-    .foot-links a { font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
-    .foot-links a:hover { color: var(--text-2); }
-    .foot-copy { font-size: 11px; color: var(--text-3); }
+    /* pricing */
+    .billing { display:inline-flex; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:4px; gap:4px; margin:6px 0 36px; }
+    .billing button { font-family:'Inter',sans-serif; font-size:13px; font-weight:500; color:var(--text-2); background:transparent; border:none; padding:8px 18px; border-radius:999px; cursor:pointer; }
+    .billing button.active { background:var(--accent); color:#fff; }
+    .save { font-size:11px; color:var(--accent-text); }
+    .billing button.active .save { color:#dff3ea; }
+    .prices { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; align-items:start; }
+    .price { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm);
+      padding:26px 22px; display:flex; flex-direction:column; position:relative; }
+    .price.pop { border:2px solid var(--accent); box-shadow:var(--shadow-lg); }
+    .pbadge { position:absolute; top:-11px; left:22px; background:var(--accent-bg); color:var(--accent-text); font-size:11px; font-weight:600; padding:3px 12px; border-radius:999px; }
+    .ptier { font-size:13px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-2); margin-bottom:10px; }
+    .pamt { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:32px; color:var(--text-1); }
+    .pamt .per { font-family:'Inter',sans-serif; font-size:14px; font-weight:400; color:var(--text-3); }
+    .ptag { font-size:13px; color:var(--text-2); margin:6px 0 18px; }
+    .pfeat { list-style:none; margin-bottom:22px; flex:1; }
+    .pfeat li { font-size:13px; color:var(--text-2); padding:5px 0; display:flex; gap:8px; }
+    .pfeat li .y { color:var(--accent); } .pfeat li .n { color:var(--text-3); }
+    .price .btn { width:100%; justify-content:center; }
+    .pnote { text-align:center; color:var(--text-3); font-size:13px; margin-top:20px; }
 
-    /* ── Scroll animations ── */
-    .animate-in {
-      opacity: 0; transform: translateY(24px);
-      transition: opacity 600ms ease var(--d, 0ms), transform 600ms ease var(--d, 0ms);
-    }
-    .animate-in.visible { opacity: 1; transform: translateY(0); }
-    .cases .case:nth-child(2n) { --d: 100ms; }
+    /* faq */
+    .faq { max-width:760px; margin:0 auto; }
+    .faq-item { border-bottom:1px solid var(--border); }
+    .faq-q { width:100%; text-align:left; background:transparent; border:none; cursor:pointer; padding:20px 0;
+      display:flex; justify-content:space-between; align-items:center; gap:16px; font-family:'Inter Tight',sans-serif; font-weight:500; font-size:16px; color:var(--text-1); }
+    .faq-q .chev { color:var(--text-3); transition:transform 200ms ease; flex-shrink:0; }
+    .faq-item.open .faq-q .chev { transform:rotate(180deg); }
+    .faq-a { max-height:0; overflow:hidden; transition:max-height 240ms ease; }
+    .faq-a p { padding:0 0 20px; font-size:14.5px; color:var(--text-2); line-height:1.6; max-width:680px; }
 
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .nav-inner { padding: 0 24px; }
-      .nav-links .link { display: none; }
-      .hero { grid-template-columns: 1fr; gap: 40px; padding: 96px 24px 60px; min-height: auto; }
-      .steps, .cases { grid-template-columns: 1fr; }
-      .section { padding: 80px 24px; }
-      .sec-head { padding: 0 24px; }
-      .final-cta { padding: 90px 24px; }
-      footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
-      .foot-right { text-align: left; }
-      .foot-links { justify-content: flex-start; }
-    }
-  
-    /* ── Calm Confidence base ── */
-    h1, h2, h3, h4, h5, .card-title, .done-title, .err-title, .cc-name,
-    .legal-header h1, .hero h1, .hero-h1, .sec-head h2, .final-cta h2 {
-      font-family: 'Inter Tight', 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.01em;
-    }
-    .mono, code, .log, .bar, .cc-term, .dash-tab, .term-tab, .term-body, .price .amt {
-      font-family: 'JetBrains Mono', monospace;
+    /* final cta (slate) */
+    .final { background:var(--slate); text-align:center; }
+    .final h2 { color:var(--on-slate); font-size:34px; margin-bottom:14px; }
+    .final p { color:var(--on-slate-2); font-size:16px; margin-bottom:30px; }
+    .final .btn-ghost { color:var(--on-slate); border-color:var(--slate-3); }
+    .final .btn-ghost:hover { background:var(--slate-2); }
+
+    /* footer */
+    footer { background:var(--slate); padding:48px 24px; }
+    .foot-inner { max-width:var(--max-w); margin:0 auto; display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; }
+    .foot-logo { font-family:'Inter Tight',sans-serif; font-weight:600; font-size:18px; color:var(--on-slate); }
+    .foot-logo .a { color:var(--accent); }
+    .foot-tag { font-size:13px; color:var(--on-slate-2); margin-top:8px; }
+    .foot-links { display:flex; gap:22px; margin-bottom:8px; }
+    .foot-links a { font-size:13px; color:var(--on-slate-2); transition:color 150ms; }
+    .foot-links a:hover { color:var(--on-slate); }
+    .foot-copy { font-size:12px; color:var(--on-slate-2); }
+
+    /* reveal */
+    .reveal { opacity:0; transform:translateY(20px); transition:opacity 600ms ease var(--d,0ms), transform 600ms ease var(--d,0ms); }
+    .reveal.in { opacity:1; transform:none; }
+
+    /* responsive */
+    @media (max-width:768px) {
+      .section { padding:64px 20px; }
+      .nav-mid { display:none; }
+      .nav-right .btn-ghost { display:none; }
+      .hero h1 { font-size:36px; }
+      .hero-sub { font-size:16px; }
+      .grid3, .steps, .mv-metrics, .prices { grid-template-columns:1fr; }
+      .bento { grid-template-columns:1fr; }
+      .feat.large { grid-column:span 1; }
+      .carousel { grid-template-columns:1fr; }
+      .stats { gap:36px; }
+      .h2, .hero h1 { letter-spacing:-0.02em; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ── NAV ── -->
-  <nav id="nav">
+  <!-- ═══ NAV ═══ -->
+  <nav>
     <div class="nav-inner">
-      <a href="#" class="logo"><span style="color:var(--text-1)">data</span><span style="color:var(--accent)">fork.</span></a>
-      <div class="nav-links">
-        <a href="#how" class="link">How it works</a>
-        <a href="#tools" class="link">Tools</a>
-        <a href="#pricing" class="link">Pricing</a>
-        <a href="/dashboard" class="nav-cta">Connect your store →</a>
+      <a href="#top" class="logo">data<span class="a">fork.</span></a>
+      <div class="nav-mid">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-right">
+        <a href="http://76.13.149.203:5050/" class="btn btn-ghost">Try free tools</a>
+        <a href="/dashboard" class="btn btn-primary">Connect your store</a>
       </div>
     </div>
   </nav>
 
-  <!-- ── HERO ── -->
-  <header class="hero">
-    <div class="hero-left">
-      <span class="eyebrow hero-eyebrow">YOUR AI E-COMMERCE DEVELOPER</span>
-      <h1 class="hero-h1" aria-label="Your store's developer. Without the invoice.">Your store's <span class="ac">developer.</span> Without the invoice.</h1>
-      <p class="hero-sub">Datafork connects to your WooCommerce or Shopify store and keeps your catalog healthy — automatically. Broken images, pricing errors, weak SEO, rejected Google feeds. Fixed before they cost you sales.</p>
-      <div class="hero-cta">
-        <a href="/dashboard" class="btn-primary">Connect your store →</a>
-        <a href="#tools" class="btn-link">or try the free tools ↓</a>
-      </div>
-      <div class="trust">
-        <span><span class="ck">✓</span> Setup in 5 min</span>
-        <span><span class="ck">✓</span> WooCommerce &amp; Shopify</span>
-        <span><span class="ck">✓</span> Cancel anytime</span>
-      </div>
+  <!-- ═══ SECTION 2: HERO + PREVIEW SWITCH ═══ -->
+  <header class="hero" id="top">
+    <span class="pill">Your AI e-commerce developer</span>
+    <h1 class="hero-h1" aria-label="Your store's developer. Without the invoice.">Your store's <span class="ac">developer.</span> Without the invoice.</h1>
+    <p class="hero-sub">Datafork connects to your WooCommerce or Shopify store and keeps your catalog healthy — automatically. Broken images, pricing errors, weak SEO, rejected Google feeds. Fixed before they cost you sales.</p>
+    <div class="hero-cta">
+      <a href="/dashboard" class="btn btn-primary">Connect your store</a>
+      <a href="http://76.13.149.203:5050/" class="btn btn-ghost">Try the free tools</a>
+    </div>
+    <div class="trust"><span class="ck">✓</span> Setup in 5 min &nbsp;·&nbsp; <span class="ck">✓</span> WooCommerce &amp; Shopify &nbsp;·&nbsp; <span class="ck">✓</span> Cancel anytime</div>
+
+    <div class="seg" id="preview-seg">
+      <button class="active" data-view="overview">Overview</button>
+      <button data-view="health">Health check</button>
     </div>
 
-    <div class="hero-right">
-      <div class="dash">
-        <div class="dash-bar">
-          <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
-          <span class="dash-tab">datafork — dashboard</span>
+    <div class="mock">
+      <div class="mock-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="mock-url">app.datafork.io/dashboard</span>
+      </div>
+      <div class="mock-body">
+        <!-- OVERVIEW VIEW -->
+        <div class="mock-view" id="view-overview">
+          <div class="mv-top">
+            <div>
+              <div class="score">73<small>/100</small></div>
+              <div class="score-lbl">Health score</div>
+            </div>
+            <div class="bars">
+              <div class="bar-row"><span class="l">Images</span><span class="track"><span class="fill" style="width:78%"></span></span><span class="p">78%</span></div>
+              <div class="bar-row"><span class="l">SEO</span><span class="track"><span class="fill warn" style="width:52%"></span></span><span class="p">52%</span></div>
+              <div class="bar-row"><span class="l">Pricing</span><span class="track"><span class="fill" style="width:95%"></span></span><span class="p">95%</span></div>
+            </div>
+          </div>
+          <div class="mv-metrics">
+            <div class="mvm"><div class="n">247</div><div class="k">Products tracked</div></div>
+            <div class="mvm"><div class="n warn">23</div><div class="k">Issues found</div></div>
+            <div class="mvm"><div class="n danger">3</div><div class="k">Alerts open</div></div>
+          </div>
+          <div class="mv-agent">
+            <span class="t"><b>Datafork agent</b> — Found 23 issues this week. Fix them all?</span>
+            <button class="mini-btn">Fix all</button>
+          </div>
         </div>
-        <div class="dash-body">
-          <div class="dash-conn">● mystore.com connected</div>
-          <div class="dash-score">73<small>/100</small></div>
-          <div class="dash-scorelbl">Health Score</div>
-          <div class="dash-bars">
-            <div class="dbar"><span class="l">Images</span><span class="t"><span class="bf" style="width:78%"></span></span><span class="p">78%</span></div>
-            <div class="dbar"><span class="l">Pricing</span><span class="t"><span class="bf" style="width:95%"></span></span><span class="p">95%</span></div>
-            <div class="dbar"><span class="l">SEO</span><span class="t"><span class="bf warn" style="width:52%"></span></span><span class="p">52%</span></div>
-          </div>
-          <div class="dash-agent">
-            <span class="am">Found 23 issues this week. Fix them all?</span>
-            <span class="dash-mini-btn">Fix all</span>
-          </div>
+        <!-- HEALTH CHECK VIEW -->
+        <div class="mock-view hide" id="view-health">
+          <div class="hc-row"><span class="hc-ico warn">⚠</span><span class="hc-name">Images</span><span class="hc-cnt">12 issues · 78%</span></div>
+          <div class="hc-row"><span class="hc-ico ok">✓</span><span class="hc-name">Pricing</span><span class="hc-cnt">2 issues · 95%</span></div>
+          <div class="hc-row"><span class="hc-ico bad">✗</span><span class="hc-name">SEO</span><span class="hc-cnt">47 issues · 52%</span></div>
+          <div class="hc-row"><span class="hc-ico warn">⚠</span><span class="hc-name">Descriptions</span><span class="hc-cnt">15 issues · 68%</span></div>
+          <div class="hc-row"><span class="hc-ico ok">✓</span><span class="hc-name">Google feed</span><span class="hc-cnt">3 issues · 91%</span></div>
+          <div class="hc-row"><span class="hc-ico ok">✓</span><span class="hc-name">Translations</span><span class="hc-cnt">0 issues · 100%</span></div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- ── SECTION 2: THE PAIN ── -->
-  <section class="section" id="problem">
-    <div class="sec-head">
-      <span class="eyebrow">THE PROBLEM</span>
-      <h2 class="animate-in">Your catalog breaks. Quietly.</h2>
-      <p>Images go 404. Variations lose their prices. New products ship with no SEO and no descriptions. Your Google Shopping feed gets rejected and your ads pause — and you find out days later, after losing sales.</p>
-    </div>
-    <div class="grid-wrap">
-      <div class="cost-grid">
-        <div class="cost animate-in"><div class="big dn">$1000+/mo</div><div class="lbl">What a developer costs</div></div>
-        <div class="cost animate-in"><div class="big wn">4am</div><div class="lbl">When you usually find the problem</div></div>
-        <div class="cost animate-in"><div class="big wn">Days</div><div class="lbl">How long issues go unnoticed</div></div>
+  <!-- ═══ SECTION 3: SOCIAL PROOF ═══ -->
+  <section class="section" style="padding-top:40px;">
+    <div class="section-inner center">
+      <p class="eyebrow">Works with the tools you already use</p>
+      <div class="marquee">
+        <div class="marquee-track" id="mtrack">
+          <span class="mlogo">WooCommerce</span><span class="mlogo">Shopify</span><span class="mlogo">WordPress</span><span class="mlogo">n8n</span><span class="mlogo">Stripe</span><span class="mlogo">PayPal</span><span class="mlogo">Airwallex</span><span class="mlogo">Hostinger</span><span class="mlogo">Omnisend</span><span class="mlogo">Claude</span><span class="mlogo">ChatGPT</span><span class="mlogo">Figma</span>
+          <span class="mlogo">WooCommerce</span><span class="mlogo">Shopify</span><span class="mlogo">WordPress</span><span class="mlogo">n8n</span><span class="mlogo">Stripe</span><span class="mlogo">PayPal</span><span class="mlogo">Airwallex</span><span class="mlogo">Hostinger</span><span class="mlogo">Omnisend</span><span class="mlogo">Claude</span><span class="mlogo">ChatGPT</span><span class="mlogo">Figma</span>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num" data-count="500" data-suffix="+">0</div><div class="lbl">Stores tested</div></div>
+        <div class="stat"><div class="num" data-count="7">0</div><div class="lbl">Catalog tools</div></div>
+        <div class="stat"><div class="num">24/7</div><div class="lbl">Monitoring</div></div>
       </div>
     </div>
   </section>
 
-  <!-- ── HOW IT WORKS ── -->
-  <section class="section bordered surface" id="how">
-    <div class="sec-head">
-      <span class="eyebrow">HOW IT WORKS</span>
-      <h2 class="animate-in">Connect once. Maintained forever.</h2>
-      <p>Five-minute setup, then the agent runs in the background — you stay in control.</p>
-    </div>
-    <div class="grid-wrap">
-      <div class="steps">
-        <div class="step animate-in">
-          <span class="watermark">01</span>
-          <div class="body">
-            <h3>Connect your store</h3>
-            <p>Link WooCommerce or Shopify in 5 minutes. Read-only access. Your data stays yours.</p>
-          </div>
-        </div>
-        <div class="step animate-in">
-          <span class="watermark">02</span>
-          <div class="body">
-            <h3>The agent scans weekly</h3>
-            <p>Datafork checks every product for broken images, pricing errors, weak SEO, invalid feeds, and missing translations.</p>
-          </div>
-        </div>
-        <div class="step animate-in">
-          <span class="watermark">03</span>
-          <div class="body">
-            <h3>Issues get fixed</h3>
-            <p>Review the weekly report. Approve fixes with one click. The agent does the work — you stay in control.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── SECTION 4: WHAT IT MONITORS ── -->
+  <!-- ═══ SECTION 4: THE PROBLEM ═══ -->
   <section class="section">
-    <div class="sec-head">
-      <span class="eyebrow">CATALOG HEALTH</span>
-      <h2 class="animate-in">Seven things it watches, so you don't have to.</h2>
-      <p>Continuous monitoring across every part of your catalog.</p>
-    </div>
-    <div class="grid-wrap">
-      <div class="mon-grid">
-        <div class="mon animate-in"><span class="ic">◉</span><h3>Broken images</h3><p>404s and missing product photos.</p></div>
-        <div class="mon animate-in"><span class="ic">€</span><h3>Pricing errors</h3><p>Wrong price placement, missing variation prices.</p></div>
-        <div class="mon animate-in"><span class="ic">⚲</span><h3>SEO gaps</h3><p>Short titles, missing meta, duplicates.</p></div>
-        <div class="mon animate-in"><span class="ic">✎</span><h3>Weak descriptions</h3><p>Missing or thin product copy.</p></div>
-        <div class="mon animate-in"><span class="ic">⌘</span><h3>Google feed</h3><p>Invalid items that get your ads rejected.</p></div>
-        <div class="mon animate-in"><span class="ic">⇄</span><h3>Translations</h3><p>Products missing in your market languages.</p></div>
-        <div class="mon animate-in"><span class="ic">▦</span><h3>Stock alerts</h3><p>Out of stock and low inventory.</p></div>
+    <div class="section-inner center">
+      <p class="eyebrow">The problem</p>
+      <h2 class="h2 reveal">Your catalog breaks. Quietly.</h2>
+      <p class="lead">Images go 404. Variations lose their prices. New products ship with no SEO and no descriptions. Your Google Shopping feed gets rejected and your ads pause — and you find out days later, after losing sales.</p>
+      <div class="grid3" style="margin-top:40px;text-align:left;">
+        <div class="card cost reveal"><div class="big">€1000+/mo</div><div class="sub">What a developer costs</div></div>
+        <div class="card cost reveal"><div class="big">4am</div><div class="sub">When you usually find the problem</div></div>
+        <div class="card cost reveal"><div class="big">Days</div><div class="sub">How long issues go unnoticed</div></div>
       </div>
     </div>
   </section>
 
-  <!-- ── SECTION 5: THE AGENT ── -->
-  <section class="section bordered surface">
-    <div class="sec-head">
-      <span class="eyebrow">YOUR AI DEVELOPER</span>
-      <h2 class="animate-in">It doesn't just find problems. It fixes them.</h2>
+  <!-- ═══ SECTION 5: HOW IT WORKS ═══ -->
+  <section class="section" id="how" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="section-inner center">
+      <p class="eyebrow">How it works</p>
+      <h2 class="h2 reveal">Connect once. Maintained forever.</h2>
+      <p class="lead">Five-minute setup, then the agent runs in the background — you stay in control.</p>
+      <div class="steps" style="margin-top:40px;text-align:left;">
+        <div class="card step reveal"><span class="wm">01</span><div class="in"><h3>Connect your store</h3><p>Link WooCommerce or Shopify in 5 minutes. Read-only access. Your data stays yours.</p></div></div>
+        <div class="card step reveal"><span class="wm">02</span><div class="in"><h3>The agent scans weekly</h3><p>Datafork checks every product for broken images, pricing errors, weak SEO, invalid feeds, and missing translations.</p></div></div>
+        <div class="card step reveal"><span class="wm">03</span><div class="in"><h3>Issues get fixed</h3><p>Review the weekly report. Approve fixes with one click. The agent does the work — you stay in control.</p></div></div>
+      </div>
     </div>
-    <div class="grid-wrap">
-      <div class="chat animate-in">
+  </section>
+
+  <!-- ═══ SECTION 6: FEATURES (bento) ═══ -->
+  <section class="section" id="features">
+    <div class="section-inner center">
+      <p class="eyebrow">Catalog health</p>
+      <h2 class="h2 reveal">Seven things it watches, so you don't have to.</h2>
+      <div class="bento" style="margin-top:40px;text-align:left;">
+        <div class="feat large reveal">
+          <div class="ic">◉</div>
+          <h3>Broken images</h3>
+          <p>404s and missing product photos — caught before a customer sees an empty thumbnail.</p>
+          <div class="thumbs">
+            <div class="thumb">▦</div><div class="thumb">▦</div><div class="thumb bad">404</div><div class="thumb">▦</div>
+            <div class="thumb">▦</div><div class="thumb">▦</div><div class="thumb">▦</div><div class="thumb">▦</div>
+          </div>
+        </div>
+        <div class="feat reveal"><div class="ic">€</div><h3>Pricing errors</h3><p>Wrong price placement, missing variation prices.</p></div>
+        <div class="feat reveal"><div class="ic">⌕</div><h3>SEO gaps</h3><p>Short titles, missing meta, duplicates.</p></div>
+        <div class="feat reveal"><div class="ic">✎</div><h3>Weak descriptions</h3><p>Missing or thin product copy.</p></div>
+        <div class="feat reveal"><div class="ic">◧</div><h3>Google feed</h3><p>Invalid items that get your ads rejected.</p></div>
+        <div class="feat reveal"><div class="ic">⇄</div><h3>Translations</h3><p>Products missing in your market languages.</p></div>
+        <div class="feat reveal"><div class="ic">▦</div><h3>Stock alerts</h3><p>Out of stock and low inventory.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SECTION 7: THE AGENT ═══ -->
+  <section class="section" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="section-inner center">
+      <p class="eyebrow">Your AI developer</p>
+      <h2 class="h2 reveal">It doesn't just find problems. It fixes them.</h2>
+      <div class="chat" style="margin-top:36px;text-align:left;">
         <div class="cmsg agent"><span class="h">Agent</span>You added 18 products this week. 5 have no description, 8 have no images. Want me to write the descriptions in Italian?</div>
         <div class="cmsg user">yes, do it</div>
         <div class="cmsg agent"><span class="h">Agent</span>✓ Done. 5 Italian descriptions written and saved as draft. Review before publishing.</div>
@@ -515,265 +446,322 @@
     </div>
   </section>
 
-  <!-- ── SECTION 6: FREE TOOLS (carousel) ── -->
+  <!-- ═══ SECTION 8: FREE TOOLS (carousel) ═══ -->
   <section class="section" id="tools">
-    <div class="sec-head">
-      <span class="eyebrow">FREE TOOLS</span>
-      <h2 class="animate-in">Don't trust us? Try the tools that power the agent.</h2>
-      <p>Every fix the agent makes, you can do manually with these free tools. No account needed.</p>
-    </div>
-    <div class="grid-wrap">
-      <div class="carousel" id="tool-carousel">
-        <div class="carousel-list" id="carousel-list"></div>
-        <div class="carousel-card" id="carousel-card"></div>
+    <div class="section-inner center">
+      <p class="eyebrow">Free tools</p>
+      <h2 class="h2 reveal">Don't trust us? Try the tools that power the agent.</h2>
+      <p class="lead">Every fix the agent makes, you can do manually with these free tools. No account needed.</p>
+      <div style="margin-top:40px;text-align:left;">
+        <div class="carousel" id="tool-carousel">
+          <div class="carousel-list" id="carousel-list"></div>
+          <div class="carousel-card" id="carousel-card"></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ── SECTION 7: PRICING ── -->
-  <section class="section bordered surface" id="pricing">
-    <div class="sec-head">
-      <span class="eyebrow">PRICING</span>
-      <h2 class="animate-in">A developer costs $1000. Datafork costs $99.</h2>
-      <p>Start free with the tools. Upgrade when you want the agent to run it for you.</p>
+  <!-- ═══ SECTION 9: TESTIMONIALS ═══ -->
+  <!-- SAMPLE testimonials — replace with real ones -->
+  <section class="section" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="section-inner center">
+      <p class="eyebrow">What merchants say</p>
+      <h2 class="h2 reveal">Built by an agency. For people who run stores.</h2>
+      <div class="grid3" style="margin-top:40px;text-align:left;">
+        <div class="card tcard reveal">
+          <div class="q">“I used to spend Sunday nights fixing product imports. Now Datafork just tells me what's wrong and fixes it.”</div>
+          <div class="who"><span class="avatar">MR</span><div><div class="nm">M. Rossi</div><div class="ro">WooCommerce store owner</div></div></div>
+        </div>
+        <div class="card tcard reveal">
+          <div class="q">“We manage 12 client stores. Datafork's agency plan paid for itself in the first week.”</div>
+          <div class="who"><span class="avatar">LB</span><div><div class="nm">L. Bianchi</div><div class="ro">E-commerce agency</div></div></div>
+        </div>
+        <div class="card tcard reveal">
+          <div class="q">“The Google Shopping feed alerts alone saved our ad budget. We didn't even know products were getting rejected.”</div>
+          <div class="who"><span class="avatar">SC</span><div><div class="nm">S. Conti</div><div class="ro">Shopify merchant</div></div></div>
+        </div>
+      </div>
     </div>
-    <div class="grid-wrap">
-      <div class="price-grid">
-        <div class="price animate-in">
-          <div class="tier">Free</div>
-          <div class="amt">$0 <small>/ forever</small></div>
-          <div class="tag">The 7 tools, unlimited</div>
-          <ul>
+  </section>
+
+  <!-- ═══ SECTION 10: PRICING ═══ -->
+  <section class="section" id="pricing">
+    <div class="section-inner center">
+      <p class="eyebrow">Pricing</p>
+      <h2 class="h2 reveal">Priced for one store or a hundred.</h2>
+      <p class="lead">Start free with the tools. Connect a store when you're ready.</p>
+      <div class="billing" id="billing">
+        <button class="active" data-bill="m">Monthly</button>
+        <button data-bill="a">Annual <span class="save">save 2 months</span></button>
+      </div>
+      <div class="prices" style="text-align:left;">
+        <div class="price">
+          <div class="ptier">Free</div>
+          <div class="pamt"><span class="amt" data-m="€0" data-a="€0">€0</span><span class="per" data-m="/forever" data-a="/forever">/forever</span></div>
+          <div class="ptag">The 7 tools, unlimited</div>
+          <ul class="pfeat">
             <li><span class="y">✓</span> All 7 catalog tools</li>
             <li><span class="y">✓</span> No account required</li>
             <li><span class="y">✓</span> WooCommerce &amp; Shopify</li>
             <li><span class="y">✓</span> Unlimited use</li>
-            <li class="off"><span class="n">✗</span> No store connection</li>
-            <li class="off"><span class="n">✗</span> No automatic monitoring</li>
-            <li class="off"><span class="n">✗</span> No weekly reports</li>
+            <li><span class="n">✗</span> No store connection</li>
+            <li><span class="n">✗</span> No monitoring</li>
           </ul>
-          <a href="http://76.13.149.203:5050/" class="btn-ghost">Use the tools</a>
+          <a href="http://76.13.149.203:5050/" class="btn btn-ghost">Use the tools</a>
         </div>
-        <div class="price pro animate-in">
-          <span class="price-badge">Most popular</span>
-          <div class="tier">Pro</div>
-          <div class="amt">$99 <small>/ month</small></div>
-          <div class="tag">Your AI developer, always on</div>
-          <ul>
+        <div class="price">
+          <div class="ptier">Solo</div>
+          <div class="pamt"><span class="amt" data-m="€99" data-a="€990">€99</span><span class="per" data-m="/mo" data-a="/yr">/mo</span></div>
+          <div class="ptag">For a single store</div>
+          <ul class="pfeat">
             <li><span class="y">✓</span> Everything in Free</li>
-            <li><span class="y">✓</span> Connect your store</li>
+            <li><span class="y">✓</span> 1 store connected</li>
             <li><span class="y">✓</span> Weekly automatic scans</li>
             <li><span class="y">✓</span> AI agent fixes issues</li>
             <li><span class="y">✓</span> Weekly health reports</li>
-            <li><span class="y">✓</span> Daily catalog backups</li>
-            <li><span class="y">✓</span> Restore in under 1 hour</li>
+            <li><span class="y">✓</span> Daily backups</li>
+          </ul>
+          <a href="/dashboard" class="btn btn-primary">Connect your store</a>
+        </div>
+        <div class="price pop">
+          <span class="pbadge">Most popular</span>
+          <div class="ptier">Studio</div>
+          <div class="pamt"><span class="amt" data-m="€299" data-a="€2990">€299</span><span class="per" data-m="/mo" data-a="/yr">/mo</span></div>
+          <div class="ptag">For growing catalogs</div>
+          <ul class="pfeat">
+            <li><span class="y">✓</span> Everything in Solo</li>
+            <li><span class="y">✓</span> Up to 5 stores</li>
+            <li><span class="y">✓</span> Priority scans</li>
             <li><span class="y">✓</span> Priority support</li>
           </ul>
-          <a href="/dashboard" class="btn-primary">Connect your store →</a>
-          <div class="pnote">Less than 3 hours of a developer's time. Per month.</div>
+          <a href="/dashboard" class="btn btn-primary">Connect your stores</a>
+        </div>
+        <div class="price">
+          <div class="ptier">Agency</div>
+          <div class="pamt"><span class="amt" data-m="€599" data-a="€5990">€599</span><span class="per" data-m="/mo" data-a="/yr">/mo</span></div>
+          <div class="ptag">For agencies &amp; multi-store</div>
+          <ul class="pfeat">
+            <li><span class="y">✓</span> Everything in Studio</li>
+            <li><span class="y">✓</span> Unlimited stores</li>
+            <li><span class="y">✓</span> White-glove onboarding</li>
+            <li><span class="y">✓</span> Dedicated support</li>
+          </ul>
+          <a href="/dashboard" class="btn btn-primary">Talk to us</a>
         </div>
       </div>
+      <p class="pnote">All plans: cancel anytime. VAT included for EU.</p>
     </div>
   </section>
 
-  <!-- ── SECTION 8: FINAL CTA ── -->
-  <section class="final-cta">
-    <h2 class="animate-in">Stop fixing your catalog at 4am.</h2>
-    <p class="sub">Connect your store. Let the agent handle it.</p>
-    <div style="display:inline-flex;gap:16px;flex-wrap:wrap;justify-content:center;">
-      <a href="/dashboard" class="btn-primary">Connect your store →</a>
-      <a href="http://76.13.149.203:5050/" class="btn-ghost">Try free tools</a>
+  <!-- ═══ SECTION 11: FAQ ═══ -->
+  <section class="section" id="faq" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="section-inner center">
+      <p class="eyebrow">FAQ</p>
+      <h2 class="h2 reveal">Questions, answered.</h2>
+    </div>
+    <div class="faq" style="margin-top:24px;">
+      <div class="faq-item"><button class="faq-q">Does Datafork change my store automatically?<span class="chev">⌄</span></button><div class="faq-a"><p>No. The agent proposes fixes and you approve them. Nothing changes without your click. You stay in control.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Is my store data safe?<span class="chev">⌄</span></button><div class="faq-a"><p>We connect read-only by default and never store your customer data. Catalog backups are encrypted. You can disconnect anytime.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Which platforms do you support?<span class="chev">⌄</span></button><div class="faq-a"><p>WooCommerce and Shopify today. More coming.</p></div></div>
+      <div class="faq-item"><button class="faq-q">What if I have multiple client stores?<span class="chev">⌄</span></button><div class="faq-a"><p>The Studio and Agency plans are built for that — connect up to 5 or unlimited stores from one dashboard.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Can I just use the free tools?<span class="chev">⌄</span></button><div class="faq-a"><p>Yes. All 7 tools are free forever, no account needed. The paid plans add automatic monitoring and the AI agent.</p></div></div>
+      <div class="faq-item"><button class="faq-q">How is this different from Shopify's built-in AI?<span class="chev">⌄</span></button><div class="faq-a"><p>Shopify's assistant helps you write copy. Datafork maintains your whole catalog — images, prices, SEO, feeds, translations — and works on WooCommerce too.</p></div></div>
     </div>
   </section>
 
-  <!-- ── FOOTER ── -->
-  <footer>
-    <div class="foot-left">
-      <div class="foot-logo"><span style="color:var(--text-1)">data</span><span style="color:var(--accent)">fork.</span></div>
-      <div class="foot-tagline">Your AI e-commerce developer.</div>
-    </div>
-    <div class="foot-right">
-      <div class="foot-links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Contact</a>
+  <!-- ═══ SECTION 12: FINAL CTA ═══ -->
+  <section class="section final">
+    <div class="section-inner">
+      <h2>Stop fixing your catalog at 4am.</h2>
+      <p>Connect your store. Let the agent handle it.</p>
+      <div style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+        <a href="/dashboard" class="btn btn-primary">Connect your store</a>
+        <a href="http://76.13.149.203:5050/" class="btn btn-ghost">Try free tools</a>
       </div>
-      <div class="foot-copy">© 2026 Datafork — built by Djolof Studio</div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="foot-inner">
+      <div>
+        <div class="foot-logo">data<span class="a">fork.</span></div>
+        <div class="foot-tag">Your AI e-commerce developer.</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="foot-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div>
+        <div class="foot-copy">© 2026 Datafork — built by Djolof Studio</div>
+      </div>
     </div>
   </footer>
 
+  <!-- ═══ JS ═══ -->
   <script>
-    // ── NAV: appear after 40px scroll ──
-    const nav = document.getElementById('nav');
-    function onScroll() { nav.classList.toggle('show', window.scrollY > 40); }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-
-    // ── Scroll animations ──
-    const obs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
-      });
-    }, { threshold: 0.08 });
-    document.querySelectorAll('.animate-in').forEach(el => obs.observe(el));
-  </script>
-
-  <!-- ── COMPONENT 1: Matrix text effect on H1 ── -->
-  <script>
+  // ── Matrix H1 (fixed alphanumeric charset, teal, no symbol injection) ──
   function matrixText(element, options = {}) {
-    const {
-      initialDelay = 500,
-      letterDuration = 400,
-      letterInterval = 80,
-      matrixColor = '#1D9E75',
-      chars = '01アイウエオ#$@%&'
-    } = options;
-
-    // Walk child nodes so we keep track of which chars are accent-colored.
+    const { initialDelay = 400, letterInterval = 70, matrixColor = '#1D9E75',
+            chars = 'abcdefghijklmnopqrstuvwxyz0123456789' } = options;
     const data = [];
     element.childNodes.forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        node.textContent.split('').forEach(ch => data.push({ ch, accent: false }));
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        const accent = node.classList.contains('ac') ||
-                       (node.getAttribute('style') || '').includes('--accent');
+      if (node.nodeType === Node.TEXT_NODE) node.textContent.split('').forEach(ch => data.push({ ch, accent:false }));
+      else if (node.nodeType === Node.ELEMENT_NODE) {
+        const accent = node.classList.contains('ac');
         node.textContent.split('').forEach(ch => data.push({ ch, accent }));
       }
     });
-
     const esc = s => s.replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
-    // Normal space (not &nbsp;) so the H1 can still wrap on narrow screens.
-    element.innerHTML = data.map(d =>
-      d.ch === ' '
-        ? '<span> </span>'
-        : `<span data-char="${esc(d.ch)}" data-accent="${d.accent ? 1 : 0}">${esc(d.ch)}</span>`
-    ).join('');
-
+    element.innerHTML = data.map(d => d.ch === ' '
+      ? '<span> </span>'
+      : `<span data-char="${esc(d.ch)}" data-accent="${d.accent ? 1 : 0}">${esc(d.ch)}</span>`).join('');
     const spans = element.querySelectorAll('span[data-char]');
-
-    function animateLetter(span, delay) {
-      const originalChar = span.dataset.char;
-      const isAccent = span.dataset.accent === '1';
+    function animate(span, delay) {
+      const orig = span.dataset.char, isAccent = span.dataset.accent === '1';
+      const scrambles = /[a-z0-9]/i.test(orig) ? 5 : 0;   // only scramble letters/digits; punctuation/space resolve instantly
       setTimeout(() => {
-        let iterations = 0;
-        const maxIterations = 6;
-        const interval = setInterval(() => {
+        if (scrambles === 0) { span.style.color = isAccent ? 'var(--accent)' : ''; return; }
+        let i = 0;
+        const iv = setInterval(() => {
           span.textContent = chars[Math.floor(Math.random() * chars.length)];
-          span.style.color = matrixColor;  // subtle teal scramble, no neon glow
-          iterations++;
-          if (iterations >= maxIterations) {
-            clearInterval(interval);
-            setTimeout(() => {
-              span.textContent = originalChar;
-              // Restore accent green where it belonged; otherwise inherit text-1.
-              span.style.color = isAccent ? 'var(--accent)' : '';
-              span.style.textShadow = '';
-            }, 50);
+          span.style.color = matrixColor;
+          if (++i >= scrambles) {
+            clearInterval(iv);
+            span.textContent = orig;                       // always restore the real character
+            span.style.color = isAccent ? 'var(--accent)' : '';
           }
-        }, 40);
+        }, 45);
       }, delay);
     }
-
-    function runAnimation() {
-      spans.forEach((span, i) => animateLetter(span, initialDelay + i * letterInterval));
-      const totalDuration = initialDelay + spans.length * letterInterval + letterDuration + 2000;
-      setTimeout(runAnimation, totalDuration);
+    function run() {
+      spans.forEach((s, i) => animate(s, initialDelay + i * letterInterval));
+      setTimeout(run, initialDelay + spans.length * letterInterval + 2600);
     }
-    runAnimation();
+    run();
   }
-
   document.addEventListener('DOMContentLoaded', () => {
     const h1 = document.querySelector('.hero-h1');
-    if (h1) matrixText(h1, {
-      initialDelay: 500, letterInterval: 80, letterDuration: 400,
-      chars: '01アイウエオ#$@%&'
-    });
+    if (h1) matrixText(h1);
   });
-  </script>
 
-  <!-- ── COMPONENT 2: Feature carousel for the tools section ── -->
-  <script>
+  // ── Hero preview switch ──
+  (function () {
+    const seg = document.getElementById('preview-seg');
+    const views = { overview: document.getElementById('view-overview'), health: document.getElementById('view-health') };
+    seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      seg.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const v = b.dataset.view;
+      Object.keys(views).forEach(k => views[k].classList.toggle('hide', k !== v));
+    }));
+  })();
+
+  // ── Count-up stats + reveal on scroll ──
+  (function () {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('in');
+        if (e.target.classList.contains('num') && e.target.dataset.count) {
+          const target = +e.target.dataset.count, suf = e.target.dataset.suffix || '';
+          const dur = 600; let start = null;
+          const tick = ts => {
+            if (!start) start = ts;
+            const p = Math.min((ts - start) / dur, 1);
+            e.target.textContent = Math.round(p * target) + suf;
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.reveal, .num[data-count]').forEach(el => io.observe(el));
+  })();
+
+  // ── Pricing monthly / annual toggle ──
+  (function () {
+    const bill = document.getElementById('billing');
+    bill.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      bill.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const k = b.dataset.bill;
+      document.querySelectorAll('.amt, .per').forEach(el => { if (el.dataset[k] !== undefined) el.textContent = el.dataset[k]; });
+    }));
+  })();
+
+  // ── FAQ accordion (one open at a time) ──
+  (function () {
+    const items = document.querySelectorAll('.faq-item');
+    items.forEach(it => it.querySelector('.faq-q').addEventListener('click', () => {
+      const open = it.classList.contains('open');
+      items.forEach(x => { x.classList.remove('open'); x.querySelector('.faq-a').style.maxHeight = null; });
+      if (!open) { it.classList.add('open'); const a = it.querySelector('.faq-a'); a.style.maxHeight = a.scrollHeight + 'px'; }
+    }));
+  })();
+
+  // ── Feature carousel (7 free tools) ──
   (function () {
     const TOOLS = [
-      { id:"scraper", badge:"CORE TOOL", icon:"[ → ]", name:"Store Scraper",
+      { badge:"Core tool", icon:"→", name:"Store Scraper",
         desc:"Paste any public WooCommerce or Shopify URL. Get every product — variations, SKUs, stock, images — as an import-ready CSV in 30 seconds.",
         cta:"Open tool", href:"http://76.13.149.203:5050/",
-        terminal:["$ datafork scrape https://mystore.com","✓ WooCommerce detected","✓ 94 products · 187 rows","↓ mystore_woo_20260624.csv"] },
-      { id:"validator", badge:"FREE · NO AI", icon:"[ ✓ ]", name:"CSV Validator",
+        terminal:["$ datafork scrape https://mystore.com","WooCommerce detected","94 products · 187 rows","↓ mystore_woo.csv"] },
+      { badge:"Free", icon:"✓", name:"CSV Validator",
         desc:"Upload any WooCommerce or Shopify CSV before importing. Get a full error report — missing columns, duplicate SKUs, wrong price placement, encoding issues.",
         cta:"Validate a CSV", href:"http://76.13.149.203:5050/validator",
-        terminal:["✓ 94 rows analyzed","✗ 2 errors found","  Row 12: variation missing price","  SKU 'shoe-001' duplicated x3"] },
-      { id:"enhancer", badge:"AI-POWERED", icon:"[ AI ]", name:"Description Enhancer",
+        terminal:["94 rows analyzed","2 errors found","Row 12: variation missing price","SKU 'shoe-001' duplicated x3"] },
+      { badge:"AI-powered", icon:"AI", name:"Description Enhancer",
         desc:"Upload a product CSV. Choose language and tone. Get AI-rewritten descriptions — SEO-optimized, conversion-focused — for every product in bulk.",
         cta:"Enhance descriptions", href:"http://76.13.149.203:5050/enhancer",
-        terminal:["Processing product 12 of 94...","✓ Sneaker Classic → enhanced (IT)","✓ Blue T-Shirt → enhanced (IT)","↓ enhanced_woo_20260624.csv"] },
-      { id:"legal", badge:"AI-POWERED", icon:"[ § ]", name:"Legal Generator",
-        desc:"Fill in your business details. Get 6 ready-to-publish legal documents — Privacy Policy, T&Cs, Cookie Policy, Returns, Shipping, Legal Notice — compliant with EU law, in 5 languages.",
+        terminal:["Processing product 12 of 94…","Sneaker Classic → enhanced (IT)","Blue T-Shirt → enhanced (IT)","↓ enhanced_woo.csv"] },
+      { badge:"AI-powered", icon:"§", name:"Legal Generator",
+        desc:"Fill in your business details. Get 6 ready-to-publish legal documents — Privacy, T&Cs, Cookies, Returns, Shipping, Legal Notice — compliant with EU law, in 5 languages.",
         cta:"Generate legal pages", href:"http://76.13.149.203:5050/legal",
-        terminal:["Generating: Privacy Policy (IT)...","✓ Privacy Policy — 847 words","✓ Terms & Conditions — 1,203 words","↓ legal_MyStore_2026.txt"] },
-      { id:"price-editor", badge:"FREE · NO AI", icon:"[ € ]", name:"Price Editor",
-        desc:"Bulk-edit prices across your entire catalog. Stack percentage, fixed, set, and rounding operations with category and product-type filters. Pure CSV math.",
+        terminal:["Generating: Privacy Policy (IT)…","Privacy Policy — 847 words","Terms & Conditions — 1,203 words","↓ legal_MyStore.txt"] },
+      { badge:"Free", icon:"€", name:"Price Editor",
+        desc:"Bulk-edit prices across your entire catalog. Stack percentage, fixed, set, and rounding operations with category and product-type filters.",
         cta:"Edit prices", href:"http://76.13.149.203:5050/price-editor",
-        terminal:["Op 1: +15% on all products","Op 2: round to .99","✓ 94 prices updated","↓ price_edited_20260624.csv"] },
-      { id:"shopping-feed", badge:"FREE · NO AI", icon:"[ ⌘ ]", name:"Shopping Feed",
+        terminal:["Op 1: +15% on all products","Op 2: round to .99","94 prices updated","↓ price_edited.csv"] },
+      { badge:"Free", icon:"◧", name:"Shopping Feed",
         desc:"Turn a WooCommerce or Shopify CSV into a Google Merchant Center TSV feed — required columns, shipping rules, and category mapping for 6 countries.",
         cta:"Build a feed", href:"http://76.13.149.203:5050/shopping-feed",
-        terminal:["Platform: WooCommerce → GMC","Country: IT · Currency: EUR","✓ 87 products in feed","↓ shopping_feed_IT_20260624.tsv"] },
-      { id:"translator", badge:"AI-POWERED", icon:"[ ⇄ ]", name:"Catalog Translator",
+        terminal:["Platform: WooCommerce → GMC","Country: IT · Currency: EUR","87 products in feed","↓ shopping_feed_IT.tsv"] },
+      { badge:"AI-powered", icon:"⇄", name:"Catalog Translator",
         desc:"Translate product names and descriptions in bulk between 5 languages. Variation rows inherit the translated parent name. WooCommerce & Shopify.",
         cta:"Translate catalog", href:"http://76.13.149.203:5050/translator",
-        terminal:["IT → FR · 94 products","✓ Sneaker Classic → Sneaker Classique","✓ 94/94 translated","↓ translated_fr_woo_20260624.csv"] },
+        terminal:["IT → FR · 94 products","Sneaker Classic → Sneaker Classique","94/94 translated","↓ translated_fr_woo.csv"] },
     ];
-
     const list = document.getElementById('carousel-list');
     const card = document.getElementById('carousel-card');
     const root = document.getElementById('tool-carousel');
     if (!list || !card || !root) return;
-
     const esc = s => (s + '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
     let active = 0, timer = null;
-
-    // Left list (built once)
     list.innerHTML = TOOLS.map((t, i) =>
-      `<div class="carousel-item" data-i="${i}" role="button" tabindex="0">` +
-        `<span class="ci-num">0${i + 1}</span>${esc(t.name)}</div>`
-    ).join('');
+      `<div class="carousel-item" data-i="${i}" role="button" tabindex="0"><span class="ci-num">0${i + 1}</span>${esc(t.name)}</div>`).join('');
     const items = list.querySelectorAll('.carousel-item');
-
-    function renderCard() {
+    function render() {
       const t = TOOLS[active];
-      const term = t.terminal.map(esc).join('\n');
-      // Animate: snap to swap state without transition, then release.
-      card.style.transition = 'none';
-      card.classList.add('swap');
+      const term = t.terminal.map((l, i) => i === t.terminal.length - 1 ? `<span class="ac">${esc(l)}</span>` : esc(l)).join('\n');
+      card.style.transition = 'none'; card.classList.add('swap');
       card.innerHTML =
-        `<div class="cc-badges"><span class="badge">${esc(t.badge)}</span><span class="ic">${esc(t.icon)}</span></div>` +
+        `<div class="cc-badges"><span class="cc-badge">${esc(t.badge)}</span><span class="cc-ic">[ ${esc(t.icon)} ]</span></div>` +
         `<div class="cc-name">${esc(t.name)}</div>` +
         `<div class="cc-desc">${esc(t.desc)}</div>` +
         `<a class="cc-cta" href="${esc(t.href)}">${esc(t.cta)} →</a>` +
         `<div class="cc-term">${term}</div>`;
-      void card.offsetWidth;            // force reflow
-      card.style.transition = '';
-      card.classList.remove('swap');
+      void card.offsetWidth; card.style.transition = ''; card.classList.remove('swap');
       items.forEach((el, i) => el.classList.toggle('active', i === active));
     }
-
-    function setActive(i) { active = (i + TOOLS.length) % TOOLS.length; renderCard(); }
-
-    function start() { stop(); timer = setInterval(() => setActive(active + 1), 4000); }
+    function set(i) { active = (i + TOOLS.length) % TOOLS.length; render(); }
+    function start() { stop(); timer = setInterval(() => set(active + 1), 4500); }
     function stop() { if (timer) clearInterval(timer); timer = null; }
-
     items.forEach(el => {
-      el.addEventListener('click', () => { setActive(+el.dataset.i); start(); });
-      el.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive(+el.dataset.i); start(); }
-      });
+      el.addEventListener('click', () => { set(+el.dataset.i); start(); });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set(+el.dataset.i); start(); } });
     });
     root.addEventListener('mouseenter', stop);
     root.addEventListener('mouseleave', start);
-
-    renderCard();
-    start();
+    render(); start();
   })();
   </script>
 </body>
