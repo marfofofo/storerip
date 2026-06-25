@@ -4,52 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>StoreCSV — 4 Free E-commerce Data Tools</title>
-  <meta name="description" content="Free tools for e-commerce: store scraper, CSV validator, AI description enhancer, and legal page generator. WooCommerce & Shopify. No account required.">
-  <meta name="keywords" content="woocommerce csv export, shopify csv export, migrate woocommerce to shopify, product catalog export tool, free csv exporter, shopify to woocommerce migration, bulk product export, import ready csv">
-  <link rel="canonical" href="https://storecsv.com">
+  <title>Datafork — Fork your store data</title>
+  <meta name="description" content="Seven free tools for e-commerce data work. Scrape any store, validate CSVs, translate catalogs, enhance descriptions, generate legal pages, create Google Shopping feeds. No account required.">
+  <meta name="keywords" content="woocommerce csv export, shopify csv export, migrate woocommerce to shopify, product catalog export tool, free csv exporter, catalog translator, google shopping feed, bulk price editor">
+  <link rel="canonical" href="https://datafork.io">
 
-  <meta property="og:title" content="StoreCSV — 4 Free E-commerce Data Tools">
-  <meta property="og:description" content="Scrape any store, validate CSVs, enhance descriptions with AI, generate EU legal pages. Free, no account, WooCommerce & Shopify.">
+  <meta property="og:title" content="Datafork — Fork your store data">
+  <meta property="og:description" content="Seven free tools for e-commerce data work. Scrape any store, validate CSVs, translate catalogs, enhance descriptions, generate legal pages, create Google Shopping feeds. No account required.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://storecsv.com">
+  <meta property="og:url" content="https://datafork.io">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg:         #ffffff;
-      --surface:    #f9fafb;
-      --surface-2:  #f3f4f6;
-      --border:     #e5e7eb;
-      --border-h:   #d1d5db;
-      --text-1:     #0d0d0d;
-      --text-2:     #4b5563;
-      --text-3:     #9ca3af;
-      --accent:     #16a34a;
-      --accent-light: #dcfce7;
-      --accent-dark:  #14532d;
-      --on-accent:  #ffffff;
-      --nav-bg:     rgba(255,255,255,0.95);
-      --term-bg:    #0d0d0d;
-      --term-green: #4ade80;
-      --row-alt:    rgba(22,163,74,0.03);
-      --radius:     6px;
-      --radius-lg:  10px;
-      /* terminal-interior + traffic-light literals kept as vars (dark UI inside the card) */
-      --term-chrome: #1a1a1a;
-      --term-chrome-border: #2a2a2a;
-      --term-text:   #e5e7eb;
-      --term-prompt: #6b7280;
-      --term-muted:  #4b5563;
-      --term-tab:    #555;
-      --tl-r: #ff5f57;
-      --tl-y: #febc2e;
-      --tl-g: #28c840;
-      --dot:  #d1fae5;
-      --cta-sub: rgba(255,255,255,0.5);
+      --bg:#0a0a0a; --surface:#111111; --surface-2:#161616; --border:#1a1a1a;
+      --border-h:#2a2a2a; --text-1:#e0e0e0; --text-2:#aaaaaa; --text-3:#444444;
+      --accent:#00ff41; --accent-dim:#00cc33; --accent-bg:rgba(0,255,65,0.06);
+      --accent-dark:#003d0f; --accent-light:rgba(0,255,65,0.10); --on-accent:#000000;
+      --nav-bg:rgba(10,10,10,0.96); --term-bg:#000000; --term-green:#00ff41;
+      --danger:#ff3232; --warning:#ffaa00; --success:#00ff41;
+      --radius:2px; --radius-lg:4px; --row-alt:rgba(0,255,65,0.02); --dot:#1a1a1a;
+      --term-chrome:#0d0d0d; --term-chrome-border:#1a1a1a; --term-text:#e0e0e0;
+      --term-prompt:#aaaaaa; --term-muted:#444444; --term-tab:#444444;
+      --tl-r:#ff5f57; --tl-y:#febc2e; --tl-g:#28c840;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,8 +37,8 @@
     body {
       background: var(--bg);
       color: var(--text-1);
-      font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-      font-size: 15px;
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      font-size: 13px;
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
@@ -67,7 +47,7 @@
 
     /* ── NAV ── */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 52px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 48px;
       display: flex; align-items: center;
       background: var(--nav-bg); backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
@@ -76,44 +56,57 @@
     nav.show { opacity: 1; pointer-events: auto; }
     .nav-inner { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 48px;
       display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 14px; color: var(--text-1); }
-    .nav-logo .dot { color: var(--accent); }
+    .logo { font-size: 14px; }
     .nav-links { display: flex; align-items: center; gap: 26px; }
-    .nav-links a.link { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-2); transition: color 150ms ease; }
+    .nav-links a.link { font-size: 11px; color: var(--text-2); letter-spacing: 0.08em; transition: color 150ms ease; }
     .nav-links a.link:hover { color: var(--text-1); }
     .nav-cta {
-      font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 12px;
+      font-size: 11px; letter-spacing: 0.08em;
       background: var(--accent); color: var(--on-accent);
-      padding: 7px 16px; border-radius: var(--radius); transition: background 150ms ease;
+      padding: 6px 14px; border-radius: var(--radius); transition: background 150ms ease;
     }
-    .nav-cta:hover { background: var(--accent-dark); }
+    .nav-cta:hover { background: var(--accent-dim); }
 
-    /* ── Shared buttons ── */
+    /* ── Buttons ── */
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px;
+      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 12px;
       background: var(--accent); color: var(--on-accent);
-      padding: 11px 24px; border-radius: var(--radius); border: none; cursor: pointer;
-      transition: background 150ms ease;
+      padding: 10px 20px; border-radius: var(--radius); border: none; cursor: pointer;
+      letter-spacing: 0.08em; transition: background 150ms ease;
     }
-    .btn-primary:hover { background: var(--accent-dark); }
-    .btn-link {
-      font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-3);
-      transition: color 150ms ease;
+    .btn-primary:hover { background: var(--accent-dim); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 12px;
+      background: transparent; color: var(--text-2); border: 1px solid var(--border);
+      padding: 10px 20px; border-radius: var(--radius); letter-spacing: 0.08em;
+      transition: border-color 150ms ease, color 150ms ease;
     }
+    .btn-ghost:hover { border-color: var(--border-h); color: var(--text-1); }
+    .btn-link { font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
     .btn-link:hover { color: var(--text-2); }
 
     /* ── Eyebrow / section heads ── */
     .eyebrow {
-      font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent);
-      letter-spacing: 0.12em; text-transform: uppercase;
+      font-size: 10px; color: var(--accent);
+      letter-spacing: 0.2em; text-transform: uppercase;
     }
     .sec-head { max-width: 1200px; margin: 0 auto 52px; padding: 0 48px; }
     .sec-head h2 {
-      font-family: 'IBM Plex Sans', sans-serif; font-weight: 700; font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+      font-weight: 400; font-size: 22px;
       color: var(--text-1); letter-spacing: -0.01em; margin: 14px 0 12px;
     }
-    .sec-head p { font-size: 15px; color: var(--text-2); line-height: 1.7; }
+    .sec-head p { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block; margin-bottom: 14px;
+      background: var(--accent-bg); color: var(--accent);
+      border: 1px solid rgba(0,255,65,0.15);
+      font-size: 10px; letter-spacing: 0.12em; padding: 3px 10px;
+      border-radius: var(--radius); text-transform: uppercase;
+    }
 
     /* ── HERO ── */
     .hero {
@@ -123,8 +116,8 @@
       align-items: center; min-height: 100vh;
     }
     .hero::before {
-      content: ""; position: absolute; inset: 0; z-index: 0; opacity: 0.8;
-      background-image: radial-gradient(circle, var(--dot) 1.5px, transparent 1.5px);
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
       background-size: 22px 22px;
       -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%);
               mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%);
@@ -132,39 +125,38 @@
     .hero-left, .hero-right { position: relative; z-index: 1; }
     .hero-eyebrow { display: block; margin-bottom: 24px; }
     .hero h1 {
-      font-family: 'IBM Plex Sans', sans-serif; font-weight: 700;
-      font-size: clamp(2.8rem, 5vw, 4.5rem); color: var(--text-1);
-      letter-spacing: -0.02em; line-height: 1.08; margin-bottom: 24px;
+      font-weight: 400; font-size: 32px; color: var(--text-1);
+      letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 24px;
     }
+    .hero h1 .ac { color: var(--accent); }
     .hero-sub {
-      font-family: 'IBM Plex Sans', sans-serif; font-size: 15px;
-      color: var(--text-2); line-height: 1.7; max-width: 440px; margin-bottom: 36px;
+      font-size: 13px; color: var(--text-2);
+      line-height: 1.7; max-width: 440px; margin-bottom: 36px;
     }
     .hero-cta { display: flex; gap: 18px; align-items: center; }
     .trust { margin-top: 32px; display: flex; gap: 20px; flex-wrap: wrap; }
-    .trust span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); }
-    .trust .ck { color: var(--accent); font-weight: 600; }
+    .trust span { font-size: 11px; color: var(--text-3); }
+    .trust .ck { color: var(--accent); }
 
     /* ── Terminal ── */
     .term {
       background: var(--term-bg); border: 1px solid var(--border);
       border-radius: var(--radius-lg); overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
     }
     .term-bar {
-      background: var(--term-chrome); padding: 10px 14px;
+      background: var(--term-chrome); padding: 8px 14px;
       display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--term-chrome-border);
     }
-    .tl { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .tl { width: 8px; height: 8px; border-radius:50%; display: inline-block; }
     .tl.r { background: var(--tl-r); }
     .tl.y { background: var(--tl-y); }
     .tl.g { background: var(--tl-g); }
-    .term-tab { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--term-tab); margin-left: 12px; }
+    .term-tab { font-size: 10px; color: var(--term-tab); margin-left: 12px; }
     .term-body {
       padding: 20px 24px; min-height: 320px;
-      font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.9; color: var(--term-text);
+      font-size: 12px; line-height: 2.0; color: var(--term-text);
     }
-    .tw-line { white-space: pre; min-height: 25px; }
+    .tw-line { white-space: pre; min-height: 24px; }
     .tw-cursor { color: var(--term-green); animation: blink 1s step-end infinite; }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
@@ -181,33 +173,35 @@
     }
     .step {
       background: var(--bg); padding: 40px 36px; position: relative; overflow: hidden;
-      border-left: 3px solid transparent;
+      border-left: 2px solid transparent;
       transition: background 200ms ease, border-left-color 200ms ease;
     }
     .step:hover { background: var(--surface); border-left-color: var(--accent); }
     .step .watermark {
-      position: absolute; top: -6px; right: 16px; font-family: 'IBM Plex Mono', monospace;
-      font-size: 7rem; font-weight: 500; color: var(--accent-light); line-height: 1;
+      position: absolute; top: -6px; right: 16px;
+      font-size: 6rem; color: var(--accent-light); line-height: 1;
       pointer-events: none; user-select: none;
     }
     .step .body { position: relative; z-index: 1; }
-    .step h3 { font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-1); margin-bottom: 10px; }
-    .step p { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    .step h3 { font-weight: 400; font-size: 15px; color: var(--text-1); margin-bottom: 10px; }
+    .step p { font-size: 13px; color: var(--text-2); line-height: 1.7; }
 
-    /* ── USE CASES ── */
+    /* ── TOOLS / USE CASES grid ── */
     .cases {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border);
       border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
     }
-    .case { background: var(--surface); padding: 40px; transition: background 200ms ease; }
+    .case { background: var(--surface); padding: 36px 40px; transition: background 200ms ease, border-color 150ms ease; }
     .case:hover { background: var(--surface-2); }
     .case .ic {
-      font-family: 'IBM Plex Mono', monospace; font-size: 1.1rem; color: var(--accent);
-      background: var(--accent-light); padding: 6px 10px; border-radius: var(--radius);
+      font-size: 1rem; color: var(--accent);
+      background: var(--accent-bg); border: 1px solid rgba(0,255,65,0.15);
+      padding: 5px 10px; border-radius: var(--radius);
       display: inline-block; margin-bottom: 16px;
     }
-    .case h3 { font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-1); margin-bottom: 12px; }
-    .case p { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    .case h3 { font-weight: 400; font-size: 15px; color: var(--text-1); margin-bottom: 12px; }
+    .case p { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+    .case .open { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--accent); }
 
     /* ── WHAT'S IN THE CSV ── */
     .tabs {
@@ -215,53 +209,48 @@
       border-radius: var(--radius); padding: 3px; margin-bottom: 32px;
     }
     .tab {
-      font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 5px 14px;
-      background: transparent; color: var(--text-3); border: none; cursor: pointer;
-      border-radius: calc(var(--radius) - 2px); transition: color 150ms ease, background 150ms ease;
+      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 11px; padding: 5px 14px;
+      background: transparent; color: var(--text-2); border: none; cursor: pointer;
+      border-radius: var(--radius); transition: color 150ms ease, background 150ms ease;
     }
-    .tab:hover { color: var(--text-2); }
-    .tab.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+    .tab:hover { color: var(--text-1); }
+    .tab.active { background: var(--accent); color: var(--on-accent); }
     .table-box { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
     .panel { display: none; }
     .panel.active { display: block; }
-    table.cols { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 12px; min-width: 680px; }
+    table.cols { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 680px; }
     table.cols th {
-      font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em;
-      border-bottom: 1px solid var(--border); padding: 8px 12px; text-align: left; font-weight: 500; white-space: nowrap;
+      font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border); padding: 8px 12px; text-align: left; white-space: nowrap;
     }
     table.cols td { color: var(--text-2); padding: 10px 12px; white-space: nowrap; }
     table.cols tbody tr:nth-child(odd) { background: var(--row-alt); }
-    table.cols tbody tr:hover { background: var(--accent-light); }
-    .csv-caption { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); text-align: center; margin-top: 20px; }
+    table.cols tbody tr:hover { background: rgba(0,255,65,0.04); }
+    .csv-caption { font-size: 11px; color: var(--text-3); text-align: center; margin-top: 20px; }
 
     /* ── FINAL CTA ── */
-    .final-cta { padding: 130px 48px; text-align: center; background: var(--accent-dark); }
+    .final-cta {
+      padding: 120px 48px; text-align: center;
+      background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
     .final-cta h2 {
-      font-family: 'IBM Plex Sans', sans-serif; font-weight: 700; font-size: clamp(2rem, 4vw, 3.4rem);
-      color: var(--on-accent); letter-spacing: -0.02em; line-height: 1.08; margin-bottom: 16px;
+      font-weight: 400; font-size: 28px;
+      color: var(--text-1); letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 16px;
     }
-    .final-cta .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--cta-sub); margin-bottom: 44px; }
-    .btn-invert {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px;
-      background: var(--on-accent); color: var(--accent-dark);
-      padding: 13px 32px; border-radius: var(--radius); transition: background 150ms ease;
-    }
-    .btn-invert:hover { background: var(--accent-light); }
+    .final-cta .sub { font-size: 12px; color: var(--text-2); margin-bottom: 44px; }
 
     /* ── FOOTER ── */
     footer {
       background: var(--bg); border-top: 1px solid var(--border); padding: 40px 48px;
       display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
     }
-    .foot-logo { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: var(--text-1); }
-    .foot-logo .dot { color: var(--accent); }
-    .foot-tagline { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); margin-top: 4px; }
+    .foot-logo { font-size: 14px; }
+    .foot-tagline { font-size: 11px; color: var(--text-3); margin-top: 6px; }
     .foot-right { text-align: right; }
     .foot-links { display: flex; gap: 24px; justify-content: flex-end; margin-bottom: 6px; }
-    .foot-links a { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
+    .foot-links a { font-size: 12px; color: var(--text-3); transition: color 150ms ease; }
     .foot-links a:hover { color: var(--text-2); }
-    .foot-copy { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-3); }
+    .foot-copy { font-size: 11px; color: var(--text-3); }
 
     /* ── Scroll animations ── */
     .animate-in {
@@ -269,17 +258,13 @@
       transition: opacity 600ms ease var(--d, 0ms), transform 600ms ease var(--d, 0ms);
     }
     .animate-in.visible { opacity: 1; transform: translateY(0); }
-    .steps .step:nth-child(2), .cases .case:nth-child(2) { --d: 100ms; }
-    .steps .step:nth-child(3), .cases .case:nth-child(3) { --d: 200ms; }
-    .cases .case:nth-child(4) { --d: 300ms; }
+    .cases .case:nth-child(2n) { --d: 100ms; }
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .nav-inner { padding: 0 24px; }
       .nav-links .link { display: none; }
-      .hero { grid-template-columns: 1fr; gap: 40px; padding: 100px 24px 60px; min-height: auto; }
-      .hero h1 { font-size: clamp(2.2rem, 8vw, 3rem); }
-      .hero-sub { max-width: none; }
+      .hero { grid-template-columns: 1fr; gap: 40px; padding: 96px 24px 60px; min-height: auto; }
       .steps, .cases { grid-template-columns: 1fr; }
       .section { padding: 80px 24px; }
       .sec-head { padding: 0 24px; }
@@ -295,13 +280,12 @@
   <!-- ── NAV ── -->
   <nav id="nav">
     <div class="nav-inner">
-      <a href="#" class="nav-logo">StoreCSV<span class="dot">.</span></a>
+      <a href="#" class="logo"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></a>
       <div class="nav-links">
-        <a href="#pricing" class="link">Pricing</a>
         <a href="#how" class="link">How it works</a>
         <a href="#tools" class="link">Tools</a>
-        <a href="#" class="link">GitHub</a>
-        <a href="http://76.13.149.203:5050/" class="nav-cta">Try Free →</a>
+        <a href="#cases" class="link">Use cases</a>
+        <a href="http://76.13.149.203:5050/" class="nav-cta">Try free →</a>
       </div>
     </div>
   </nav>
@@ -309,17 +293,17 @@
   <!-- ── HERO ── -->
   <header class="hero">
     <div class="hero-left">
-      <span class="eyebrow hero-eyebrow">FREE TOOL · NO ACCOUNT · NO RATE LIMITS</span>
-      <h1>Your competitor's catalog. In a CSV. In 30 seconds.</h1>
-      <p class="hero-sub">Four free tools for e-commerce data work. Scrape any store to CSV, validate before importing, enhance descriptions with AI, and generate legal pages — all in one place. No account. No limits.</p>
+      <span class="eyebrow hero-eyebrow">FREE · NO ACCOUNT · NO RATE LIMITS</span>
+      <h1>Fork your <span class="ac">store data</span>.</h1>
+      <p class="hero-sub">Seven free tools that take raw store data and make it work somewhere else. No account. No limits.</p>
       <div class="hero-cta">
-        <a href="http://76.13.149.203:5050/" class="btn-primary">Try It Free →</a>
+        <a href="http://76.13.149.203:5050/" class="btn-primary">[ TRY IT FREE → ]</a>
         <a href="#tools" class="btn-link">See all tools ↓</a>
       </div>
       <div class="trust">
-        <span><span class="ck">✓</span> 4 free tools</span>
+        <span><span class="ck">✓</span> 7 free tools</span>
         <span><span class="ck">✓</span> No account</span>
-        <span><span class="ck">✓</span> EU-compliant legal docs</span>
+        <span><span class="ck">✓</span> WooCommerce &amp; Shopify</span>
       </div>
     </div>
 
@@ -327,7 +311,7 @@
       <div class="term">
         <div class="term-bar">
           <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
-          <span class="term-tab">storecsv — scrape</span>
+          <span class="term-tab">datafork — scrape</span>
         </div>
         <div class="term-body" id="term-body"></div>
       </div>
@@ -338,38 +322,59 @@
   <section class="section" id="tools">
     <div class="sec-head">
       <span class="eyebrow">THE TOOLS</span>
-      <h2 class="animate-in">Everything you need to move product data.</h2>
-      <p>Four tools. One URL. Free forever.</p>
+      <h2 class="animate-in">Seven tools to move product data.</h2>
+      <p>One URL. Free forever. WooCommerce &amp; Shopify.</p>
     </div>
     <div class="grid-wrap">
       <div class="cases">
         <div class="case animate-in">
-          <span style="background:var(--accent-light);color:var(--accent-dark);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.08em;display:inline-block;margin-bottom:14px;">CORE TOOL</span>
+          <span class="badge">CORE TOOL</span>
           <div class="ic">[ → ]</div>
           <h3>Store Scraper</h3>
           <p>Paste any public WooCommerce or Shopify URL. Get every product — variations, SKUs, stock, images — as an import-ready CSV in 30 seconds.</p>
-          <a href="http://76.13.149.203:5050/" style="display:inline-block;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);">Open tool →</a>
+          <a href="http://76.13.149.203:5050/" class="open">Open tool →</a>
         </div>
         <div class="case animate-in">
-          <span style="background:var(--accent-light);color:var(--accent-dark);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.08em;display:inline-block;margin-bottom:14px;">FREE · NO AI</span>
+          <span class="badge">FREE · NO AI</span>
           <div class="ic">[ ✓ ]</div>
           <h3>CSV Validator</h3>
-          <p>Upload any WooCommerce or Shopify CSV before importing. Get a full error report — missing columns, duplicate SKUs, wrong price placement, encoding issues. Fix errors before the import breaks.</p>
-          <a href="http://76.13.149.203:5050/validator" style="display:inline-block;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);">Validate a CSV →</a>
+          <p>Upload any WooCommerce or Shopify CSV before importing. Get a full error report — missing columns, duplicate SKUs, wrong price placement, encoding issues.</p>
+          <a href="http://76.13.149.203:5050/validator" class="open">Validate a CSV →</a>
         </div>
         <div class="case animate-in">
-          <span style="background:var(--accent-light);color:var(--accent-dark);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.08em;display:inline-block;margin-bottom:14px;">AI-POWERED</span>
+          <span class="badge">AI-POWERED</span>
           <div class="ic">[ AI ]</div>
           <h3>Description Enhancer</h3>
-          <p>Upload a product CSV. Choose language and tone. Get AI-rewritten descriptions — SEO-optimized, conversion-focused — for every product in bulk. WooCommerce and Shopify formats supported.</p>
-          <a href="http://76.13.149.203:5050/enhancer" style="display:inline-block;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);">Enhance descriptions →</a>
+          <p>Upload a product CSV. Choose language and tone. Get AI-rewritten descriptions — SEO-optimized, conversion-focused — for every product in bulk.</p>
+          <a href="http://76.13.149.203:5050/enhancer" class="open">Enhance descriptions →</a>
         </div>
         <div class="case animate-in">
-          <span style="background:var(--accent-light);color:var(--accent-dark);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.08em;display:inline-block;margin-bottom:14px;">AI-POWERED</span>
+          <span class="badge">AI-POWERED</span>
           <div class="ic">[ § ]</div>
-          <h3>Legal Page Generator</h3>
-          <p>Fill in your business details. Get 6 ready-to-publish legal documents — Privacy Policy, T&amp;Cs, Cookie Policy, Returns, Shipping, Legal Notice — compliant with EU law, in 5 languages.</p>
-          <a href="http://76.13.149.203:5050/legal" style="display:inline-block;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);">Generate legal pages →</a>
+          <h3>Legal Generator</h3>
+          <p>Fill in your business details. Get 6 ready-to-publish legal documents — Privacy, T&amp;Cs, Cookies, Returns, Shipping, Legal Notice — compliant with EU law, in 5 languages.</p>
+          <a href="http://76.13.149.203:5050/legal" class="open">Generate legal pages →</a>
+        </div>
+        <div class="case animate-in">
+          <span class="badge">FREE · NO AI</span>
+          <div class="ic">[ € ]</div>
+          <h3>Price Editor</h3>
+          <p>Bulk-edit prices across your catalog. Stack percentage, fixed, set, and rounding operations with category and product-type filters. Pure CSV math.</p>
+          <a href="http://76.13.149.203:5050/price-editor" class="open">Edit prices →</a>
+        </div>
+        <div class="case animate-in">
+          <span class="badge">FREE · NO AI</span>
+          <div class="ic">[ ⌘ ]</div>
+          <h3>Shopping Feed</h3>
+          <p>Turn a WooCommerce or Shopify CSV into a Google Merchant Center TSV feed — required columns, shipping rules, and category mapping for 6 countries.</p>
+          <a href="http://76.13.149.203:5050/shopping-feed" class="open">Build a feed →</a>
+        </div>
+        <div class="case animate-in">
+          <span class="badge">AI-POWERED</span>
+          <div class="ic">[ ⇆ ]</div>
+          <h3>Catalog Translator</h3>
+          <p>Translate product names and descriptions in bulk between 5 languages. Variation rows inherit the translated parent name. WooCommerce &amp; Shopify.</p>
+          <a href="http://76.13.149.203:5050/translator" class="open">Translate catalog →</a>
         </div>
       </div>
     </div>
@@ -380,7 +385,7 @@
     <div class="sec-head">
       <span class="eyebrow">HOW IT WORKS</span>
       <h2 class="animate-in">Pick a tool. Done in seconds.</h2>
-      <p>All four tools work the same way — paste a URL or upload a file, configure, download.</p>
+      <p>Every tool works the same way — paste a URL or upload a file, configure, download.</p>
     </div>
     <div class="grid-wrap">
       <div class="steps">
@@ -388,21 +393,21 @@
           <span class="watermark">1</span>
           <div class="body">
             <h3>Choose your tool</h3>
-            <p>Scraper, Validator, Description Enhancer, or Legal Generator. Each one does one job, and does it well.</p>
+            <p>Scraper, Validator, Enhancer, Legal, Price Editor, Shopping Feed, or Translator. Each does one job, and does it well.</p>
           </div>
         </div>
         <div class="step animate-in">
           <span class="watermark">2</span>
           <div class="body">
             <h3>Paste URL or upload CSV</h3>
-            <p>The scraper needs a store URL. The other three tools accept a CSV file or a simple form. No API keys, no setup.</p>
+            <p>The scraper needs a store URL. The other tools accept a CSV file or a simple form. No API keys, no setup.</p>
           </div>
         </div>
         <div class="step animate-in">
           <span class="watermark">3</span>
           <div class="body">
             <h3>Download and use</h3>
-            <p>Get your CSV, error report, enhanced descriptions, or legal documents — ready to use immediately.</p>
+            <p>Get your CSV, error report, enhanced copy, feed, or legal documents — ready to use immediately.</p>
           </div>
         </div>
       </div>
@@ -410,7 +415,7 @@
   </section>
 
   <!-- ── USE CASES ── -->
-  <section class="section" id="pricing">
+  <section class="section" id="cases">
     <div class="sec-head">
       <span class="eyebrow">USE CASES</span>
       <h2 class="animate-in">Built for the whole e-commerce stack.</h2>
@@ -421,7 +426,7 @@
         <div class="case animate-in">
           <div class="ic">⇄</div>
           <h3>Platform migrations</h3>
-          <p>Scrape the old store, validate the CSV, enhance the descriptions, generate the legal pages for the new market. Full migration workflow in one tool.</p>
+          <p>Scrape the old store, validate the CSV, translate and enhance the descriptions, generate legal pages for the new market. Full migration workflow in one place.</p>
         </div>
         <div class="case animate-in">
           <div class="ic">↓</div>
@@ -431,12 +436,12 @@
         <div class="case animate-in">
           <div class="ic">◎</div>
           <h3>Agency client onboarding</h3>
-          <p>New client wants to migrate? Scrape their current store, enhance descriptions for the new market language, generate localized legal pages. Bill for strategy, not spreadsheet work.</p>
+          <p>New client wants to migrate? Scrape their store, translate for the new market, generate localized legal pages. Bill for strategy, not spreadsheet work.</p>
         </div>
         <div class="case animate-in">
           <div class="ic">◈</div>
           <h3>Market expansion</h3>
-          <p>Launching in France or Germany? Enhance your product descriptions in the local language, generate GDPR-compliant legal pages for that market. Ready in minutes.</p>
+          <p>Launching in France or Germany? Translate descriptions, re-price for the market, generate a Google Shopping feed and GDPR-compliant legal pages. Ready in minutes.</p>
         </div>
       </div>
     </div>
@@ -484,19 +489,19 @@
 
   <!-- ── FINAL CTA ── -->
   <section class="final-cta">
-    <h2 class="animate-in">Four tools. Free. No account.</h2>
+    <h2 class="animate-in">Seven tools. Free. No account.</h2>
     <p class="sub">Start with the scraper or pick any tool — they all work right now.</p>
     <div style="display:inline-flex;gap:16px;flex-wrap:wrap;justify-content:center;">
-      <a href="http://76.13.149.203:5050/" class="btn-invert">Open StoreCSV →</a>
-      <a href="#tools" class="btn-invert" style="background:transparent;border:1px solid rgba(255,255,255,0.35);color:#fff;">See all tools ↑</a>
+      <a href="http://76.13.149.203:5050/" class="btn-primary">[ OPEN DATAFORK → ]</a>
+      <a href="#tools" class="btn-ghost">[ SEE ALL TOOLS ↑ ]</a>
     </div>
   </section>
 
   <!-- ── FOOTER ── -->
   <footer>
     <div class="foot-left">
-      <div class="foot-logo">StoreCSV<span class="dot">.</span></div>
-      <div class="foot-tagline">Four tools for e-commerce people who hate manual work.</div>
+      <div class="foot-logo"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></div>
+      <div class="foot-tagline">Seven tools for e-commerce people who hate manual work.</div>
     </div>
     <div class="foot-right">
       <div class="foot-links">
@@ -504,7 +509,7 @@
         <a href="#">Terms</a>
         <a href="#">Contact</a>
       </div>
-      <div class="foot-copy">© 2026 StoreCSV — a free tool by Djolof Studio</div>
+      <div class="foot-copy">© 2026 Datafork — built by Djolof Studio</div>
     </div>
   </footer>
 
@@ -535,7 +540,7 @@
 
     // ── Typewriter terminal ──
     const LINES = [
-      { text: "$ storecsv scrape", color: "var(--term-text)", delay: 0 },
+      { text: "$ datafork scrape", color: "var(--term-text)", delay: 0 },
       { text: "> URL: https://example-store.com", color: "var(--term-prompt)", delay: 500 },
       { text: "", delay: 300 },
       { text: "Detecting platform...", color: "var(--term-muted)", delay: 400 },

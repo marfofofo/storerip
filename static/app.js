@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────
-   StoreRip — frontend logic
+   Datafork — frontend logic
    fetch · poll · ASCII progress · download
    ────────────────────────────────────────────── */
 
