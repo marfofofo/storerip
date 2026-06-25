@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Datafork — Fork your store data</title>
-  <meta name="description" content="Seven free tools for e-commerce data work. Scrape any store, validate CSVs, translate catalogs, enhance descriptions, generate legal pages, create Google Shopping feeds. No account required.">
-  <meta name="keywords" content="woocommerce csv export, shopify csv export, migrate woocommerce to shopify, product catalog export tool, free csv exporter, catalog translator, google shopping feed, bulk price editor">
+  <title>Datafork — Your AI E-commerce Developer</title>
+  <meta name="description" content="Datafork connects to your WooCommerce or Shopify store and maintains your catalog automatically — broken images, pricing errors, weak SEO, invalid Google feeds. The work of a $1000/mo developer, for $99.">
+  <meta name="keywords" content="ai ecommerce developer, woocommerce catalog maintenance, shopify catalog monitoring, automated product data, store health, google shopping feed, ecommerce automation">
   <link rel="canonical" href="https://datafork.io">
 
-  <meta property="og:title" content="Datafork — Fork your store data">
-  <meta property="og:description" content="Seven free tools for e-commerce data work. Scrape any store, validate CSVs, translate catalogs, enhance descriptions, generate legal pages, create Google Shopping feeds. No account required.">
+  <meta property="og:title" content="Datafork — Your AI E-commerce Developer">
+  <meta property="og:description" content="Datafork connects to your WooCommerce or Shopify store and maintains your catalog automatically — broken images, pricing errors, weak SEO, invalid Google feeds. The work of a $1000/mo developer, for $99.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://datafork.io">
 
@@ -240,30 +240,75 @@
       .carousel-card { padding: 24px; }
     }
 
-    /* ── WHAT'S IN THE CSV ── */
-    .tabs {
-      display: inline-flex; background: var(--bg); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 3px; margin-bottom: 32px;
-    }
-    .tab {
-      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 11px; padding: 5px 14px;
-      background: transparent; color: var(--text-2); border: none; cursor: pointer;
-      border-radius: var(--radius); transition: color 150ms ease, background 150ms ease;
-    }
-    .tab:hover { color: var(--text-1); }
-    .tab.active { background: var(--accent); color: var(--on-accent); }
-    .table-box { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    table.cols { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 680px; }
-    table.cols th {
-      font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em;
-      border-bottom: 1px solid var(--border); padding: 8px 12px; text-align: left; white-space: nowrap;
-    }
-    table.cols td { color: var(--text-2); padding: 10px 12px; white-space: nowrap; }
-    table.cols tbody tr:nth-child(odd) { background: var(--row-alt); }
-    table.cols tbody tr:hover { background: rgba(0,255,65,0.04); }
-    .csv-caption { font-size: 11px; color: var(--text-3); text-align: center; margin-top: 20px; }
+    /* ── HERO DASHBOARD MOCKUP ── */
+    .dash { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
+      background: var(--term-bg); box-shadow: 0 0 40px rgba(0,255,65,0.06); }
+    .dash-bar { background: var(--term-chrome); padding: 8px 14px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--term-chrome-border); }
+    .dash-tab { font-size: 10px; color: var(--term-tab); margin-left: 12px; }
+    .dash-body { padding: 22px 24px; }
+    .dash-conn { color: var(--accent); font-size: 11px; margin-bottom: 16px; }
+    .dash-score { font-size: 48px; line-height: 1; color: var(--accent); }
+    .dash-score small { font-size: 18px; color: var(--text-3); }
+    .dash-scorelbl { font-size: 10px; color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase; margin: 4px 0 18px; }
+    .dash-bars { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+    .dbar { display: grid; grid-template-columns: 64px 1fr 38px; gap: 10px; align-items: center; }
+    .dbar .l { color: var(--text-2); font-size: 11px; }
+    .dbar .t { font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
+    .dbar .p { color: var(--text-2); font-size: 11px; text-align: right; }
+    .bf { color: var(--accent); } .be { color: var(--text-3); }
+    .dash-agent { background: rgba(0,255,65,0.04); border: 1px solid rgba(0,255,65,0.2);
+      border-left: 2px solid var(--accent); border-radius: var(--radius); padding: 12px 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .dash-agent .am { color: var(--text-1); font-size: 12px; }
+    .dash-mini-btn { background: var(--accent); color: #000; font-size: 10px; padding: 6px 12px;
+      border-radius: var(--radius); letter-spacing: 0.06em; white-space: nowrap; }
+
+    /* ── COST CARDS (pain) ── */
+    .cost-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .cost { background: #0d0d0d; padding: 36px 32px; text-align: center; }
+    .cost .big { font-size: 38px; margin-bottom: 8px; color: var(--text-1); }
+    .cost .big.dn { color: var(--danger); } .cost .big.wn { color: var(--warning); }
+    .cost .lbl { font-size: 12px; color: #888888; }
+
+    /* ── MONITOR GRID ── */
+    .mon-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1px;
+      background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .mon { background: #0d0d0d; padding: 26px 28px; }
+    .mon .ic { display: inline-block; color: var(--accent); background: var(--accent-bg);
+      border: 1px solid rgba(0,255,65,0.15); padding: 4px 9px; border-radius: var(--radius); font-size: 12px; margin-bottom: 12px; }
+    .mon h3 { font-weight: 400; font-size: 14px; color: var(--text-1); margin-bottom: 6px; }
+    .mon p { font-size: 12px; color: #888888; line-height: 1.7; }
+
+    /* ── AGENT CHAT ── */
+    .chat { max-width: 680px; }
+    .cmsg { padding: 14px 18px; border-radius: var(--radius-lg); max-width: 80%; margin-bottom: 12px;
+      white-space: pre-line; font-size: 13px; line-height: 1.6; }
+    .cmsg.agent { background: #0d0d0d; border: 1px solid var(--border); border-left: 2px solid var(--accent); color: var(--text-1); }
+    .cmsg.agent .h { color: var(--accent); font-size: 10px; display: block; margin-bottom: 6px; }
+    .cmsg.user { background: var(--surface-2); color: var(--text-2); margin-left: auto; text-align: right; }
+    .chat-cap { color: var(--text-3); font-size: 11px; margin-top: 18px; }
+
+    /* ── PRICING ── */
+    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 840px; }
+    .price { background: #0d0d0d; border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 32px; position: relative; display: flex; flex-direction: column; }
+    .price.pro { border-color: var(--accent); }
+    .price-badge { position: absolute; top: -9px; right: 20px; background: var(--accent); color: #000;
+      font-size: 9px; letter-spacing: 0.1em; padding: 3px 10px; border-radius: var(--radius); text-transform: uppercase; }
+    .price .tier { font-size: 13px; color: var(--text-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+    .price .amt { font-size: 34px; color: var(--text-1); margin-bottom: 4px; }
+    .price .amt small { font-size: 14px; color: var(--text-3); }
+    .price .tag { font-size: 12px; color: #888888; margin-bottom: 22px; }
+    .price ul { list-style: none; margin-bottom: 24px; flex: 1; }
+    .price li { font-size: 12px; color: var(--text-2); padding: 5px 0; }
+    .price li .y { color: var(--accent); } .price li .n { color: var(--text-3); }
+    .price li.off { color: var(--text-3); }
+    .price .btn-primary, .price .btn-ghost { width: 100%; justify-content: center; }
+    .price .pnote { font-size: 11px; color: var(--text-3); margin-top: 14px; text-align: center; }
+
+    @media (max-width: 768px) { .cost-grid { grid-template-columns: 1fr; } .price-grid { grid-template-columns: 1fr; } }
 
     /* ── FINAL CTA ── */
     .final-cta {
@@ -321,8 +366,8 @@
       <div class="nav-links">
         <a href="#how" class="link">How it works</a>
         <a href="#tools" class="link">Tools</a>
-        <a href="#cases" class="link">Use cases</a>
-        <a href="http://76.13.149.203:5050/" class="nav-cta">Try free →</a>
+        <a href="#pricing" class="link">Pricing</a>
+        <a href="/dashboard" class="nav-cta">Connect your store →</a>
       </div>
     </div>
   </nav>
@@ -330,37 +375,136 @@
   <!-- ── HERO ── -->
   <header class="hero">
     <div class="hero-left">
-      <span class="eyebrow hero-eyebrow">FREE · NO ACCOUNT · NO RATE LIMITS</span>
-      <h1 class="hero-h1" aria-label="Fork your store data.">Fork your <span class="ac">store data.</span></h1>
-      <p class="hero-sub">Seven free tools that take raw store data and make it work somewhere else. No account. No limits.</p>
+      <span class="eyebrow hero-eyebrow">YOUR AI E-COMMERCE DEVELOPER</span>
+      <h1 class="hero-h1" aria-label="Your store's developer. Without the invoice.">Your store's <span class="ac">developer.</span> Without the invoice.</h1>
+      <p class="hero-sub">Datafork connects to your WooCommerce or Shopify store and keeps your catalog healthy — automatically. Broken images, pricing errors, weak SEO, rejected Google feeds. Fixed before they cost you sales.</p>
       <div class="hero-cta">
-        <a href="http://76.13.149.203:5050/" class="btn-primary">[ TRY IT FREE → ]</a>
-        <a href="#tools" class="btn-link">See all tools ↓</a>
+        <a href="/dashboard" class="btn-primary">[ CONNECT YOUR STORE → ]</a>
+        <a href="#tools" class="btn-link">or try the free tools ↓</a>
       </div>
       <div class="trust">
-        <span><span class="ck">✓</span> 7 free tools</span>
-        <span><span class="ck">✓</span> No account</span>
+        <span><span class="ck">✓</span> Setup in 5 min</span>
         <span><span class="ck">✓</span> WooCommerce &amp; Shopify</span>
+        <span><span class="ck">✓</span> Cancel anytime</span>
       </div>
     </div>
 
     <div class="hero-right">
-      <div class="term">
-        <div class="term-bar">
+      <div class="dash">
+        <div class="dash-bar">
           <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
-          <span class="term-tab">datafork — scrape</span>
+          <span class="dash-tab">datafork — dashboard</span>
         </div>
-        <div class="term-body" id="term-body"></div>
+        <div class="dash-body">
+          <div class="dash-conn">● mystore.com connected</div>
+          <div class="dash-score">73<small>/100</small></div>
+          <div class="dash-scorelbl">Health Score</div>
+          <div class="dash-bars">
+            <div class="dbar"><span class="l">Images</span><span class="t"><span class="bf">████████</span><span class="be">░░</span></span><span class="p">78%</span></div>
+            <div class="dbar"><span class="l">Pricing</span><span class="t"><span class="bf">██████████</span></span><span class="p">95%</span></div>
+            <div class="dbar"><span class="l">SEO</span><span class="t"><span class="bf">█████</span><span class="be">░░░░░</span></span><span class="p">52%</span></div>
+          </div>
+          <div class="dash-agent">
+            <span class="am">[ ✦ ] Found 23 issues this week. Fix them all?</span>
+            <span class="dash-mini-btn">[ FIX ALL ]</span>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- ── THE TOOLS ── -->
+  <!-- ── SECTION 2: THE PAIN ── -->
+  <section class="section" id="problem">
+    <div class="sec-head">
+      <span class="eyebrow">THE PROBLEM</span>
+      <h2 class="animate-in">Your catalog breaks. Quietly.</h2>
+      <p>Images go 404. Variations lose their prices. New products ship with no SEO and no descriptions. Your Google Shopping feed gets rejected and your ads pause — and you find out days later, after losing sales.</p>
+    </div>
+    <div class="grid-wrap">
+      <div class="cost-grid">
+        <div class="cost animate-in"><div class="big dn">$1000+/mo</div><div class="lbl">What a developer costs</div></div>
+        <div class="cost animate-in"><div class="big wn">4am</div><div class="lbl">When you usually find the problem</div></div>
+        <div class="cost animate-in"><div class="big wn">Days</div><div class="lbl">How long issues go unnoticed</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="section bordered surface" id="how">
+    <div class="sec-head">
+      <span class="eyebrow">HOW IT WORKS</span>
+      <h2 class="animate-in">Connect once. Maintained forever.</h2>
+      <p>Five-minute setup, then the agent runs in the background — you stay in control.</p>
+    </div>
+    <div class="grid-wrap">
+      <div class="steps">
+        <div class="step animate-in">
+          <span class="watermark">01</span>
+          <div class="body">
+            <h3>Connect your store</h3>
+            <p>Link WooCommerce or Shopify in 5 minutes. Read-only access. Your data stays yours.</p>
+          </div>
+        </div>
+        <div class="step animate-in">
+          <span class="watermark">02</span>
+          <div class="body">
+            <h3>The agent scans weekly</h3>
+            <p>Datafork checks every product for broken images, pricing errors, weak SEO, invalid feeds, and missing translations.</p>
+          </div>
+        </div>
+        <div class="step animate-in">
+          <span class="watermark">03</span>
+          <div class="body">
+            <h3>Issues get fixed</h3>
+            <p>Review the weekly report. Approve fixes with one click. The agent does the work — you stay in control.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: WHAT IT MONITORS ── -->
+  <section class="section">
+    <div class="sec-head">
+      <span class="eyebrow">CATALOG HEALTH</span>
+      <h2 class="animate-in">Seven things it watches, so you don't have to.</h2>
+      <p>Continuous monitoring across every part of your catalog.</p>
+    </div>
+    <div class="grid-wrap">
+      <div class="mon-grid">
+        <div class="mon animate-in"><span class="ic">[ ◉ ]</span><h3>Broken images</h3><p>404s and missing product photos.</p></div>
+        <div class="mon animate-in"><span class="ic">[ € ]</span><h3>Pricing errors</h3><p>Wrong price placement, missing variation prices.</p></div>
+        <div class="mon animate-in"><span class="ic">[ ⚲ ]</span><h3>SEO gaps</h3><p>Short titles, missing meta, duplicates.</p></div>
+        <div class="mon animate-in"><span class="ic">[ ✎ ]</span><h3>Weak descriptions</h3><p>Missing or thin product copy.</p></div>
+        <div class="mon animate-in"><span class="ic">[ ⌘ ]</span><h3>Google feed</h3><p>Invalid items that get your ads rejected.</p></div>
+        <div class="mon animate-in"><span class="ic">[ ⇄ ]</span><h3>Translations</h3><p>Products missing in your market languages.</p></div>
+        <div class="mon animate-in"><span class="ic">[ ▦ ]</span><h3>Stock alerts</h3><p>Out of stock and low inventory.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: THE AGENT ── -->
+  <section class="section bordered surface">
+    <div class="sec-head">
+      <span class="eyebrow">YOUR AI DEVELOPER</span>
+      <h2 class="animate-in">It doesn't just find problems. It fixes them.</h2>
+    </div>
+    <div class="grid-wrap">
+      <div class="chat animate-in">
+        <div class="cmsg agent"><span class="h">[ ✦ ] AGENT</span>You added 18 products this week. 5 have no description, 8 have no images. Want me to write the descriptions in Italian?</div>
+        <div class="cmsg user">yes, do it</div>
+        <div class="cmsg agent"><span class="h">[ ✦ ] AGENT</span>✓ Done. 5 Italian descriptions written and saved as draft. Review before publishing.</div>
+      </div>
+      <p class="chat-cap">Powered by the same 7 tools you can try free below.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: FREE TOOLS (carousel) ── -->
   <section class="section" id="tools">
     <div class="sec-head">
-      <span class="eyebrow">THE TOOLS</span>
-      <h2 class="animate-in">Seven tools to move product data.</h2>
-      <p>One URL. Free forever. WooCommerce &amp; Shopify.</p>
+      <span class="eyebrow">FREE TOOLS</span>
+      <h2 class="animate-in">Don't trust us? Try the tools that power the agent.</h2>
+      <p>Every fix the agent makes, you can do manually with these free tools. No account needed.</p>
     </div>
     <div class="grid-wrap">
       <div class="carousel" id="tool-carousel">
@@ -370,120 +514,59 @@
     </div>
   </section>
 
-  <!-- ── HOW IT WORKS ── -->
-  <section class="section bordered surface" id="how">
+  <!-- ── SECTION 7: PRICING ── -->
+  <section class="section bordered surface" id="pricing">
     <div class="sec-head">
-      <span class="eyebrow">HOW IT WORKS</span>
-      <h2 class="animate-in">Pick a tool. Done in seconds.</h2>
-      <p>Every tool works the same way — paste a URL or upload a file, configure, download.</p>
+      <span class="eyebrow">PRICING</span>
+      <h2 class="animate-in">A developer costs $1000. Datafork costs $99.</h2>
+      <p>Start free with the tools. Upgrade when you want the agent to run it for you.</p>
     </div>
     <div class="grid-wrap">
-      <div class="steps">
-        <div class="step animate-in">
-          <span class="watermark">1</span>
-          <div class="body">
-            <h3>Choose your tool</h3>
-            <p>Scraper, Validator, Enhancer, Legal, Price Editor, Shopping Feed, or Translator. Each does one job, and does it well.</p>
-          </div>
+      <div class="price-grid">
+        <div class="price animate-in">
+          <div class="tier">Free</div>
+          <div class="amt">$0 <small>/ forever</small></div>
+          <div class="tag">The 7 tools, unlimited</div>
+          <ul>
+            <li><span class="y">✓</span> All 7 catalog tools</li>
+            <li><span class="y">✓</span> No account required</li>
+            <li><span class="y">✓</span> WooCommerce &amp; Shopify</li>
+            <li><span class="y">✓</span> Unlimited use</li>
+            <li class="off"><span class="n">✗</span> No store connection</li>
+            <li class="off"><span class="n">✗</span> No automatic monitoring</li>
+            <li class="off"><span class="n">✗</span> No weekly reports</li>
+          </ul>
+          <a href="http://76.13.149.203:5050/" class="btn-ghost">[ USE THE TOOLS ]</a>
         </div>
-        <div class="step animate-in">
-          <span class="watermark">2</span>
-          <div class="body">
-            <h3>Paste URL or upload CSV</h3>
-            <p>The scraper needs a store URL. The other tools accept a CSV file or a simple form. No API keys, no setup.</p>
-          </div>
-        </div>
-        <div class="step animate-in">
-          <span class="watermark">3</span>
-          <div class="body">
-            <h3>Download and use</h3>
-            <p>Get your CSV, error report, enhanced copy, feed, or legal documents — ready to use immediately.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── USE CASES ── -->
-  <section class="section" id="cases">
-    <div class="sec-head">
-      <span class="eyebrow">USE CASES</span>
-      <h2 class="animate-in">Built for the whole e-commerce stack.</h2>
-      <p>Whether you're a solo merchant or running 10 client stores.</p>
-    </div>
-    <div class="grid-wrap">
-      <div class="cases">
-        <div class="case animate-in">
-          <div class="ic">⇄</div>
-          <h3>Platform migrations</h3>
-          <p>Scrape the old store, validate the CSV, translate and enhance the descriptions, generate legal pages for the new market. Full migration workflow in one place.</p>
-        </div>
-        <div class="case animate-in">
-          <div class="ic">↓</div>
-          <h3>Store backup &amp; recovery</h3>
-          <p>Export your full product catalog weekly. Validate the export. Keep a clean, portable backup you can import anywhere in minutes.</p>
-        </div>
-        <div class="case animate-in">
-          <div class="ic">◎</div>
-          <h3>Agency client onboarding</h3>
-          <p>New client wants to migrate? Scrape their store, translate for the new market, generate localized legal pages. Bill for strategy, not spreadsheet work.</p>
-        </div>
-        <div class="case animate-in">
-          <div class="ic">◈</div>
-          <h3>Market expansion</h3>
-          <p>Launching in France or Germany? Translate descriptions, re-price for the market, generate a Google Shopping feed and GDPR-compliant legal pages. Ready in minutes.</p>
+        <div class="price pro animate-in">
+          <span class="price-badge">Most popular</span>
+          <div class="tier">Pro</div>
+          <div class="amt">$99 <small>/ month</small></div>
+          <div class="tag">Your AI developer, always on</div>
+          <ul>
+            <li><span class="y">✓</span> Everything in Free</li>
+            <li><span class="y">✓</span> Connect your store</li>
+            <li><span class="y">✓</span> Weekly automatic scans</li>
+            <li><span class="y">✓</span> AI agent fixes issues</li>
+            <li><span class="y">✓</span> Weekly health reports</li>
+            <li><span class="y">✓</span> Daily catalog backups</li>
+            <li><span class="y">✓</span> Restore in under 1 hour</li>
+            <li><span class="y">✓</span> Priority support</li>
+          </ul>
+          <a href="/dashboard" class="btn-primary">[ CONNECT YOUR STORE → ]</a>
+          <div class="pnote">Less than 3 hours of a developer's time. Per month.</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── WHAT'S IN THE CSV ── -->
-  <section class="section bordered surface">
-    <div class="sec-head">
-      <span class="eyebrow">WHAT'S IN THE CSV</span>
-      <h2 class="animate-in">Every column the importer expects. Nothing it doesn't.</h2>
-      <p>Columns match each platform's native importer exactly. Open the CSV, hit import, done. No column mapping, no cleanup.</p>
-    </div>
-    <div class="grid-wrap animate-in">
-      <div class="tabs">
-        <button class="tab active" data-tab="woo">WooCommerce</button>
-        <button class="tab" data-tab="shopify">Shopify</button>
-      </div>
-      <div class="table-box">
-        <div class="panel active" id="panel-woo">
-          <table class="cols">
-            <thead>
-              <tr><th>SKU</th><th>Nome</th><th>Tipo</th><th>Prezzo</th><th>Stock</th><th>Immagini</th><th>Attributo 1</th><th>Genitore</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>shoe-001</td><td>Sneaker Classic</td><td>variable</td><td>—</td><td>—</td><td>https://...</td><td>Taglia</td><td>—</td></tr>
-              <tr><td>shoe-001-42</td><td>Sneaker Classic</td><td>variation</td><td>89.90</td><td>12</td><td>—</td><td>42</td><td>shoe-001</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="panel" id="panel-shopify">
-          <table class="cols">
-            <thead>
-              <tr><th>Handle</th><th>Title</th><th>Type</th><th>Price</th><th>Qty</th><th>Image Src</th><th>Option1 Name</th><th>Option1 Value</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>sneaker-classic</td><td>Sneaker Classic</td><td>Footwear</td><td>—</td><td>—</td><td>https://...</td><td>Size</td><td>—</td></tr>
-              <tr><td>sneaker-classic</td><td>Sneaker Classic</td><td>Footwear</td><td>89.90</td><td>12</td><td>https://...</td><td>Size</td><td>42</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <p class="csv-caption">Generated from live store data. Ready to import without editing.</p>
-    </div>
-  </section>
-
-  <!-- ── FINAL CTA ── -->
+  <!-- ── SECTION 8: FINAL CTA ── -->
   <section class="final-cta">
-    <h2 class="animate-in">Seven tools. Free. No account.</h2>
-    <p class="sub">Start with the scraper or pick any tool — they all work right now.</p>
+    <h2 class="animate-in">Stop fixing your catalog at 4am.</h2>
+    <p class="sub">Connect your store. Let the agent handle it.</p>
     <div style="display:inline-flex;gap:16px;flex-wrap:wrap;justify-content:center;">
-      <a href="http://76.13.149.203:5050/" class="btn-primary">[ OPEN DATAFORK → ]</a>
-      <a href="#tools" class="btn-ghost">[ SEE ALL TOOLS ↑ ]</a>
+      <a href="/dashboard" class="btn-primary">[ CONNECT YOUR STORE → ]</a>
+      <a href="http://76.13.149.203:5050/" class="btn-ghost">[ TRY FREE TOOLS ]</a>
     </div>
   </section>
 
@@ -491,7 +574,7 @@
   <footer>
     <div class="foot-left">
       <div class="foot-logo"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></div>
-      <div class="foot-tagline">Seven tools for e-commerce people who hate manual work.</div>
+      <div class="foot-tagline">Your AI e-commerce developer.</div>
     </div>
     <div class="foot-right">
       <div class="foot-links">
@@ -510,16 +593,6 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    // ── Tab switcher ──
-    document.querySelectorAll('.tab').forEach(function (tab) {
-      tab.addEventListener('click', function () {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-      });
-    });
-
     // ── Scroll animations ──
     const obs = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
@@ -527,66 +600,6 @@
       });
     }, { threshold: 0.08 });
     document.querySelectorAll('.animate-in').forEach(el => obs.observe(el));
-
-    // ── Typewriter terminal ──
-    // Exactly these 14 lines, in order, 400ms between each (see typewriter loop).
-    const LINES = [
-      { text: "$ datafork scrape", color: "var(--term-text)" },
-      { text: "> URL: https://example-store.com", color: "var(--term-prompt)" },
-      { text: "" },
-      { text: "Detecting platform...", color: "var(--term-muted)" },
-      { text: "✓ WooCommerce detected", color: "var(--term-green)" },
-      { text: "" },
-      { text: "Fetching products...", color: "var(--term-muted)" },
-      { text: "  → Page 1: 47 products", color: "var(--term-muted)" },
-      { text: "  → Page 2: 47 products", color: "var(--term-muted)" },
-      { text: "████████████████████ 100%", color: "var(--term-green)" },
-      { text: "" },
-      { text: "✓ 94 products · 187 rows (incl. variations)", color: "var(--term-green)" },
-      { text: "" },
-      { text: "[ ↓ download: example-store_woo.csv ]", color: "var(--term-green)" },
-    ];
-
-    const body = document.getElementById('term-body');
-    const cursor = document.createElement('span');
-    cursor.className = 'tw-cursor';
-    cursor.textContent = '█';
-
-    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-    async function typeLine(line) {
-      const div = document.createElement('div');
-      div.className = 'tw-line';
-      div.style.color = line.color || 'var(--term-muted)';
-      const txt = document.createElement('span');
-      div.appendChild(txt);
-      div.appendChild(cursor);
-      body.appendChild(div);
-      const text = line.text || '';
-      const speed = text.length > 30 ? 8 : 18;
-      for (let i = 0; i < text.length; i++) {
-        txt.textContent += text[i];
-        await sleep(speed);
-      }
-    }
-
-    async function runTerminal() {
-      while (true) {
-        body.innerHTML = '';
-        body.style.transition = '';
-        body.style.opacity = '1';
-        await sleep(600);
-        for (const line of LINES) {
-          await typeLine(line);
-          await sleep(400);          // uniform 400ms between every line
-        }
-        await sleep(3000);           // hold the full output, then fade + restart
-        body.style.transition = 'opacity 400ms ease';
-        body.style.opacity = '0';
-        await sleep(450);
-      }
-    }
-    runTerminal();
   </script>
 
   <!-- ── COMPONENT 1: Matrix text effect on H1 ── -->
