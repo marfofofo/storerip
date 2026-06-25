@@ -1380,7 +1380,7 @@ def _wc_feed_rows(rows, params):
             "mpn": sku,
             "product_type": _tsv_clean(ptype),
             "google_product_category": _gpc_category(ptype),
-            "identifier_exists": "yes" if gtin else "no",
+            "identifier_exists": "yes" if (gtin or (sku and brand)) else "no",
             "shipping": _shipping_value(price_val, params),
         })
     return items
@@ -1405,8 +1405,8 @@ def _shopify_feed_rows(rows, params):
             if img and not cur_img:
                 cur_img = img
 
-        price_val = _parse_price(row.get("Variant Price"))
-        if price_val is None or price_val <= 0:
+        variant_price = _parse_price(row.get("Variant Price"))
+        if variant_price is None or variant_price <= 0:
             continue  # image-only / empty rows
 
         pos += 1
@@ -1436,9 +1436,17 @@ def _shopify_feed_rows(rows, params):
             except ValueError:
                 avail = "in stock"
 
+        # Compare-At is the original (higher) price -> it's the Google "price";
+        # the (lower) Variant Price becomes the sale_price. With no Compare-At,
+        # Variant Price is simply the regular price and there is no sale.
         compare = _parse_price(row.get("Variant Compare At Price"))
-        sale_str = f"{compare:.2f} {cur}" if (compare and 0 < compare < price_val) else ""
+        if compare and compare > variant_price:
+            regular_val, sale_str = compare, f"{variant_price:.2f} {cur}"
+        else:
+            regular_val, sale_str = variant_price, ""
+
         gtin = (row.get("Variant Barcode") or "").strip()
+        brand = cur_vendor or params["brand"]
 
         items.append({
             "id": item_id,
@@ -1447,16 +1455,16 @@ def _shopify_feed_rows(rows, params):
             "link": f"{base}/products/{h}",
             "image_link": _tsv_clean(img),
             "availability": avail,
-            "price": f"{price_val:.2f} {cur}",
+            "price": f"{regular_val:.2f} {cur}",
             "sale_price": sale_str,
-            "brand": _tsv_clean(cur_vendor or params["brand"]),
+            "brand": _tsv_clean(brand),
             "condition": params["condition"],
             "gtin": _tsv_clean(gtin),
             "mpn": vsku,
             "product_type": _tsv_clean(cur_type),
             "google_product_category": _gpc_category(cur_type),
-            "identifier_exists": "yes" if gtin else "no",
-            "shipping": _shipping_value(price_val, params),
+            "identifier_exists": "yes" if (gtin or (vsku and brand)) else "no",
+            "shipping": _shipping_value(regular_val, params),
         })
     return items
 
