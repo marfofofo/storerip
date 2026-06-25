@@ -6,22 +6,27 @@
   <title>Datafork — Description Enhancer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-  --bg:#0a0a0a; --surface:#111111; --surface-2:#161616; --border:#1a1a1a;
-  --border-h:#2a2a2a; --text-1:#e0e0e0; --text-2:#aaaaaa; --text-3:#444444;
-  --accent:#00ff41; --accent-dim:#00cc33; --accent-bg:rgba(0,255,65,0.06);
-  --accent-dark:#003d0f; --accent-light:rgba(0,255,65,0.10); --on-accent:#000000;
-  --nav-bg:rgba(10,10,10,0.96); --term-bg:#000000; --term-green:#00ff41;
-  --danger:#ff3232; --warning:#ffaa00; --success:#00ff41;
-  --radius:2px; --radius-lg:4px; --row-alt:rgba(0,255,65,0.02); --dot:#1a1a1a;
-  --term-chrome:#0d0d0d; --term-chrome-border:#1a1a1a; --term-text:#e0e0e0;
-  --term-prompt:#aaaaaa; --term-muted:#444444; --term-tab:#444444;
-  --tl-r:#ff5f57; --tl-y:#febc2e; --tl-g:#28c840; --cta-sub:rgba(0,0,0,0.5);
+  --bg:#F7F8F7; --surface:#FFFFFF; --surface-2:#F1F3F2; --border:#E3E6E4; --border-2:#D2D6D3;
+  --slate:#0F1A24; --slate-2:#1A2733; --slate-3:#2A3742; --on-slate:#E8EDEA; --on-slate-2:#9DA9A3;
+  --text-1:#0F1A24; --text-2:#5F6E78; --text-3:#94A09A;
+  --accent:#1D9E75; --accent-2:#178563; --accent-bg:#E1F5EE; --accent-text:#0F6E56;
+  --success:#639922; --success-bg:#EAF3DE; --warning:#BA7517; --warning-bg:#FAEEDA;
+  --danger:#C2603A; --danger-bg:#FAECE7;
+  --radius:8px; --radius-lg:12px; --radius-sm:6px;
+  --shadow-sm:0 1px 2px rgba(15,26,36,0.04); --shadow:0 2px 8px rgba(15,26,36,0.06); --shadow-lg:0 8px 24px rgba(15,26,36,0.08);
+  /* compatibility aliases (old token names -> new system) */
+  --border-h:#D2D6D3; --accent-dim:#178563; --accent-dark:#178563; --accent-light:#E1F5EE; --on-accent:#FFFFFF;
+  --nav-bg:rgba(247,248,247,0.9); --row-alt:#F1F3F2; --dot:#E3E6E4;
+  /* refined dark terminal output block (kept dark for code/output only) */
+  --term-bg:#0F1A24; --term-green:#1D9E75; --term-chrome:#1A2733; --term-chrome-border:#2A3742;
+  --term-text:#E8EDEA; --term-prompt:#9DA9A3; --term-muted:#9DA9A3; --term-tab:#9DA9A3;
+  --tl-r:#E0867A; --tl-y:#D9B65A; --tl-g:#7FB069; --cta-sub:rgba(255,255,255,0.6);
 }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--surface); color:var(--text-1); font-family:'Share Tech Mono','Courier New',monospace;
+    body { background:var(--surface); color:var(--text-1); font-family:'Inter',system-ui,sans-serif;
       min-height:100vh; display:flex; flex-direction:column;
       background-image:radial-gradient(circle,var(--dot) 1px,transparent 1px); background-size:24px 24px;
       -webkit-font-smoothing:antialiased; }
@@ -29,47 +34,47 @@
 
     .app-header { display:flex; align-items:center; justify-content:space-between;
       padding:18px 24px; background:var(--bg); border-bottom:1px solid var(--border); }
-    .logo { font-family:'Share Tech Mono','Courier New',monospace; font-weight:600; font-size:14px; color:var(--text-1); }
+    .logo { font-family:'Inter',system-ui,sans-serif; font-weight:600; font-size:14px; color:var(--text-1); }
     .logo .dot { color:var(--accent); }
-    .app-nav a { font-family:'Share Tech Mono','Courier New',monospace; font-size:12px; color:var(--text-2); transition:color .15s; }
+    .app-nav a { font-family:'Inter',system-ui,sans-serif; font-size:12px; color:var(--text-2); transition:color .15s; }
     .app-nav a:hover { color:var(--accent); }
 
     .page { flex:1; width:100%; max-width:720px; margin:0 auto; padding:48px 24px; }
-    .eyebrow { font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; color:var(--accent);
+    .eyebrow { font-family:'Inter',system-ui,sans-serif; font-size:11px; color:var(--accent);
       text-transform:uppercase; letter-spacing:.12em; }
     h1 { font-weight:700; font-size:2.2rem; letter-spacing:-.01em; margin:12px 0 10px; }
     .subline { font-size:15px; color:var(--text-2); max-width:580px; margin-bottom:24px; }
 
-    .warn-banner { background:rgba(255,170,0,0.10); border:1px solid rgba(255,170,0,0.3); border-radius:var(--radius);
-      padding:12px 16px; margin-bottom:20px; font-family:'Share Tech Mono','Courier New',monospace; font-size:12px; color:var(--warning); }
+    .warn-banner { background:rgba(186,117,23,0.10); border:1px solid rgba(186,117,23,0.3); border-radius:var(--radius);
+      padding:12px 16px; margin-bottom:20px; font-family:'Inter',system-ui,sans-serif; font-size:12px; color:var(--warning); }
 
     .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
       padding:24px 28px; margin-bottom:16px; }
-    .card-title { font-family:'Share Tech Mono','Courier New',monospace; font-size:12px; font-weight:600; color:var(--text-1);
+    .card-title { font-family:'Inter',system-ui,sans-serif; font-size:12px; font-weight:600; color:var(--text-1);
       margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border); }
 
-    .lbl { font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; color:var(--text-3);
+    .lbl { font-family:'Inter',system-ui,sans-serif; font-size:11px; color:var(--text-3);
       text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; display:block; }
 
     .pill-row { display:flex; gap:8px; flex-wrap:wrap; }
-    .pill { font-family:'Share Tech Mono','Courier New',monospace; font-size:12px; border:1px solid var(--border);
+    .pill { font-family:'Inter',system-ui,sans-serif; font-size:12px; border:1px solid var(--border);
       background:var(--bg); color:var(--text-2); padding:6px 16px; border-radius:var(--radius);
       cursor:pointer; transition:background .14s,color .14s,border-color .14s; }
     .pill:hover { color:var(--text-1); border-color:var(--border-h); }
-    .pill.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
+    .pill.active { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; }
 
     .drop { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:40px 32px;
       text-align:center; background:var(--bg); cursor:pointer; transition:border-color .2s,background .2s; margin-top:14px; }
     .drop.dragover, .drop.has-file { border-color:var(--accent); background:var(--accent-light); }
-    .drop-icon { font-family:'Share Tech Mono','Courier New',monospace; font-size:1.4rem; color:var(--text-3); margin-bottom:10px; }
+    .drop-icon { font-family:'Inter',system-ui,sans-serif; font-size:1.4rem; color:var(--text-3); margin-bottom:10px; }
     .drop-text { font-size:14px; color:var(--text-2); }
-    .drop-sub { font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; color:var(--text-3); margin-top:6px; }
-    .drop-file { font-family:'Share Tech Mono','Courier New',monospace; font-size:13px; color:var(--accent); }
+    .drop-sub { font-family:'Inter',system-ui,sans-serif; font-size:11px; color:var(--text-3); margin-top:6px; }
+    .drop-file { font-family:'Inter',system-ui,sans-serif; font-size:13px; color:var(--accent); }
 
     .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
     .legal-input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
-      padding:10px 14px; font-family:'Share Tech Mono','Courier New',monospace; font-size:14px; color:var(--text-1); outline:none; cursor:pointer; }
-    .legal-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,255,65,.08); }
+      padding:10px 14px; font-family:'Inter',system-ui,sans-serif; font-size:14px; color:var(--text-1); outline:none; cursor:pointer; }
+    .legal-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(29,158,117,.08); }
 
     .docs-grid { display:flex; flex-direction:column; gap:10px; }
     .check { display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; font-size:14px; color:var(--text-1); }
@@ -79,44 +84,53 @@
     .check input:checked + .box { background:var(--accent); border-color:var(--accent); }
     .check input:checked + .box::after { content:"✓"; color:#fff; font-size:11px; font-weight:700; }
 
-    .btn-main { width:100%; background:var(--accent); color:#000; font-family:'Share Tech Mono','Courier New',monospace;
+    .btn-main { width:100%; background:var(--accent); color:#fff; font-family:'Inter',system-ui,sans-serif;
       font-size:14px; font-weight:600; padding:14px; border:none; border-radius:var(--radius);
       letter-spacing:.04em; cursor:pointer; transition:background .15s,color .15s; margin-top:6px; }
     .btn-main:hover:not(:disabled) { background:var(--accent-dark); color:#fff; }
     .btn-main:disabled { opacity:.4; cursor:not-allowed; }
     .btn-ghost { width:100%; background:transparent; border:1px solid var(--border); color:var(--text-2);
-      font-family:'Share Tech Mono','Courier New',monospace; font-size:13px; padding:12px; border-radius:var(--radius);
+      font-family:'Inter',system-ui,sans-serif; font-size:13px; padding:12px; border-radius:var(--radius);
       cursor:pointer; margin-top:12px; transition:border-color .15s,color .15s; }
     .btn-ghost:hover { color:var(--text-1); border-color:var(--border-h); }
-    .note { font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; color:var(--text-3); text-align:center; margin-top:12px; }
+    .note { font-family:'Inter',system-ui,sans-serif; font-size:11px; color:var(--text-3); text-align:center; margin-top:12px; }
 
     .hidden { display:none; }
 
     /* progress */
-    .prog-job { font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; color:var(--text-3); margin-bottom:14px; }
+    .prog-job { font-family:'Inter',system-ui,sans-serif; font-size:11px; color:var(--text-3); margin-bottom:14px; }
     .prog-status { font-size:15px; color:var(--text-2); margin-bottom:14px; }
     .prog-track { width:100%; height:6px; background:var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:8px; }
     .prog-fill { height:100%; width:0; background:var(--accent); transition:width .3s ease; }
-    .prog-pct { font-family:'Share Tech Mono','Courier New',monospace; font-size:13px; color:var(--accent); margin-bottom:14px; }
-    .prog-log { font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; color:var(--text-3);
+    .prog-pct { font-family:'Inter',system-ui,sans-serif; font-size:13px; color:var(--accent); margin-bottom:14px; }
+    .prog-log { font-family:'Inter',system-ui,sans-serif; font-size:11px; color:var(--text-3);
       background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px;
       max-height:80px; overflow:hidden; white-space:pre-wrap; }
 
     /* done */
-    .done-ok { font-family:'Share Tech Mono','Courier New',monospace; font-size:14px; color:var(--accent); margin-bottom:18px; }
+    .done-ok { font-family:'Inter',system-ui,sans-serif; font-size:14px; color:var(--accent); margin-bottom:18px; }
     .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
     .stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center; }
-    .stat-num { font-family:'Share Tech Mono','Courier New',monospace; font-weight:700; font-size:22px; color:var(--text-1); word-break:break-word; }
-    .stat-lbl { font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+    .stat-num { font-family:'Inter',system-ui,sans-serif; font-weight:700; font-size:22px; color:var(--text-1); word-break:break-word; }
+    .stat-lbl { font-family:'Inter',system-ui,sans-serif; font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
 
-    .foot { text-align:center; padding:24px; color:var(--text-3); font-family:'Share Tech Mono','Courier New',monospace; font-size:11px; letter-spacing:.12em; }
+    .foot { text-align:center; padding:24px; color:var(--text-3); font-family:'Inter',system-ui,sans-serif; font-size:11px; letter-spacing:.12em; }
 
     @media (max-width:560px){ .grid2{ grid-template-columns:1fr; } .stats{ grid-template-columns:1fr 1fr; } }
+  
+    /* ── Calm Confidence base ── */
+    h1, h2, h3, h4, h5, .card-title, .done-title, .err-title, .cc-name,
+    .legal-header h1, .hero h1, .hero-h1, .sec-head h2, .final-cta h2 {
+      font-family: 'Inter Tight', 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.01em;
+    }
+    .mono, code, .log, .bar, .cc-term, .dash-tab, .term-tab, .term-body, .price .amt {
+      font-family: 'JetBrains Mono', monospace;
+    }
   </style>
 </head>
 <body>
   <header class="app-header">
-    <a class="logo" href="/"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></a>
+    <a class="logo" href="/"><span style="color:var(--text-1)">data</span><span style="color:var(--accent)">fork.</span></a>
     <nav class="app-nav"><a href="/">← Back to app</a></nav>
   </header>
 
@@ -139,7 +153,7 @@
           <button type="button" class="pill" data-platform="shopify">Shopify</button>
         </div>
         <div class="drop" id="drop">
-          <div class="drop-icon">[ CSV ]</div>
+          <div class="drop-icon">CSV</div>
           <div class="drop-text" id="drop-text">Drop your CSV here or click to browse</div>
           <div class="drop-sub">Max 5MB · WooCommerce or Shopify format</div>
           <input type="file" id="file-input" accept=".csv" class="hidden">
@@ -178,7 +192,7 @@
         </div>
       </div>
 
-      <button type="button" class="btn-main" id="btn-enhance" disabled>[ ENHANCE DESCRIPTIONS ]</button>
+      <button type="button" class="btn-main" id="btn-enhance" disabled>Enhance descriptions</button>
       <p class="note">Processing time: ~3 sec per product · 50 products ≈ 2.5 minutes · Max 200 products</p>
     </div>
 
@@ -203,8 +217,8 @@
           <div class="stat"><div class="stat-num" id="d-platform">—</div><div class="stat-lbl">Platform</div></div>
           <div class="stat"><div class="stat-num" id="d-language">—</div><div class="stat-lbl">Language</div></div>
         </div>
-        <button type="button" class="btn-main" id="btn-download">[ ↓ DOWNLOAD ENHANCED CSV ]</button>
-        <button type="button" class="btn-ghost" id="btn-another">[ ← ENHANCE ANOTHER ]</button>
+        <button type="button" class="btn-main" id="btn-download">Download enhanced CSV</button>
+        <button type="button" class="btn-ghost" id="btn-another">Enhance another</button>
       </div>
     </div>
 
@@ -213,12 +227,12 @@
       <div class="card">
         <div class="done-ok" style="color:var(--danger)">✗ Enhancement failed</div>
         <div class="prog-status" id="err-msg"></div>
-        <button type="button" class="btn-ghost" id="btn-retry">[ ← RETRY ]</button>
+        <button type="button" class="btn-ghost" id="btn-retry">← RETRY</button>
       </div>
     </div>
   </main>
 
-  <footer class="foot">DATAFORK // DESCRIPTION ENHANCER · AI-GENERATED · REVIEW BEFORE PUBLISHING</footer>
+  <footer class="foot">Datafork — DESCRIPTION ENHANCER · AI-GENERATED · REVIEW BEFORE PUBLISHING</footer>
 
   <script>
     const $ = id => document.getElementById(id);

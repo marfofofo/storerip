@@ -6,12 +6,12 @@
   <title>Datafork — Legal Pages Generator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <header class="app-header">
-    <a class="logo" href="/"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></a>
+    <a class="logo" href="/"><span style="color:var(--text-1)">data</span><span style="color:var(--accent)">fork.</span></a>
     <nav class="app-nav">
       <a href="/">← Back to app</a>
     </nav>
@@ -140,7 +140,7 @@
 
       <!-- GENERATE -->
       <div id="generate-area">
-        <button type="submit" class="btn-generate">[ GENERATE LEGAL PAGES ]</button>
+        <button type="submit" class="btn-generate">Generate legal pages</button>
         <p class="disclaimer">Powered by Google Gemini · AI-generated — review before publishing</p>
       </div>
 
@@ -159,14 +159,14 @@
           <div class="summary-ok">✓ Documents generated</div>
           <div class="summary-business" id="summary-business"></div>
         </div>
-        <button type="button" class="btn-download-all" id="btn-download-all">[ ↓ DOWNLOAD ALL .TXT ]</button>
+        <button type="button" class="btn-download-all" id="btn-download-all">Download all .txt</button>
       </div>
 
       <div class="doc-tabs" id="doc-tabs"></div>
 
       <div class="doc-actions">
         <span class="doc-actions-title" id="doc-actions-title"></span>
-        <button type="button" class="btn-copy" id="btn-copy">[ COPY ]</button>
+        <button type="button" class="btn-copy" id="btn-copy">Copy</button>
       </div>
 
       <div class="doc-viewer" id="doc-viewer"></div>
@@ -174,7 +174,7 @@
 
   </main>
 
-  <footer class="foot">DATAFORK // LEGAL GENERATOR · AI-GENERATED · REVIEW BEFORE PUBLISHING</footer>
+  <footer class="foot">Datafork — LEGAL GENERATOR · AI-GENERATED · REVIEW BEFORE PUBLISHING</footer>
 
   <script>
     const DOC_TITLES = {
@@ -272,7 +272,7 @@
       document.getElementById('doc-actions-title').textContent = DOC_TITLES[key] || key.toUpperCase();
       document.getElementById('doc-viewer').innerHTML = mdToHtml(currentDocs[key]);
       const copy = document.getElementById('btn-copy');
-      copy.textContent = '[ COPY ]';
+      copy.textContent = 'COPY';
     }
 
     // ── Copy raw markdown ──
@@ -280,8 +280,8 @@
       if (!currentKey) return;
       try { await navigator.clipboard.writeText(currentDocs[currentKey] || ''); } catch (e) {}
       const btn = document.getElementById('btn-copy');
-      btn.textContent = '[ ✓ COPIED ]';
-      setTimeout(() => { btn.textContent = '[ COPY ]'; }, 2000);
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = 'COPY'; }, 2000);
     });
 
     // ── Download all as .txt ──

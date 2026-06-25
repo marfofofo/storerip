@@ -16,28 +16,33 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg:#0a0a0a; --surface:#111111; --surface-2:#161616; --border:#1a1a1a;
-      --border-h:#2a2a2a; --text-1:#e0e0e0; --text-2:#aaaaaa; --text-3:#444444;
-      --accent:#00ff41; --accent-dim:#00cc33; --accent-bg:rgba(0,255,65,0.06);
-      --accent-dark:#003d0f; --accent-light:rgba(0,255,65,0.10); --on-accent:#000000;
-      --nav-bg:rgba(10,10,10,0.96); --term-bg:#000000; --term-green:#00ff41;
-      --danger:#ff3232; --warning:#ffaa00; --success:#00ff41;
-      --radius:2px; --radius-lg:4px; --row-alt:rgba(0,255,65,0.02); --dot:#1a1a1a;
-      --term-chrome:#0d0d0d; --term-chrome-border:#1a1a1a; --term-text:#e0e0e0;
-      --term-prompt:#aaaaaa; --term-muted:#444444; --term-tab:#444444;
-      --tl-r:#ff5f57; --tl-y:#febc2e; --tl-g:#28c840;
-    }
+  --bg:#F7F8F7; --surface:#FFFFFF; --surface-2:#F1F3F2; --border:#E3E6E4; --border-2:#D2D6D3;
+  --slate:#0F1A24; --slate-2:#1A2733; --slate-3:#2A3742; --on-slate:#E8EDEA; --on-slate-2:#9DA9A3;
+  --text-1:#0F1A24; --text-2:#5F6E78; --text-3:#94A09A;
+  --accent:#1D9E75; --accent-2:#178563; --accent-bg:#E1F5EE; --accent-text:#0F6E56;
+  --success:#639922; --success-bg:#EAF3DE; --warning:#BA7517; --warning-bg:#FAEEDA;
+  --danger:#C2603A; --danger-bg:#FAECE7;
+  --radius:8px; --radius-lg:12px; --radius-sm:6px;
+  --shadow-sm:0 1px 2px rgba(15,26,36,0.04); --shadow:0 2px 8px rgba(15,26,36,0.06); --shadow-lg:0 8px 24px rgba(15,26,36,0.08);
+  /* compatibility aliases (old token names -> new system) */
+  --border-h:#D2D6D3; --accent-dim:#178563; --accent-dark:#178563; --accent-light:#E1F5EE; --on-accent:#FFFFFF;
+  --nav-bg:rgba(247,248,247,0.9); --row-alt:#F1F3F2; --dot:#E3E6E4;
+  /* refined dark terminal output block (kept dark for code/output only) */
+  --term-bg:#0F1A24; --term-green:#1D9E75; --term-chrome:#1A2733; --term-chrome-border:#2A3742;
+  --term-text:#E8EDEA; --term-prompt:#9DA9A3; --term-muted:#9DA9A3; --term-tab:#9DA9A3;
+  --tl-r:#E0867A; --tl-y:#D9B65A; --tl-g:#7FB069; --cta-sub:rgba(255,255,255,0.6);
+}
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
       color: var(--text-1);
-      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      font-family: 'Inter', system-ui, sans-serif;
       font-size: 13px;
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
@@ -70,7 +75,7 @@
     /* ── Buttons ── */
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 12px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px;
       background: var(--accent); color: var(--on-accent);
       padding: 10px 20px; border-radius: var(--radius); border: none; cursor: pointer;
       letter-spacing: 0.08em; transition: background 150ms ease;
@@ -78,7 +83,7 @@
     .btn-primary:hover { background: var(--accent-dim); }
     .btn-ghost {
       display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 12px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px;
       background: transparent; color: var(--text-2); border: 1px solid var(--border);
       padding: 10px 20px; border-radius: var(--radius); letter-spacing: 0.08em;
       transition: border-color 150ms ease, color 150ms ease;
@@ -97,13 +102,13 @@
       font-weight: 400; font-size: 20px;
       color: #d0d0d0; letter-spacing: -0.01em; margin: 14px 0 12px;
     }
-    .sec-head p { font-size: 12px; color: #888888; line-height: 1.8; }
+    .sec-head p { font-size: 12px; color: var(--text-2); line-height: 1.8; }
 
     /* ── Badge ── */
     .badge {
       display: inline-block; margin-bottom: 14px;
       background: var(--accent-bg); color: var(--accent);
-      border: 1px solid rgba(0,255,65,0.15);
+      border: 1px solid rgba(29,158,117,0.15);
       font-size: 10px; letter-spacing: 0.12em; padding: 3px 10px;
       border-radius: var(--radius); text-transform: uppercase;
     }
@@ -125,12 +130,12 @@
     .hero-left, .hero-right { position: relative; z-index: 1; }
     .hero-eyebrow { display: block; margin-bottom: 24px; font-size: 11px; opacity: 1; }
     .hero h1 {
-      font-weight: 400; font-size: 32px; color: #f0f0f0;
+      font-weight: 400; font-size: 32px; color: var(--text-1);
       letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 24px;
     }
     .hero h1 .ac { color: var(--accent); }
     .hero-sub {
-      font-size: 12px; color: #888888;
+      font-size: 12px; color: var(--text-2);
       line-height: 1.8; max-width: 440px; margin-bottom: 36px;
     }
     .hero-cta { display: flex; gap: 18px; align-items: center; }
@@ -186,7 +191,7 @@
     }
     .step .body { position: relative; z-index: 1; }
     .step h3 { font-weight: 400; font-size: 15px; color: var(--text-1); margin-bottom: 10px; }
-    .step p { font-size: 12px; color: #888888; line-height: 1.8; }
+    .step p { font-size: 12px; color: var(--text-2); line-height: 1.8; }
 
     /* ── TOOLS / USE CASES grid ── */
     .cases {
@@ -197,12 +202,12 @@
     .case:hover { background: var(--surface-2); }
     .case .ic {
       font-size: 1rem; color: var(--accent);
-      background: var(--accent-bg); border: 1px solid rgba(0,255,65,0.15);
+      background: var(--accent-bg); border: 1px solid rgba(29,158,117,0.15);
       padding: 5px 10px; border-radius: var(--radius);
       display: inline-block; margin-bottom: 16px;
     }
     .case h3 { font-weight: 400; font-size: 15px; color: var(--text-1); margin-bottom: 12px; }
-    .case p { font-size: 12px; color: #888888; line-height: 1.8; }
+    .case p { font-size: 12px; color: var(--text-2); line-height: 1.8; }
     .case .open { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--accent); }
 
     /* ── TOOL CAROUSEL ── */
@@ -212,27 +217,27 @@
       border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px; background: var(--surface);
     }
     .carousel-item {
-      font-family: 'Share Tech Mono', 'Courier New', monospace; font-size: 12px; color: var(--text-3);
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: var(--text-3);
       padding: 12px 16px; border-left: 2px solid transparent; cursor: pointer;
       letter-spacing: 0.06em; transition: all 150ms;
       display: flex; align-items: center; gap: 10px;
     }
     .carousel-item:hover { color: var(--text-2); border-left-color: var(--border-h); }
-    .carousel-item.active { color: var(--accent); border-left: 2px solid var(--accent); background: rgba(0,255,65,0.04); }
+    .carousel-item.active { color: var(--accent); border-left: 2px solid var(--accent); background: rgba(29,158,117,0.04); }
     .carousel-item .ci-num { color: var(--text-3); font-size: 10px; }
     .carousel-card {
-      background: #0d0d0d; border: 1px solid #2f2f2f; border-radius: 4px; padding: 40px; min-height: 320px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 40px; min-height: 320px;
       opacity: 1; transform: translateX(0); transition: opacity 200ms ease, transform 200ms ease;
     }
     .carousel-card.swap { opacity: 0; transform: translateX(8px); }
     .cc-badges { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
     .cc-badges .ic { margin-bottom: 0; }
-    .cc-name { font-size: 24px; color: #f0f0f0; margin-bottom: 16px; }
-    .cc-desc { font-size: 12px; color: #888888; line-height: 1.8; max-width: 480px; margin-bottom: 28px; }
+    .cc-name { font-size: 24px; color: var(--text-1); margin-bottom: 16px; }
+    .cc-desc { font-size: 12px; color: var(--text-2); line-height: 1.8; max-width: 480px; margin-bottom: 28px; }
     .cc-cta { color: var(--accent); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: inline-block; margin-bottom: 28px; }
     .cc-term {
-      background: #000; border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 14px 16px; font-family: 'Share Tech Mono', 'Courier New', monospace;
+      background: var(--slate); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 16px; font-family: 'Inter', system-ui, sans-serif;
       font-size: 11px; line-height: 1.9; color: var(--accent); white-space: pre; overflow-x: auto;
     }
     @media (max-width: 768px) {
@@ -242,65 +247,66 @@
 
     /* ── HERO DASHBOARD MOCKUP ── */
     .dash { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
-      background: var(--term-bg); box-shadow: 0 0 40px rgba(0,255,65,0.06); }
-    .dash-bar { background: var(--term-chrome); padding: 8px 14px; display: flex; align-items: center; gap: 8px;
-      border-bottom: 1px solid var(--term-chrome-border); }
-    .dash-tab { font-size: 10px; color: var(--term-tab); margin-left: 12px; }
-    .dash-body { padding: 22px 24px; }
-    .dash-conn { color: var(--accent); font-size: 11px; margin-bottom: 16px; }
+      background: var(--surface); box-shadow: var(--shadow-lg); }
+    .dash-bar { background: var(--surface-2); padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--border); }
+    .dash-tab { font-size: 11px; color: var(--text-3); margin-left: 12px; }
+    .dash-body { padding: 24px; }
+    .dash-conn { color: var(--accent-text); font-size: 12px; margin-bottom: 16px; }
     .dash-score { font-size: 48px; line-height: 1; color: var(--accent); }
     .dash-score small { font-size: 18px; color: var(--text-3); }
-    .dash-scorelbl { font-size: 10px; color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase; margin: 4px 0 18px; }
-    .dash-bars { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+    .dash-scorelbl { font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase; margin: 4px 0 18px; }
+    .dash-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
     .dbar { display: grid; grid-template-columns: 64px 1fr 38px; gap: 10px; align-items: center; }
-    .dbar .l { color: var(--text-2); font-size: 11px; }
-    .dbar .t { font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
+    .dbar .l { color: var(--text-2); font-size: 12px; }
+    .dbar .t { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
     .dbar .p { color: var(--text-2); font-size: 11px; text-align: right; }
-    .bf { color: var(--accent); } .be { color: var(--text-3); }
-    .dash-agent { background: rgba(0,255,65,0.04); border: 1px solid rgba(0,255,65,0.2);
+    .bf { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+    .bf.warn { background: var(--warning); }
+    .dash-agent { background: var(--accent-bg); border: 1px solid var(--accent);
       border-left: 2px solid var(--accent); border-radius: var(--radius); padding: 12px 14px;
       display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .dash-agent .am { color: var(--text-1); font-size: 12px; }
-    .dash-mini-btn { background: var(--accent); color: #000; font-size: 10px; padding: 6px 12px;
-      border-radius: var(--radius); letter-spacing: 0.06em; white-space: nowrap; }
+    .dash-mini-btn { background: var(--accent); color: #fff; font-size: 11px; padding: 6px 12px;
+      border-radius: var(--radius); white-space: nowrap; }
 
     /* ── COST CARDS (pain) ── */
     .cost-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border);
       border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-    .cost { background: #0d0d0d; padding: 36px 32px; text-align: center; }
+    .cost { background: var(--surface); padding: 36px 32px; text-align: center; }
     .cost .big { font-size: 38px; margin-bottom: 8px; color: var(--text-1); }
     .cost .big.dn { color: var(--danger); } .cost .big.wn { color: var(--warning); }
-    .cost .lbl { font-size: 12px; color: #888888; }
+    .cost .lbl { font-size: 12px; color: var(--text-2); }
 
     /* ── MONITOR GRID ── */
     .mon-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1px;
       background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-    .mon { background: #0d0d0d; padding: 26px 28px; }
+    .mon { background: var(--surface); padding: 26px 28px; }
     .mon .ic { display: inline-block; color: var(--accent); background: var(--accent-bg);
-      border: 1px solid rgba(0,255,65,0.15); padding: 4px 9px; border-radius: var(--radius); font-size: 12px; margin-bottom: 12px; }
+      border: 1px solid rgba(29,158,117,0.15); padding: 4px 9px; border-radius: var(--radius); font-size: 12px; margin-bottom: 12px; }
     .mon h3 { font-weight: 400; font-size: 14px; color: var(--text-1); margin-bottom: 6px; }
-    .mon p { font-size: 12px; color: #888888; line-height: 1.7; }
+    .mon p { font-size: 12px; color: var(--text-2); line-height: 1.7; }
 
     /* ── AGENT CHAT ── */
     .chat { max-width: 680px; }
     .cmsg { padding: 14px 18px; border-radius: var(--radius-lg); max-width: 80%; margin-bottom: 12px;
       white-space: pre-line; font-size: 13px; line-height: 1.6; }
-    .cmsg.agent { background: #0d0d0d; border: 1px solid var(--border); border-left: 2px solid var(--accent); color: var(--text-1); }
+    .cmsg.agent { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent); color: var(--text-1); }
     .cmsg.agent .h { color: var(--accent); font-size: 10px; display: block; margin-bottom: 6px; }
     .cmsg.user { background: var(--surface-2); color: var(--text-2); margin-left: auto; text-align: right; }
     .chat-cap { color: var(--text-3); font-size: 11px; margin-top: 18px; }
 
     /* ── PRICING ── */
     .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 840px; }
-    .price { background: #0d0d0d; border: 1px solid var(--border); border-radius: var(--radius-lg);
+    .price { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
       padding: 32px; position: relative; display: flex; flex-direction: column; }
-    .price.pro { border-color: var(--accent); }
-    .price-badge { position: absolute; top: -9px; right: 20px; background: var(--accent); color: #000;
+    .price.pro { border: 2px solid var(--accent); }
+    .price-badge { position: absolute; top: -9px; right: 20px; background: var(--accent); color: #fff;
       font-size: 9px; letter-spacing: 0.1em; padding: 3px 10px; border-radius: var(--radius); text-transform: uppercase; }
     .price .tier { font-size: 13px; color: var(--text-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
     .price .amt { font-size: 34px; color: var(--text-1); margin-bottom: 4px; }
     .price .amt small { font-size: 14px; color: var(--text-3); }
-    .price .tag { font-size: 12px; color: #888888; margin-bottom: 22px; }
+    .price .tag { font-size: 12px; color: var(--text-2); margin-bottom: 22px; }
     .price ul { list-style: none; margin-bottom: 24px; flex: 1; }
     .price li { font-size: 12px; color: var(--text-2); padding: 5px 0; }
     .price li .y { color: var(--accent); } .price li .n { color: var(--text-3); }
@@ -310,16 +316,17 @@
 
     @media (max-width: 768px) { .cost-grid { grid-template-columns: 1fr; } .price-grid { grid-template-columns: 1fr; } }
 
-    /* ── FINAL CTA ── */
+    /* ── FINAL CTA (slate) ── */
     .final-cta {
-      padding: 120px 48px; text-align: center;
-      background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 120px 48px; text-align: center; background: var(--slate);
     }
     .final-cta h2 {
-      font-weight: 400; font-size: 28px;
-      color: var(--text-1); letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 16px;
+      font-weight: 600; font-size: 28px;
+      color: #fff; letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 16px;
     }
-    .final-cta .sub { font-size: 12px; color: var(--text-2); margin-bottom: 44px; }
+    .final-cta .sub { font-size: 14px; color: var(--on-slate-2); margin-bottom: 44px; }
+    .final-cta .btn-ghost { color: var(--on-slate); border-color: var(--slate-3); }
+    .final-cta .btn-ghost:hover { background: var(--slate-2); color: #fff; border-color: var(--slate-3); }
 
     /* ── FOOTER ── */
     footer {
@@ -355,6 +362,15 @@
       .foot-right { text-align: left; }
       .foot-links { justify-content: flex-start; }
     }
+  
+    /* ── Calm Confidence base ── */
+    h1, h2, h3, h4, h5, .card-title, .done-title, .err-title, .cc-name,
+    .legal-header h1, .hero h1, .hero-h1, .sec-head h2, .final-cta h2 {
+      font-family: 'Inter Tight', 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.01em;
+    }
+    .mono, code, .log, .bar, .cc-term, .dash-tab, .term-tab, .term-body, .price .amt {
+      font-family: 'JetBrains Mono', monospace;
+    }
   </style>
 </head>
 <body>
@@ -362,7 +378,7 @@
   <!-- ── NAV ── -->
   <nav id="nav">
     <div class="nav-inner">
-      <a href="#" class="logo"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></a>
+      <a href="#" class="logo"><span style="color:var(--text-1)">data</span><span style="color:var(--accent)">fork.</span></a>
       <div class="nav-links">
         <a href="#how" class="link">How it works</a>
         <a href="#tools" class="link">Tools</a>
@@ -379,7 +395,7 @@
       <h1 class="hero-h1" aria-label="Your store's developer. Without the invoice.">Your store's <span class="ac">developer.</span> Without the invoice.</h1>
       <p class="hero-sub">Datafork connects to your WooCommerce or Shopify store and keeps your catalog healthy — automatically. Broken images, pricing errors, weak SEO, rejected Google feeds. Fixed before they cost you sales.</p>
       <div class="hero-cta">
-        <a href="/dashboard" class="btn-primary">[ CONNECT YOUR STORE → ]</a>
+        <a href="/dashboard" class="btn-primary">Connect your store →</a>
         <a href="#tools" class="btn-link">or try the free tools ↓</a>
       </div>
       <div class="trust">
@@ -400,13 +416,13 @@
           <div class="dash-score">73<small>/100</small></div>
           <div class="dash-scorelbl">Health Score</div>
           <div class="dash-bars">
-            <div class="dbar"><span class="l">Images</span><span class="t"><span class="bf">████████</span><span class="be">░░</span></span><span class="p">78%</span></div>
-            <div class="dbar"><span class="l">Pricing</span><span class="t"><span class="bf">██████████</span></span><span class="p">95%</span></div>
-            <div class="dbar"><span class="l">SEO</span><span class="t"><span class="bf">█████</span><span class="be">░░░░░</span></span><span class="p">52%</span></div>
+            <div class="dbar"><span class="l">Images</span><span class="t"><span class="bf" style="width:78%"></span></span><span class="p">78%</span></div>
+            <div class="dbar"><span class="l">Pricing</span><span class="t"><span class="bf" style="width:95%"></span></span><span class="p">95%</span></div>
+            <div class="dbar"><span class="l">SEO</span><span class="t"><span class="bf warn" style="width:52%"></span></span><span class="p">52%</span></div>
           </div>
           <div class="dash-agent">
-            <span class="am">[ ✦ ] Found 23 issues this week. Fix them all?</span>
-            <span class="dash-mini-btn">[ FIX ALL ]</span>
+            <span class="am">Found 23 issues this week. Fix them all?</span>
+            <span class="dash-mini-btn">Fix all</span>
           </div>
         </div>
       </div>
@@ -472,13 +488,13 @@
     </div>
     <div class="grid-wrap">
       <div class="mon-grid">
-        <div class="mon animate-in"><span class="ic">[ ◉ ]</span><h3>Broken images</h3><p>404s and missing product photos.</p></div>
-        <div class="mon animate-in"><span class="ic">[ € ]</span><h3>Pricing errors</h3><p>Wrong price placement, missing variation prices.</p></div>
-        <div class="mon animate-in"><span class="ic">[ ⚲ ]</span><h3>SEO gaps</h3><p>Short titles, missing meta, duplicates.</p></div>
-        <div class="mon animate-in"><span class="ic">[ ✎ ]</span><h3>Weak descriptions</h3><p>Missing or thin product copy.</p></div>
-        <div class="mon animate-in"><span class="ic">[ ⌘ ]</span><h3>Google feed</h3><p>Invalid items that get your ads rejected.</p></div>
-        <div class="mon animate-in"><span class="ic">[ ⇄ ]</span><h3>Translations</h3><p>Products missing in your market languages.</p></div>
-        <div class="mon animate-in"><span class="ic">[ ▦ ]</span><h3>Stock alerts</h3><p>Out of stock and low inventory.</p></div>
+        <div class="mon animate-in"><span class="ic">◉</span><h3>Broken images</h3><p>404s and missing product photos.</p></div>
+        <div class="mon animate-in"><span class="ic">€</span><h3>Pricing errors</h3><p>Wrong price placement, missing variation prices.</p></div>
+        <div class="mon animate-in"><span class="ic">⚲</span><h3>SEO gaps</h3><p>Short titles, missing meta, duplicates.</p></div>
+        <div class="mon animate-in"><span class="ic">✎</span><h3>Weak descriptions</h3><p>Missing or thin product copy.</p></div>
+        <div class="mon animate-in"><span class="ic">⌘</span><h3>Google feed</h3><p>Invalid items that get your ads rejected.</p></div>
+        <div class="mon animate-in"><span class="ic">⇄</span><h3>Translations</h3><p>Products missing in your market languages.</p></div>
+        <div class="mon animate-in"><span class="ic">▦</span><h3>Stock alerts</h3><p>Out of stock and low inventory.</p></div>
       </div>
     </div>
   </section>
@@ -491,9 +507,9 @@
     </div>
     <div class="grid-wrap">
       <div class="chat animate-in">
-        <div class="cmsg agent"><span class="h">[ ✦ ] AGENT</span>You added 18 products this week. 5 have no description, 8 have no images. Want me to write the descriptions in Italian?</div>
+        <div class="cmsg agent"><span class="h">Agent</span>You added 18 products this week. 5 have no description, 8 have no images. Want me to write the descriptions in Italian?</div>
         <div class="cmsg user">yes, do it</div>
-        <div class="cmsg agent"><span class="h">[ ✦ ] AGENT</span>✓ Done. 5 Italian descriptions written and saved as draft. Review before publishing.</div>
+        <div class="cmsg agent"><span class="h">Agent</span>✓ Done. 5 Italian descriptions written and saved as draft. Review before publishing.</div>
       </div>
       <p class="chat-cap">Powered by the same 7 tools you can try free below.</p>
     </div>
@@ -536,7 +552,7 @@
             <li class="off"><span class="n">✗</span> No automatic monitoring</li>
             <li class="off"><span class="n">✗</span> No weekly reports</li>
           </ul>
-          <a href="http://76.13.149.203:5050/" class="btn-ghost">[ USE THE TOOLS ]</a>
+          <a href="http://76.13.149.203:5050/" class="btn-ghost">Use the tools</a>
         </div>
         <div class="price pro animate-in">
           <span class="price-badge">Most popular</span>
@@ -553,7 +569,7 @@
             <li><span class="y">✓</span> Restore in under 1 hour</li>
             <li><span class="y">✓</span> Priority support</li>
           </ul>
-          <a href="/dashboard" class="btn-primary">[ CONNECT YOUR STORE → ]</a>
+          <a href="/dashboard" class="btn-primary">Connect your store →</a>
           <div class="pnote">Less than 3 hours of a developer's time. Per month.</div>
         </div>
       </div>
@@ -565,15 +581,15 @@
     <h2 class="animate-in">Stop fixing your catalog at 4am.</h2>
     <p class="sub">Connect your store. Let the agent handle it.</p>
     <div style="display:inline-flex;gap:16px;flex-wrap:wrap;justify-content:center;">
-      <a href="/dashboard" class="btn-primary">[ CONNECT YOUR STORE → ]</a>
-      <a href="http://76.13.149.203:5050/" class="btn-ghost">[ TRY FREE TOOLS ]</a>
+      <a href="/dashboard" class="btn-primary">Connect your store →</a>
+      <a href="http://76.13.149.203:5050/" class="btn-ghost">Try free tools</a>
     </div>
   </section>
 
   <!-- ── FOOTER ── -->
   <footer>
     <div class="foot-left">
-      <div class="foot-logo"><span style="color:var(--text-1)">Data</span><span style="color:var(--accent)">fork.</span></div>
+      <div class="foot-logo"><span style="color:var(--text-1)">data</span><span style="color:var(--accent)">fork.</span></div>
       <div class="foot-tagline">Your AI e-commerce developer.</div>
     </div>
     <div class="foot-right">
@@ -609,7 +625,7 @@
       initialDelay = 500,
       letterDuration = 400,
       letterInterval = 80,
-      matrixColor = '#00ff41',
+      matrixColor = '#1D9E75',
       chars = '01アイウエオ#$@%&'
     } = options;
 
@@ -643,8 +659,7 @@
         const maxIterations = 6;
         const interval = setInterval(() => {
           span.textContent = chars[Math.floor(Math.random() * chars.length)];
-          span.style.color = matrixColor;
-          span.style.textShadow = `0 0 8px ${matrixColor}`;
+          span.style.color = matrixColor;  // subtle teal scramble, no neon glow
           iterations++;
           if (iterations >= maxIterations) {
             clearInterval(interval);
