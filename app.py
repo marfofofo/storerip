@@ -544,6 +544,28 @@ def api_health():
     return jsonify({"status": "ok", "jobs": n}), 200
 
 
+@app.route("/api/debug/jobs")
+def debug_jobs():
+    """Temporary debug — shows all active jobs (no PII, counts only)."""
+    with jobs_lock:
+        scrape = {
+            k: {
+                "status": v.get("status"),
+                "rows_count": len(v.get("rows") or []),
+                "domain": v.get("domain"),
+                "output": v.get("output"),
+            } for k, v in jobs.items()
+        }
+    with enhancer_jobs_lock:
+        enhancer = {
+            k: {
+                "status": v.get("status"),
+                "rows_count": len(v.get("rows") or []),
+            } for k, v in enhancer_jobs.items()
+        }
+    return jsonify({"scrape_jobs": scrape, "enhancer_jobs": enhancer}), 200
+
+
 @app.route("/api/detect", methods=["POST"])
 def api_detect():
     data = request.get_json(silent=True) or {}
@@ -597,6 +619,7 @@ def api_scrape():
             "enhanced": False,
             "error": None,
             "domain": _domain_from_url(url),
+            "target": target,
             "created": _now(),
         }
 
@@ -666,7 +689,7 @@ def api_download(job_id):
 
     return send_file(
         csv_bytes,
-        mimetype="text/csv",
+        mimetype="text/csv; charset=utf-8",
         as_attachment=True,
         download_name=filename,
     )
@@ -1116,14 +1139,19 @@ Rules:
 - Do not invent specifications not in the original
 - Return ONLY JSON, no markdown:
 {{"short_description": "...", "description": "..."}}
+
+CRITICAL: Return ONLY a raw JSON object. No markdown. No code fences. No
+explanation. Start with {{ and end with }}
 """.strip()
 
+    # response_mime_type intentionally omitted — Gemini 2.5 Flash sometimes
+    # ignores it and wraps JSON in markdown anyway. The prompt enforces raw
+    # JSON and _parse_gemini_json() strips any stray fences (matches legal side).
     model = genai.GenerativeModel(
         "gemini-2.5-flash",
         generation_config={
             "temperature": 0.7,
             "max_output_tokens": 1024,
-            "response_mime_type": "application/json",
         },
     )
     response = model.generate_content(prompt)
@@ -1321,7 +1349,8 @@ def api_enhancer_download(job_id):
     with enhancer_jobs_lock:
         enhancer_jobs.pop(job_id, None)
 
-    return send_file(csv_bytes, mimetype="text/csv", as_attachment=True, download_name=filename)
+    return send_file(csv_bytes, mimetype="text/csv; charset=utf-8",
+                     as_attachment=True, download_name=filename)
 
 
 def _print_banner(port):
